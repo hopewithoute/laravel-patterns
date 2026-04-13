@@ -19,6 +19,7 @@ class RegisterController extends Controller
     public function create(Request $request): Response
     {
         return Inertia::render('Auth/Register', [
+            'title' => 'Create Account',
             'invite_code' => $request->query('invite'),
             'organization' => $request->query('invite')
                 ? Organization::where('invite_code', $request->query('invite'))->first(['name', 'invite_code'])
