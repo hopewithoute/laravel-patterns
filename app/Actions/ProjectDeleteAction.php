@@ -1,0 +1,23 @@
+<?php
+
+namespace App\Actions;
+
+use App\Models\Project;
+use Illuminate\Support\Facades\DB;
+
+/**
+ * Action to delete a project.
+ */
+readonly class ProjectDeleteAction
+{
+    public function execute(Project $project): void
+    {
+        DB::transaction(function () use ($project) {
+            // Delete associated tasks first (cascade)
+            $project->tasks()->delete();
+
+            // Delete the project
+            $project->delete();
+        });
+    }
+}
