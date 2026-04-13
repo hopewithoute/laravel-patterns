@@ -1,0 +1,13 @@
+node_modules/
+vendor/
+public/
+storage/
+bootstrap/
+dist/
+.env*
+*.lock
+*.sqlite
+phpunit.xml
+.phpunit.result.cache
+package-lock.json
+composer.lock
