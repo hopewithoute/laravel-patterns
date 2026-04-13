@@ -25,7 +25,6 @@ class WorkspaceController extends Controller
             ->get(['organizations.id', 'organizations.name', 'organizations.slug', 'organizations.logo']);
 
         return Inertia::render('Workspace/Select', [
-            'title' => 'Select Workspace',
             'organizations' => $organizations,
         ]);
     }
@@ -46,9 +45,7 @@ class WorkspaceController extends Controller
      */
     public function create(): Response
     {
-        return Inertia::render('Workspace/Create', [
-            'title' => 'Create Workspace',
-        ]);
+        return Inertia::render('Workspace/Create');
     }
 
     /**
