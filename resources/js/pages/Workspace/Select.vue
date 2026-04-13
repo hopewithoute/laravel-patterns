@@ -1,5 +1,5 @@
 <script setup>
-import { Link, useForm } from '@inertiajs/vue3'
+import { Link, useForm, Head } from '@inertiajs/vue3'
 
 defineProps({
     organizations: Array,
@@ -16,6 +16,7 @@ const selectWorkspace = (id) => {
 </script>
 
 <template>
+    <Head title="Select Workspace" />
     <div
         class="bg-background relative flex min-h-screen items-center justify-center overflow-hidden px-4 py-12"
     >

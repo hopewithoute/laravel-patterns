@@ -1,5 +1,5 @@
 <script setup>
-import { Link } from '@inertiajs/vue3'
+import { Link, Head } from '@inertiajs/vue3'
 
 defineProps({
     canLogin: Boolean,
@@ -10,6 +10,7 @@ defineProps({
 </script>
 
 <template>
+    <Head title="Welcome" />
     <div class="bg-background relative flex min-h-screen flex-col overflow-hidden">
         <!-- ═══════════════════════════════════════════════════════════════
              BACKGROUND — Layered depth with orbital gradients

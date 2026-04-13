@@ -1,5 +1,5 @@
 <script setup>
-import { Link, useForm } from '@inertiajs/vue3'
+import { Link, useForm, Head } from '@inertiajs/vue3'
 import AppLayout from '@/layouts/AppLayout.vue'
 import PageHeader from '@/components/layout/PageHeader.vue'
 import PaginationNav from '@/components/layout/PaginationNav.vue'
@@ -24,6 +24,7 @@ const inviteUser = () => {
 </script>
 
 <template>
+    <Head title="Team" />
     <AppLayout>
         <PageWidth size="wide" class="space-y-8">
             <PageHeader

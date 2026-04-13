@@ -8,7 +8,7 @@ import CardTitle from '@/components/ui/CardTitle.vue'
 import CardContent from '@/components/ui/CardContent.vue'
 import Badge from '@/components/ui/Badge.vue'
 import { TASK_STATUS_TONES } from '@/lib/badges'
-import { Link } from '@inertiajs/vue3'
+import { Link, Head } from '@inertiajs/vue3'
 
 defineProps({
     projects: {
@@ -31,6 +31,7 @@ defineProps({
 </script>
 
 <template>
+    <Head title="Dashboard" />
     <AppLayout>
         <PageWidth size="wide" class="space-y-8">
             <PageHeader

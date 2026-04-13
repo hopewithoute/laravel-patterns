@@ -1,5 +1,5 @@
 <script setup>
-import { Link } from '@inertiajs/vue3'
+import { Link, Head } from '@inertiajs/vue3'
 import AppLayout from '@/layouts/AppLayout.vue'
 import PageHeader from '@/components/layout/PageHeader.vue'
 import PaginationNav from '@/components/layout/PaginationNav.vue'
@@ -13,6 +13,7 @@ defineProps({
 </script>
 
 <template>
+    <Head title="Projects" />
     <AppLayout>
         <PageWidth size="wide" class="space-y-8">
             <PageHeader

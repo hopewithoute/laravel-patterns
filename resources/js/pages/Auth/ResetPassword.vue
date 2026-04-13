@@ -1,5 +1,5 @@
 <script setup>
-import { Link, useForm } from '@inertiajs/vue3'
+import { Link, useForm, Head } from '@inertiajs/vue3'
 import Button from '@/components/ui/Button.vue'
 import Card from '@/components/ui/Card.vue'
 import CardHeader from '@/components/ui/CardHeader.vue'
@@ -27,6 +27,7 @@ const submit = () => {
 </script>
 
 <template>
+    <Head title="Reset Password" />
     <div
         class="bg-background relative flex min-h-screen items-center justify-center overflow-hidden px-4 py-12"
     >

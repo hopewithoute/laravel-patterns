@@ -1,5 +1,5 @@
 <script setup>
-import { Link } from '@inertiajs/vue3'
+import { Link, Head } from '@inertiajs/vue3'
 import PageWidth from '@/components/layout/PageWidth.vue'
 import AppLayout from '@/layouts/AppLayout.vue'
 import Badge from '@/components/ui/Badge.vue'
@@ -30,6 +30,7 @@ defineProps({
 </script>
 
 <template>
+    <Head title="Dashboard" />
     <AppLayout>
         <PageWidth size="wide" class="space-y-8">
             <!-- ═══════════════════════════════════════════════════════════════════

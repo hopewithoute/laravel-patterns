@@ -2,7 +2,7 @@
 import axios from 'axios'
 import { reactive, ref, watch } from 'vue'
 import { useDebounceFn } from '@vueuse/core'
-import { Link, router } from '@inertiajs/vue3'
+import { Link, router, Head } from '@inertiajs/vue3'
 import AppLayout from '@/layouts/AppLayout.vue'
 import PageHeader from '@/components/layout/PageHeader.vue'
 import PaginationNav from '@/components/layout/PaginationNav.vue'
@@ -267,6 +267,7 @@ const isOverdue = (task) => {
 </script>
 
 <template>
+    <Head title="Tasks" />
     <AppLayout>
         <PageWidth size="wide" class="space-y-8">
             <PageHeader

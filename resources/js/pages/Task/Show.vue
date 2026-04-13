@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from 'vue'
-import { Link, useForm, router } from '@inertiajs/vue3'
+import { Link, useForm, router, Head } from '@inertiajs/vue3'
 import AppLayout from '@/layouts/AppLayout.vue'
 import PageHeader from '@/components/layout/PageHeader.vue'
 import PageWidth from '@/components/layout/PageWidth.vue'
@@ -45,6 +45,7 @@ const isOverdue = () => {
 </script>
 
 <template>
+    <Head :title="task.title" />
     <AppLayout>
         <PageWidth size="wide" class="space-y-8">
             <PageHeader

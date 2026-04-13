@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed } from 'vue'
-import { Link, useForm } from '@inertiajs/vue3'
+import { Link, useForm, Head } from '@inertiajs/vue3'
 
 const currentStep = ref(1)
 const totalSteps = 3
@@ -52,6 +52,7 @@ const skipInvites = () => {
 </script>
 
 <template>
+    <Head title="Create Workspace" />
     <div class="bg-background grain flex min-h-screen items-center justify-center px-4 py-12">
         <!-- Background effects -->
         <div class="pointer-events-none fixed inset-0">
