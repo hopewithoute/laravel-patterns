@@ -7,7 +7,7 @@ const statusPages = [
     'resources/js/pages/Dashboard.vue',
     'resources/js/pages/Dashboard/Index.vue',
     'resources/js/pages/Task/Index.vue',
-    'resources/js/pages/Task/Show.vue',
+    'resources/js/components/task/TaskDetailContent.vue',
     'resources/js/pages/Project/Index.vue',
     'resources/js/pages/Project/Show.vue',
     'resources/js/pages/Team/Index.vue',

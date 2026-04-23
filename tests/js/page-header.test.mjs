@@ -2,7 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import fs from 'node:fs'
 
-const pages = [
+const standardPages = [
     'resources/js/pages/Dashboard/Index.vue',
     'resources/js/pages/Task/Index.vue',
     'resources/js/pages/Project/Index.vue',
@@ -23,10 +23,21 @@ test('active AppLayout pages share the PageHeader component for header rhythm', 
     assert.match(header, /slot name="actions"/)
     assert.match(header, /slot name="media"/)
 
-    for (const path of pages) {
+    for (const path of standardPages) {
         const page = fs.readFileSync(path, 'utf8')
 
         assert.match(page, /import PageHeader from ['"]@\/components\/layout\/PageHeader\.vue['"]/)
         assert.match(page, /<PageHeader/)
     }
+})
+
+test('AI chat page intentionally uses a fullscreen chat layout instead of PageHeader', () => {
+    const page = fs.readFileSync('resources/js/pages/Ai/Index.vue', 'utf8')
+
+    assert.doesNotMatch(page, /import PageHeader from ['"]@\/components\/layout\/PageHeader\.vue['"]/)
+    assert.doesNotMatch(page, /<PageHeader/)
+    assert.match(page, /setLayoutProps\(\{/)
+    assert.match(page, /mainClass: 'h-\[calc\(100dvh-3\.5rem\)\] overflow-hidden'/)
+    assert.match(page, /contentClass: 'h-full p-0'/)
+    assert.match(page, /Workspace AI/)
 })
