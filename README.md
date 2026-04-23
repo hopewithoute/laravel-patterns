@@ -1,58 +1,315 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Laravel Clean Architecture Boilerplate
+
+> **Showcase project yang menerapkan best practices, clean code, dan design patterns di Laravel 13 — dibangun sebagai referensi arsitektur untuk memulai project baru.**
 
 <p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
+  <img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="320" alt="Laravel Logo">
 </p>
 
-## About Laravel
+<p align="center">
+  <strong>Laravel 13</strong> · <strong>PHP 8.3</strong> · <strong>Vue 3</strong> · <strong>Inertia.js</strong> · <strong>TailwindCSS 4</strong>
+</p>
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+---
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## 📋 Table of Contents
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- [About](#-about)
+- [Tech Stack](#-tech-stack)
+- [Architecture Overview](#-architecture-overview)
+- [Design Patterns](#-design-patterns)
+- [Project Structure](#-project-structure)
+- [Quick Start](#-quick-start)
+- [Development Commands](#-development-commands)
+- [Testing](#-testing)
 
-## Learning Laravel
+---
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## 🎯 About
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+Project ini adalah **Task Management SaaS** yang berfungsi sebagai showcase penerapan clean code dan design patterns di ekosistem Laravel. Setiap pattern didokumentasikan secara detail dengan code examples, rationale, dan best practices.
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+### Fitur Utama
 
-## Agentic Development
+- **Multi-Tenancy** — Workspace-based data isolation (Organization → Projects → Tasks)
+- **Kanban Board** — Drag-and-drop task management dengan date-based columns
+- **Role-Based Access** — Global (Super Admin) + Contextual (Owner/Admin/Member) roles
+- **Team Management** — Invite system dengan invite code
+- **Dashboard Analytics** — Real-time task & project statistics
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+---
 
-```bash
-composer require laravel/boost --dev
+## 🛠 Tech Stack
 
-php artisan boost:install
+### Backend
+
+| Package                       | Versi    | Kegunaan                        |
+|-------------------------------|----------|---------------------------------|
+| **Laravel Framework**         | ^13.0    | Core framework                  |
+| **Inertia.js Laravel**        | ^3.0     | SPA bridge (server-driven)      |
+| **Spatie Laravel Data**       | ^4.21    | DTO + Validation                |
+| **Spatie Laravel Permission** | ^7.3     | Role & permission management    |
+| **Spatie Laravel Query Builder** | ^7.2  | API filtering, sorting          |
+| **Spatie Laravel Settings**   | ^3.7     | Persistent app settings         |
+| **BenSampo Laravel Enum**     | ^6.14    | Type-safe enum constants        |
+| **Laravel Sanctum**           | ^4.3     | API authentication              |
+| **Laravel Pint**              | ^1.27    | Code style fixer                |
+
+### Frontend
+
+| Package                | Versi    | Kegunaan                          |
+|------------------------|----------|-----------------------------------|
+| **Vue 3**              | ^3.5     | UI framework                      |
+| **Inertia.js Vue 3**   | ^3.0     | SPA adapter                       |
+| **TailwindCSS**        | ^4.0     | Utility-first CSS                 |
+| **Radix Vue / Reka UI**| ^1.9/^2.9| Headless UI primitives           |
+| **Lucide Vue Next**    | ^1.0     | Icon library                      |
+| **VueUse**             | ^14.2    | Composable utilities              |
+| **Vue Draggable Plus** | ^0.6     | Drag-and-drop                     |
+| **Vue Sonner**         | ^2.0     | Toast notifications               |
+
+---
+
+## 🏗 Architecture Overview
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                        HTTP Request                             │
+├──────────┬──────────────────────────────────────────────────────┤
+│          │  Middleware Layer                                     │
+│          │  ├── EnsureWorkspaceSelected (multi-tenancy gate)    │
+│          │  ├── ContextualRoleMiddleware (authorization)        │
+│          │  └── HandleInertiaRequests (shared data)             │
+├──────────┼──────────────────────────────────────────────────────┤
+│          │  Controller (Thin Orchestrator)                       │
+│          │  ├── Auto-resolved DTO (validation)                  │
+│          │  ├── Auto-resolved QueryBuilder (filtering)          │
+│          │  └── Injected Action (business logic)                │
+├──────────┼──────────────────────────────────────────────────────┤
+│          ▼                                                      │
+│  ┌─────────────┐  ┌──────────────┐  ┌─────────────────────┐   │
+│  │   Action     │  │ QueryBuilder │  │    Service           │   │
+│  │  (Write)     │  │  (Read)      │  │  (Aggregation)      │   │
+│  │             │  │              │  │                     │   │
+│  │ • Create    │  │ • Filter     │  │ • Dashboard stats   │   │
+│  │ • Update    │  │ • Sort       │  │ • Complex queries   │   │
+│  │ • Delete    │  │ • Paginate   │  │ • Memoized results  │   │
+│  └──────┬──────┘  └──────┬───────┘  └──────────┬──────────┘   │
+│         │                │                      │              │
+│         ▼                ▼                      ▼              │
+│  ┌──────────────────────────────────────────────────────────┐  │
+│  │                      Model Layer                         │  │
+│  │  • HasOrganization Trait (Global Scope → data isolation) │  │
+│  │  • Enum Casting (TaskStatus, Priority, RoleAuth)         │  │
+│  │  • Scopes, Accessors, Business Methods                   │  │
+│  │  • UUID Primary Keys                                     │  │
+│  └──────────────────────────────────────────────────────────┘  │
+│                                                                 │
+│  ┌──────────────────────────────────────────────────────────┐  │
+│  │                    Support Layer                          │  │
+│  │  • GetActiveOrganization (session workspace)              │  │
+│  │  • UserRoleContext (org-aware role checks)                │  │
+│  │  • RouteHelper (auto-load route files)                    │  │
+│  └──────────────────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+### Request Lifecycle
 
-## Contributing
+```
+1. Request masuk
+2. Middleware: Cek workspace selected → Cek role
+3. Controller: DTO auto-validate → Action/QueryBuilder execute
+4. Model: Global Scope filter by organization_id
+5. Response: Inertia render Vue component + shared data
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+---
 
-## Code of Conduct
+## 📚 Design Patterns
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Setiap pattern didokumentasikan secara detail di `docs/patterns/`. Klik link untuk membaca penjelasan lengkap, code examples, dan best practices.
 
-## Security Vulnerabilities
+### Core Patterns
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+| #  | Pattern | Deskripsi | Dokumentasi |
+|----|---------|-----------|-------------|
+| 01 | **Action Pattern** | Single-responsibility class untuk setiap write operation. Readonly, transactional, DTO-driven. | [📖 Detail](docs/patterns/01-action-pattern.md) |
+| 02 | **Data Transfer Object** | Type-safe validation & transformation menggunakan Spatie Laravel Data. Menggantikan Form Request. | [📖 Detail](docs/patterns/02-data-transfer-object.md) |
+| 03 | **Enum Pattern** | Type-safe constants dengan business logic, UI metadata, dan permission groups. | [📖 Detail](docs/patterns/03-enum-pattern.md) |
+| 04 | **Query Builder Pattern** | Encapsulated filter/sort/pagination logic menggunakan Spatie Query Builder. | [📖 Detail](docs/patterns/04-query-builder-pattern.md) |
 
-## License
+### Architecture Patterns
+
+| #  | Pattern | Deskripsi | Dokumentasi |
+|----|---------|-----------|-------------|
+| 05 | **Multi-Tenancy** | Organization-scoped data isolation via Global Scope + Trait. Session-based workspace switching. | [📖 Detail](docs/patterns/05-multi-tenancy.md) |
+| 06 | **Policy Authorization** | Model-based access control dengan dual check (organization + role). | [📖 Detail](docs/patterns/06-policy-authorization.md) |
+| 07 | **Service Pattern** | Complex read-only aggregation dengan memoization (`once()`). | [📖 Detail](docs/patterns/07-service-pattern.md) |
+| 08 | **Support Helper** | Stateless utility classes untuk cross-cutting concerns. | [📖 Detail](docs/patterns/08-support-helper.md) |
+
+### Infrastructure Patterns
+
+| #  | Pattern | Deskripsi | Dokumentasi |
+|----|---------|-----------|-------------|
+| 09 | **Rich Model** | Domain models dengan scopes, accessors, casts, dan business methods. | [📖 Detail](docs/patterns/09-model-pattern.md) |
+| 10 | **Route Organization** | Domain-split routes dengan auto-loading dari directory. | [📖 Detail](docs/patterns/10-route-organization.md) |
+| 11 | **Testing Pattern** | Feature tests dengan workspace context, factory helpers, dan Inertia assertions. | [📖 Detail](docs/patterns/11-testing-pattern.md) |
+| 12 | **Performance Indexing** | Query-driven index design dengan documented access patterns. | [📖 Detail](docs/patterns/12-performance-indexing.md) |
+| 13 | **Thin Controller** | Controller sebagai orchestrator — delegates ke Action, QueryBuilder, dan Service. | [📖 Detail](docs/patterns/13-thin-controller.md) |
+
+---
+
+## 📁 Project Structure
+
+```
+app/
+├── Actions/           → Single-responsibility write operations
+│   ├── TaskCreateAction.php
+│   ├── TaskUpdateAction.php
+│   └── ...
+├── Data/              → DTOs with validation & transformation
+│   ├── TaskData.php
+│   ├── ProjectData.php
+│   └── ...
+├── Enums/             → Type-safe constants with behavior
+│   ├── TaskStatus.php
+│   ├── Priority.php
+│   └── RoleAuth.php
+├── Http/
+│   ├── Controllers/   → Thin orchestrators
+│   └── Middleware/     → Multi-tenancy & auth gates
+├── Models/            → Rich domain models
+│   ├── Task.php
+│   ├── Project.php
+│   ├── Organization.php
+│   └── ...
+├── Policies/          → Model-based authorization
+├── Providers/         → Service providers
+├── QueryBuilders/     → Encapsulated query logic
+│   ├── TaskIndexQuery.php
+│   └── TaskKanbanQuery.php
+├── Services/          → Read-only aggregation
+├── Settings/          → Persistent app settings
+├── Supports/          → Utility helpers
+│   ├── GetActiveOrganization.php
+│   ├── RouteHelper.php
+│   └── UserRoleContext.php
+└── Traits/            → Reusable model behaviors
+    └── HasOrganization.php
+
+routes/
+├── web.php            → Global routes + auto-loader
+└── web/               → Domain-split route files
+    ├── auth.php
+    ├── dashboard.php
+    ├── projects.php
+    ├── tasks.php
+    └── ...
+
+tests/
+├── TestCase.php       → Base test with workspace helper
+├── Feature/           → HTTP integration tests
+└── Unit/              → isolated unit tests
+
+docs/
+└── patterns/          → Pattern documentation (13 articles)
+```
+
+---
+
+## 🚀 Quick Start
+
+### Prerequisites
+
+- PHP >= 8.3
+- Composer
+- Node.js >= 18
+- SQLite / MySQL / PostgreSQL
+
+### Installation
+
+```bash
+# Clone the repo
+git clone <repo-url> laravel-boilerplate
+cd laravel-boilerplate
+
+# Install all dependencies
+composer install
+npm install
+
+# Setup environment
+cp .env.example .env
+php artisan key:generate
+
+# Run migrations + seed
+php artisan migrate --seed
+
+# Start development servers
+composer dev
+```
+
+> `composer dev` menjalankan **4 proses** secara bersamaan: Laravel server, Queue worker, Log watcher, dan Vite dev server.
+
+### Default Credentials
+
+```
+Email:    admin@example.com
+Password: password
+```
+
+---
+
+## ⚡ Development Commands
+
+Project ini menggunakan **justfile** sebagai task runner:
+
+```bash
+just dev             # Start all dev servers
+just test            # Run PHPUnit tests
+just test-coverage   # Run tests with coverage
+just migrate-fresh   # Fresh migration + seed
+just pint            # PHP code style fixer
+just lint            # Run all linters (Pint + ESLint)
+just clear-cache     # Clear all Laravel caches
+just tinker          # Laravel REPL
+```
+
+Atau menggunakan **Composer scripts**:
+
+```bash
+composer dev         # Start all servers (with Pail logs)
+composer test        # Run tests
+composer setup       # Full setup from scratch
+```
+
+---
+
+## 🧪 Testing
+
+```bash
+# Run all tests
+php artisan test
+
+# Run specific test
+php artisan test --filter=TaskControllerTest
+
+# Run with coverage
+php artisan test --coverage
+```
+
+### Test Coverage
+
+| Domain     | Tests |
+|------------|-------|
+| Tasks      | CRUD + Kanban + Move + Status + Assign |
+| Projects   | CRUD + Policy |
+| Comments   | Create + Delete |
+| Workspaces | Create + Switch |
+| Team       | Invite + Remove |
+
+---
+
+## 📄 License
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
