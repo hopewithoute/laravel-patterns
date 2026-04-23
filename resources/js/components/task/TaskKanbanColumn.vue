@@ -63,7 +63,7 @@ const getDropTargetBody = (fallbackContainer) => {
 
 const buildTaskRects = (targetBody, taskId) =>
     [...targetBody.querySelectorAll('[data-task-id]')]
-        .filter((element) => Number(element.getAttribute('data-task-id')) !== taskId)
+        .filter((element) => element.getAttribute('data-task-id') !== taskId)
         .map((element) => {
             const rect = element.getBoundingClientRect()
 
@@ -100,7 +100,7 @@ useDraggable(draggableContainer, localTasks, {
             e.item.style.opacity = ''
         }
 
-        const taskId = Number(e.item.getAttribute('data-id'))
+        const taskId = e.item.getAttribute('data-id')
         const targetBody = getDropTargetBody(e.to)
         const toColumnKey =
             targetBody?.getAttribute('data-column-key') ??
