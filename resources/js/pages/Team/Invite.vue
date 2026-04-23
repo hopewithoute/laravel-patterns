@@ -1,6 +1,5 @@
 <script setup>
 import { useForm, Head } from '@inertiajs/vue3'
-import AppLayout from '@/layouts/AppLayout.vue'
 import PageHeader from '@/components/layout/PageHeader.vue'
 import PageWidth from '@/components/layout/PageWidth.vue'
 import { ref } from 'vue'
@@ -24,8 +23,7 @@ const regenerateForm = useForm({})
 
 <template>
     <Head title="Invite to Team" />
-    <AppLayout>
-        <PageWidth size="content" class="space-y-8">
+    <PageWidth size="content" class="space-y-8">
             <PageHeader
                 variant="stacked"
                 tone="cyan"
@@ -84,5 +82,4 @@ const regenerateForm = useForm({})
                 </div>
             </div>
         </PageWidth>
-    </AppLayout>
 </template>
