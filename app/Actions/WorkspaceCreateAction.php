@@ -19,11 +19,7 @@ readonly class WorkspaceCreateAction
     public function execute(WorkspaceCreateData $data, User $user): array
     {
         return DB::transaction(function () use ($data, $user) {
-            $organization = Organization::create([
-                'name' => $data->name,
-                'description' => $data->description,
-                'is_active' => true,
-            ]);
+            $organization = Organization::create($data->toModelData());
 
             // Add user as admin
             $organization->addMember($user, 'admin');

@@ -21,4 +21,16 @@ class WorkspaceCreateData extends Data
             'invite_emails' => ['nullable', 'string'],
         ];
     }
+
+    /**
+     * Prepare data for storage.
+     */
+    public function toModelData(): array
+    {
+        return [
+            'name' => $this->name,
+            'description' => $this->description,
+            'is_active' => true,
+        ];
+    }
 }
