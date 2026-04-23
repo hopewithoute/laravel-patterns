@@ -1,7 +1,6 @@
 <script setup>
 import { ref } from 'vue'
 import { useForm, Head } from '@inertiajs/vue3'
-import AppLayout from '@/layouts/AppLayout.vue'
 import PageHeader from '@/components/layout/PageHeader.vue'
 import PageWidth from '@/components/layout/PageWidth.vue'
 
@@ -61,8 +60,7 @@ const tabs = [
 
 <template>
     <Head title="Settings" />
-    <AppLayout>
-        <PageWidth size="wide" class="space-y-8">
+    <PageWidth size="wide" class="space-y-8">
             <PageHeader
                 badge="Configuration"
                 title="Settings"
@@ -396,5 +394,4 @@ const tabs = [
                 </div>
             </section>
         </PageWidth>
-    </AppLayout>
 </template>
