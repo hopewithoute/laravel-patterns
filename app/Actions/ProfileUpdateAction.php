@@ -14,10 +14,7 @@ readonly class ProfileUpdateAction
     public function execute(ProfileUpdateData $data, User $user): User
     {
         return DB::transaction(function () use ($data, $user) {
-            $user->update([
-                'name' => $data->name,
-                'email' => $data->email,
-            ]);
+            $user->update($data->toModelData());
 
             return $user->fresh();
         });

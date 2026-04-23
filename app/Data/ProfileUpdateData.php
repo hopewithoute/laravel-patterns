@@ -28,4 +28,15 @@ class ProfileUpdateData extends Data
             ],
         ];
     }
+
+    /**
+     * Prepare data for storage.
+     */
+    public function toModelData(): array
+    {
+        return [
+            'name' => $this->name,
+            'email' => $this->email,
+        ];
+    }
 }
