@@ -7,6 +7,7 @@ use App\Actions\TaskCompleteAction;
 use App\Actions\TaskCreateAction;
 use App\Actions\TaskDeleteAction;
 use App\Actions\TaskMoveAction;
+use App\Actions\TaskStatusUpdateAction;
 use App\Actions\TaskUpdateAction;
 use App\Data\KanbanData;
 use App\Data\TaskAssignData;
@@ -49,6 +50,8 @@ class TaskController extends Controller
 
     public function move(Task $task, TaskMoveData $data, TaskMoveAction $action): JsonResponse
     {
+        $this->authorize('update', $task);
+
         $updated = $action->execute($task, $data);
 
         return response()->json([
@@ -151,11 +154,28 @@ class TaskController extends Controller
      */
     public function complete(Task $task, TaskCompleteAction $action): RedirectResponse
     {
+        $this->authorize('update', $task);
+
         $action->execute($task);
 
         return redirect()
             ->back()
             ->with('success', 'Task marked as completed.');
+    }
+
+    /**
+     * Update task status.
+     */
+    public function status(Task $task, TaskStatusUpdateAction $action): RedirectResponse
+    {
+        $this->authorize('update', $task);
+
+        $status = request()->input('status');
+        $action->execute($task, $status);
+
+        return redirect()
+            ->back()
+            ->with('success', "Task status updated to {$status}.");
     }
 
     /**

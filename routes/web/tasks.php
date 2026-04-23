@@ -26,6 +26,9 @@ Route::middleware([
     Route::put('tasks/{task}/complete', [TaskController::class, 'complete'])
         ->name('tasks.complete');
 
+    Route::patch('tasks/{task}/status', [TaskController::class, 'status'])
+        ->name('tasks.status');
+
     Route::put('tasks/{task}/assign', [TaskController::class, 'assign'])
         ->name('tasks.assign');
 
