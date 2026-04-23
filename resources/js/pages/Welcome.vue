@@ -1,5 +1,6 @@
 <script setup>
 import { Link, Head } from '@inertiajs/vue3'
+import AppLogo from '@/components/ui/AppLogo.vue'
 
 defineProps({
     canLogin: Boolean,
@@ -39,34 +40,8 @@ defineProps({
         <nav class="relative z-20 flex items-center justify-between px-6 py-5 sm:px-10 lg:px-16">
             <!-- Logo -->
             <div class="flex items-center gap-3">
-                <div class="relative">
-                    <div
-                        class="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-amber-400 via-amber-500 to-orange-500 shadow-lg shadow-amber-500/20"
-                    >
-                        <svg
-                            class="h-5 w-5 text-black"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="2.5"
-                        >
-                            <path
-                                d="M12 2L2 7l10 5 10-5-10-5z"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                            />
-                            <path
-                                d="M2 17l10 5 10-5"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                            />
-                            <path
-                                d="M2 12l10 5 10-5"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                            />
-                        </svg>
-                    </div>
+                <div class="relative flex items-center justify-center py-1">
+                    <AppLogo class="h-9 w-9 text-foreground drop-shadow-md" />
                 </div>
                 <span class="font-display text-foreground text-lg tracking-tight">TaskFlow</span>
             </div>
@@ -400,22 +375,8 @@ defineProps({
                 class="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 sm:flex-row"
             >
                 <div class="flex items-center gap-3">
-                    <div
-                        class="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-amber-400 to-orange-500"
-                    >
-                        <svg
-                            class="h-3.5 w-3.5 text-black"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="2.5"
-                        >
-                            <path
-                                d="M12 2L2 7l10 5 10-5-10-5z"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                            />
-                        </svg>
+                    <div class="relative flex items-center justify-center">
+                        <AppLogo class="h-6 w-6 text-foreground" />
                     </div>
                     <span class="text-muted-foreground text-sm">TaskFlow</span>
                 </div>
