@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\DB;
 /**
  * Action to delete a comment.
  */
-readonly class CommentDeleteAction
+class CommentDeleteAction
 {
     public function execute(Comment $comment, User $user): void
     {

@@ -35,8 +35,15 @@ class CommentData extends Data
         ];
     }
 
-    public static function authorize(): bool
+    /**
+     * Prepare data for storage.
+     */
+    public function toModelData(): array
     {
-        return true;
+        return [
+            'organization_id' => $this->organization_id,
+            'task_id' => $this->task_id,
+            'content' => $this->content,
+        ];
     }
 }
