@@ -18,13 +18,7 @@ readonly class ProjectCreateAction
     public function execute(ProjectData $data): Project
     {
         return DB::transaction(function () use ($data) {
-            return $this->model->create([
-                'organization_id' => $data->organization_id ?? session('organization_id'),
-                'name' => $data->name,
-                'description' => $data->description,
-                'color' => $data->color ?? '#3B82F6', // Default blue
-                'is_active' => $data->is_active,
-            ]);
+            return $this->model->create($data->toModelData());
         });
     }
 }

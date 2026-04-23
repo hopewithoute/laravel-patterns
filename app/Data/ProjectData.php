@@ -2,6 +2,7 @@
 
 namespace App\Data;
 
+use App\Supports\GetActiveOrganization;
 use Spatie\LaravelData\Data;
 use Spatie\LaravelData\Support\Validation\ValidationContext;
 
@@ -18,7 +19,9 @@ class ProjectData extends Data
         public ?string $description,
         public ?string $color,
         public bool $is_active = true,
-    ) {}
+    ) {
+        $this->organization_id ??= GetActiveOrganization::getSelected();
+    }
 
     public static function rules(?ValidationContext $context = null): array
     {
@@ -44,5 +47,19 @@ class ProjectData extends Data
     public static function authorize(): bool
     {
         return true;
+    }
+
+    /**
+     * Prepare data for storage.
+     */
+    public function toModelData(): array
+    {
+        return [
+            'organization_id' => $this->organization_id,
+            'name' => $this->name,
+            'description' => $this->description,
+            'color' => $this->color ?? '#3B82F6', // Default blue
+            'is_active' => $this->is_active,
+        ];
     }
 }

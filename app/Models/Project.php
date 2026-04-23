@@ -34,6 +34,7 @@ class Project extends Model
     protected $appends = [
         'tasks_count',
         'completed_tasks_count',
+        'completion_percentage',
     ];
 
     /**
@@ -87,7 +88,7 @@ class Project extends Model
     /**
      * Get completion percentage.
      */
-    public function getCompletionPercentage(): int
+    public function getCompletionPercentageAttribute(): int
     {
         $total = $this->tasks_count;
         if ($total === 0) {
