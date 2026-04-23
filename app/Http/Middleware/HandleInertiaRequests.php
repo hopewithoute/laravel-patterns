@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Task;
 use App\Supports\GetActiveOrganization;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
@@ -55,6 +56,14 @@ class HandleInertiaRequests extends Middleware
                 ? $request->user()->organizations()->get(['organizations.id', 'organizations.name', 'organizations.logo'])
                 : [],
             'activeOrganizationId' => fn () => GetActiveOrganization::getSelected(),
+            'task_detail' => function () use ($request) {
+                $id = $request->input('task_detail_id') ?? $request->input('task');
+                if (! $id) {
+                    return null;
+                }
+
+                return Task::with(['project', 'assignee', 'comments.user'])->find($id);
+            },
         ];
     }
 }
