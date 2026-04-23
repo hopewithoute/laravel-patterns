@@ -1,6 +1,5 @@
 <?php
 
-use App\Supports\RouteHelper;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -16,8 +15,29 @@ use Illuminate\Support\Facades\Route;
 
 // Home Route
 Route::get('/', function () {
-    return redirect()->route('dashboard.index');
+    return inertia('Landing');
 })->name('home');
 
-// Auto-load all route files from the web directory
-RouteHelper::loadRoutesFromDirectory(__DIR__.'/web');
+// Placeholder Routes
+Route::get('/terms', function () {
+    return inertia('Terms');
+})->name('terms');
+Route::get('/privacy', function () {
+    return inertia('Privacy');
+})->name('privacy');
+Route::get('/api', function () {
+    return inertia('Api');
+})->name('api');
+Route::get('/contact', function () {
+    return inertia('Contact');
+})->name('contact');
+
+// Domain Routes
+require __DIR__.'/web/auth.php';
+require __DIR__.'/web/ai.php';
+require __DIR__.'/web/dashboard.php';
+require __DIR__.'/web/projects.php';
+require __DIR__.'/web/settings.php';
+require __DIR__.'/web/tasks.php';
+require __DIR__.'/web/team.php';
+require __DIR__.'/web/workspace.php';
