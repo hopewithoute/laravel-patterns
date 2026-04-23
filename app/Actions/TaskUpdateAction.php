@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\DB;
 /**
  * Action to update an existing task.
  */
-readonly class TaskUpdateAction
+class TaskUpdateAction
 {
     public function execute(TaskData $data, Task $task): Task
     {

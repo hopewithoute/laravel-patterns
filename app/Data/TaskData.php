@@ -4,6 +4,7 @@ namespace App\Data;
 
 use App\Enums\Priority;
 use App\Enums\TaskStatus;
+use App\Supports\GetActiveOrganization;
 use Spatie\LaravelData\Data;
 use Spatie\LaravelData\Support\Validation\ValidationContext;
 
@@ -24,7 +25,9 @@ class TaskData extends Data
         public string $priority,
         public ?string $due_date,
         public ?string $completed_at,
-    ) {}
+    ) {
+        $this->organization_id ??= GetActiveOrganization::getSelected();
+    }
 
     public static function rules(?ValidationContext $context = null): array
     {
@@ -64,6 +67,7 @@ class TaskData extends Data
     public function toModelData(): array
     {
         return [
+            'organization_id' => $this->organization_id,
             'project_id' => $this->project_id,
             'assigned_to' => $this->assigned_to,
             'title' => $this->title,

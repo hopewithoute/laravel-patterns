@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\DB;
 /**
  * Action to update task due_date and sort_order during drag-and-drop.
  */
-readonly class TaskMoveAction
+class TaskMoveAction
 {
     public function execute(Task $task, TaskMoveData $data): Task
     {

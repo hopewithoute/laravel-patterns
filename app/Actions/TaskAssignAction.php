@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\DB;
 /**
  * Action to assign a task to a user.
  */
-readonly class TaskAssignAction
+class TaskAssignAction
 {
     public function execute(Task $task, TaskAssignData $data): Task
     {

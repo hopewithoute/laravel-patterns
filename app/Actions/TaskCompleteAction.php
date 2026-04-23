@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\DB;
 /**
  * Action to mark a task as completed.
  */
-readonly class TaskCompleteAction
+class TaskCompleteAction
 {
     public function execute(Task $task): Task
     {

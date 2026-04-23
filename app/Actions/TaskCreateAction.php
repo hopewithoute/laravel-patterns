@@ -18,12 +18,7 @@ readonly class TaskCreateAction
     public function execute(TaskData $data): Task
     {
         return DB::transaction(function () use ($data) {
-            return $this->model->create(array_merge(
-                $data->toModelData(),
-                [
-                    'organization_id' => $data->organization_id ?? session('organization_id'),
-                ]
-            ));
+            return $this->model->create($data->toModelData());
         });
     }
 }
