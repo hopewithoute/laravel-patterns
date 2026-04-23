@@ -3,7 +3,6 @@ import axios from 'axios'
 import { reactive, ref, watch } from 'vue'
 import { useDebounceFn } from '@vueuse/core'
 import { Link, router, Head } from '@inertiajs/vue3'
-import AppLayout from '@/layouts/AppLayout.vue'
 import PageHeader from '@/components/layout/PageHeader.vue'
 import PaginationNav from '@/components/layout/PaginationNav.vue'
 import PageWidth from '@/components/layout/PageWidth.vue'
@@ -264,12 +263,32 @@ const isOverdue = (task) => {
 
     return new Date(task.due_date) < new Date()
 }
+
+const openTaskDetail = (taskId) => {
+    const url = new URL(window.location.href)
+    url.searchParams.set('task', taskId)
+    router.get(url.toString(), {}, {
+        preserveScroll: true,
+        preserveState: true,
+        replace: true,
+    })
+}
+
+const updateTaskStatus = (task, status) => {
+    router.patch(`/tasks/${task.id}/status`, { status }, {
+        preserveScroll: true,
+    })
+}
+
+const toggleTaskDone = (task) => {
+    const newStatus = task.status === 'Done' ? 'Todo' : 'Done'
+    updateTaskStatus(task, newStatus)
+}
 </script>
 
 <template>
     <Head title="Tasks" />
-    <AppLayout>
-        <PageWidth size="wide" class="space-y-8">
+    <PageWidth size="wide" class="space-y-8">
             <PageHeader
                 badge="Work Queue"
                 title="Tasks"
@@ -380,26 +399,36 @@ const isOverdue = (task) => {
 
             <section v-if="viewMode === 'quicklist'" class="space-y-6">
                 <div v-if="tasks.data.length > 0" class="space-y-2">
-                    <Link
+                    <div
                         v-for="task in tasks.data"
                         :key="task.id"
-                        :href="`/tasks/${task.id}`"
-                        class="group bg-card border-border/40 hover:border-border/60 block rounded-xl border p-4 transition-all duration-300"
+                        class="group bg-card border-border/40 hover:border-border/60 block cursor-pointer rounded-xl border p-4 transition-all duration-300"
+                        @click="openTaskDetail(task.id)"
                     >
                         <div class="flex items-start gap-4">
-                            <div class="shrink-0 pt-1">
-                                <div
+                            <!-- Quick Complete Checkbox -->
+                            <div class="pt-1">
+                                <button
+                                    @click.stop="toggleTaskDone(task)"
+                                    class="group/check flex h-5 w-5 shrink-0 items-center justify-center rounded border transition-all duration-300"
                                     :class="[
-                                        'h-3 w-3 rounded-full transition-transform duration-200 group-hover:scale-110',
                                         task.status === 'Done'
-                                            ? 'bg-emerald-500'
-                                            : task.status === 'In Progress'
-                                              ? 'bg-cyan-500'
-                                              : task.status === 'Review'
-                                                ? 'bg-amber-500'
-                                                : 'bg-slate-500',
+                                            ? 'bg-emerald-500/20 border-emerald-500/40 text-emerald-400'
+                                            : 'bg-surface-elevated border-white/5 hover:border-white/20 text-transparent'
                                     ]"
-                                ></div>
+                                >
+                                    <svg
+                                        class="h-3 w-3 transition-transform duration-300 group-hover/check:scale-110"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        stroke-width="4"
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                    >
+                                        <polyline points="20 6 9 17 4 12" />
+                                    </svg>
+                                </button>
                             </div>
 
                             <div class="min-w-0 flex-1">
@@ -407,6 +436,7 @@ const isOverdue = (task) => {
                                     <div class="space-y-1">
                                         <h3
                                             class="text-foreground font-medium transition-colors group-hover:text-cyan-400"
+                                            :class="{ 'text-muted-foreground/50 line-through decoration-emerald-500/30': task.status === 'Done' }"
                                         >
                                             {{ task.title }}
                                         </h3>
@@ -446,16 +476,37 @@ const isOverdue = (task) => {
                                     </div>
 
                                     <div class="flex shrink-0 items-center gap-2">
-                                        <Badge
-                                            :tone="
-                                                TASK_STATUS_TONES[task.status] ||
-                                                TASK_STATUS_TONES.Todo
-                                            "
-                                        >
-                                            {{ task.status }}
-                                        </Badge>
+                                        <!-- Status Interactive Badge -->
+                                        <div class="group/status relative flex items-center">
+                                            <select
+                                                @click.stop
+                                                @change="updateTaskStatus(task, $event.target.value)"
+                                                class="absolute inset-0 z-20 w-full cursor-pointer opacity-0"
+                                            >
+                                                <option
+                                                    v-for="(tone, status) in TASK_STATUS_TONES"
+                                                    :key="status"
+                                                    :value="status"
+                                                    :selected="task.status === status"
+                                                >
+                                                    {{ status }}
+                                                </option>
+                                            </select>
+                                            <Badge
+                                                variant="compact"
+                                                :tone="TASK_STATUS_TONES[task.status] || TASK_STATUS_TONES.Todo"
+                                                class="group-hover/status:ring-2 group-hover/status:ring-cyan-500/30 transition-all cursor-pointer relative z-10 pr-6"
+                                            >
+                                                {{ task.status }}
+                                                <div class="absolute right-1.5 top-1/2 -translate-y-1/2 text-muted-foreground/50 transition-colors group-hover/status:text-cyan-400">
+                                                    <svg class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="m6 9 6 6 6-6"/></svg>
+                                                </div>
+                                            </Badge>
+                                        </div>
+
                                         <Badge
                                             v-if="task.priority"
+                                            variant="compact"
                                             :tone="
                                                 TASK_PRIORITY_TONES[task.priority] ||
                                                 TASK_PRIORITY_TONES.Low
@@ -502,7 +553,7 @@ const isOverdue = (task) => {
                                 </svg>
                             </div>
                         </div>
-                    </Link>
+                    </div>
                 </div>
 
                 <div v-else class="empty-state">
@@ -570,5 +621,4 @@ const isOverdue = (task) => {
                 @task-moved="moveTask"
             />
         </PageWidth>
-    </AppLayout>
 </template>

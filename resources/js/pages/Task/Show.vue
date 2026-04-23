@@ -1,13 +1,11 @@
 <script setup>
 import { ref } from 'vue'
-import { Link, useForm, router, Head } from '@inertiajs/vue3'
-import AppLayout from '@/layouts/AppLayout.vue'
+import { Link, router, Head } from '@inertiajs/vue3'
 import PageHeader from '@/components/layout/PageHeader.vue'
 import PageWidth from '@/components/layout/PageWidth.vue'
-import Badge from '@/components/ui/Badge.vue'
 import Button from '@/components/ui/Button.vue'
 import ConfirmDialog from '@/components/ui/ConfirmDialog.vue'
-import { TASK_PRIORITY_TONES, TASK_STATUS_TONES } from '@/lib/badges'
+import TaskDetailContent from '@/components/task/TaskDetailContent.vue'
 
 const props = defineProps({
     task: Object,
@@ -27,27 +25,11 @@ const deleteTask = () => {
         },
     })
 }
-
-const commentForm = useForm({
-    content: '',
-})
-
-const submitComment = () => {
-    commentForm.post(`/tasks/${props.task.id}/comments`, {
-        onSuccess: () => commentForm.reset(),
-    })
-}
-
-const isOverdue = () => {
-    if (!props.task.due_date || props.task.status === 'Done') return false
-    return new Date(props.task.due_date) < new Date()
-}
 </script>
 
 <template>
     <Head :title="task.title" />
-    <AppLayout>
-        <PageWidth size="wide" class="space-y-8">
+    <PageWidth size="wide" class="space-y-8">
             <PageHeader
                 variant="stacked"
                 tone="cyan"
@@ -93,108 +75,9 @@ const isOverdue = () => {
                 </template>
             </PageHeader>
 
-            <!-- Task Header -->
+            <!-- Task Content -->
             <div class="border-border bg-card rounded-2xl border p-6">
-                <div class="mb-4 flex flex-wrap items-center gap-2">
-                    <Badge :tone="TASK_STATUS_TONES[task.status] || TASK_STATUS_TONES.Todo">
-                        {{ task.status }}
-                    </Badge>
-                    <Badge :tone="TASK_PRIORITY_TONES[task.priority] || TASK_PRIORITY_TONES.Low">
-                        {{ task.priority }}
-                    </Badge>
-                </div>
-
-                <!-- Task Meta -->
-                <div class="mt-6 grid grid-cols-2 gap-4 text-sm sm:grid-cols-4">
-                    <div>
-                        <p class="text-muted-foreground font-medium">Project</p>
-                        <p v-if="task.project" class="text-foreground">{{ task.project.name }}</p>
-                        <p v-else class="text-muted-foreground">-</p>
-                    </div>
-                    <div>
-                        <p class="text-muted-foreground font-medium">Assignee</p>
-                        <p v-if="task.assignee" class="text-foreground">{{ task.assignee.name }}</p>
-                        <p v-else class="text-muted-foreground">Unassigned</p>
-                    </div>
-                    <div>
-                        <p class="text-muted-foreground font-medium">Due Date</p>
-                        <p :class="[isOverdue() ? 'font-medium text-red-600' : 'text-foreground']">
-                            <span v-if="task.due_date">
-                                {{ new Date(task.due_date).toLocaleDateString() }}
-                                <span v-if="isOverdue()">(Overdue)</span>
-                            </span>
-                            <span v-else class="text-muted-foreground">-</span>
-                        </p>
-                    </div>
-                    <div>
-                        <p class="text-muted-foreground font-medium">Created</p>
-                        <p class="text-foreground">
-                            {{ new Date(task.created_at).toLocaleDateString() }}
-                        </p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Comments -->
-            <div class="border-border bg-card rounded-2xl border">
-                <div class="border-border border-b px-6 py-4">
-                    <h2 class="text-foreground text-lg font-medium">Comments</h2>
-                </div>
-
-                <!-- Comment Form -->
-                <div class="border-border border-b p-6">
-                    <form @submit.prevent="submitComment">
-                        <textarea
-                            v-model="commentForm.content"
-                            rows="2"
-                            placeholder="Add a comment..."
-                            class="border-border bg-background text-foreground focus:border-primary focus:ring-primary block w-full rounded-md border px-3 py-2 shadow-sm focus:ring-1"
-                        />
-                        <div class="mt-2 flex justify-end">
-                            <button
-                                type="submit"
-                                :disabled="commentForm.processing || !commentForm.content"
-                                class="bg-primary text-primary-foreground hover:bg-primary/90 rounded-md px-3 py-1.5 text-sm font-medium shadow-sm disabled:opacity-50"
-                            >
-                                Add Comment
-                            </button>
-                        </div>
-                    </form>
-                </div>
-
-                <!-- Comments List -->
-                <ul class="divide-border divide-y">
-                    <li v-for="comment in task.comments" :key="comment.id" class="px-6 py-4">
-                        <div class="flex items-start space-x-3">
-                            <div class="shrink-0">
-                                <div
-                                    class="bg-muted text-muted-foreground flex h-8 w-8 items-center justify-center rounded-full text-sm font-medium"
-                                >
-                                    {{ comment.user?.name?.charAt(0).toUpperCase() || '?' }}
-                                </div>
-                            </div>
-                            <div class="flex-1">
-                                <div class="flex items-center justify-between">
-                                    <p class="text-foreground text-sm font-medium">
-                                        {{ comment.user?.name || 'Unknown' }}
-                                    </p>
-                                    <p class="text-muted-foreground text-xs">
-                                        {{ new Date(comment.created_at).toLocaleString() }}
-                                    </p>
-                                </div>
-                                <p class="text-muted-foreground mt-1 text-sm">
-                                    {{ comment.content }}
-                                </p>
-                            </div>
-                        </div>
-                    </li>
-                    <li
-                        v-if="!task.comments?.length"
-                        class="text-muted-foreground px-6 py-8 text-center"
-                    >
-                        No comments yet. Be the first to comment.
-                    </li>
-                </ul>
+                <TaskDetailContent :task="task" />
             </div>
         </PageWidth>
 
@@ -205,5 +88,4 @@ const isOverdue = () => {
             :loading="isDeleting"
             @confirm="deleteTask"
         />
-    </AppLayout>
 </template>

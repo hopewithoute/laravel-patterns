@@ -1,6 +1,5 @@
 <script setup>
 import { Link, useForm, Head } from '@inertiajs/vue3'
-import AppLayout from '@/layouts/AppLayout.vue'
 import PageHeader from '@/components/layout/PageHeader.vue'
 import PageWidth from '@/components/layout/PageWidth.vue'
 
@@ -30,8 +29,7 @@ const submit = () => {
 
 <template>
     <Head :title="task ? 'Edit Task' : 'New Task'" />
-    <AppLayout>
-        <PageWidth size="content" class="space-y-8">
+    <PageWidth size="content" class="space-y-8">
             <PageHeader
                 variant="stacked"
                 tone="cyan"
@@ -44,7 +42,7 @@ const submit = () => {
             >
                 <template #media>
                     <div
-                        class="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-500/20 to-cyan-500/5 ring-2 ring-cyan-500/10"
+                        class="flex h-12 w-12 items-center justify-center rounded-xl bg-linear-to-br from-cyan-500/20 to-cyan-500/5 ring-2 ring-cyan-500/10"
                     >
                         <svg
                             class="h-6 w-6 text-cyan-400"
@@ -109,12 +107,12 @@ const submit = () => {
                                 v-model="form.project_id"
                                 required
                                 class="border-border/60 bg-surface/50 text-foreground h-11 w-full cursor-pointer appearance-none rounded-xl border px-4 transition-all duration-200 focus:border-cyan-500/50 focus:ring-2 focus:ring-cyan-500/30 focus:outline-none"
-                                style="
-                                    background-image: url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%2371717a' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E&quot;);
+                                style='
+                                    background-image: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2224%22 height=%2224%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%2371717a%22 stroke-width=%222%22%3E%3Cpath d=%22m6 9 6 6 6-6%22/%3E%3C/svg%3E");
                                     background-position: right 12px center;
                                     background-repeat: no-repeat;
                                     background-size: 16px;
-                                "
+                                '
                             >
                                 <option value="">Select project</option>
                                 <option
@@ -138,12 +136,12 @@ const submit = () => {
                                 id="assigned_to"
                                 v-model="form.assigned_to"
                                 class="border-border/60 bg-surface/50 text-foreground h-11 w-full cursor-pointer appearance-none rounded-xl border px-4 transition-all duration-200 focus:border-cyan-500/50 focus:ring-2 focus:ring-cyan-500/30 focus:outline-none"
-                                style="
-                                    background-image: url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%2371717a' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E&quot;);
+                                style='
+                                    background-image: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2224%22 height=%2224%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%2371717a%22 stroke-width=%222%22%3E%3Cpath d=%22m6 9 6 6 6-6%22/%3E%3C/svg%3E");
                                     background-position: right 12px center;
                                     background-repeat: no-repeat;
                                     background-size: 16px;
-                                "
+                                '
                             >
                                 <option value="">Unassigned</option>
                                 <option
@@ -167,12 +165,12 @@ const submit = () => {
                                 id="status"
                                 v-model="form.status"
                                 class="border-border/60 bg-surface/50 text-foreground h-11 w-full cursor-pointer appearance-none rounded-xl border px-4 transition-all duration-200 focus:border-cyan-500/50 focus:ring-2 focus:ring-cyan-500/30 focus:outline-none"
-                                style="
-                                    background-image: url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%2371717a' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E&quot;);
+                                style='
+                                    background-image: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2224%22 height=%2224%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%2371717a%22 stroke-width=%222%22%3E%3Cpath d=%22m6 9 6 6 6-6%22/%3E%3C/svg%3E");
                                     background-position: right 12px center;
                                     background-repeat: no-repeat;
                                     background-size: 16px;
-                                "
+                                '
                             >
                                 <option
                                     v-for="s in options?.statuses"
@@ -192,12 +190,12 @@ const submit = () => {
                                 id="priority"
                                 v-model="form.priority"
                                 class="border-border/60 bg-surface/50 text-foreground h-11 w-full cursor-pointer appearance-none rounded-xl border px-4 transition-all duration-200 focus:border-cyan-500/50 focus:ring-2 focus:ring-cyan-500/30 focus:outline-none"
-                                style="
-                                    background-image: url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%2371717a' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E&quot;);
+                                style='
+                                    background-image: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2224%22 height=%2224%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%2371717a%22 stroke-width=%222%22%3E%3Cpath d=%22m6 9 6 6 6-6%22/%3E%3C/svg%3E");
                                     background-position: right 12px center;
                                     background-repeat: no-repeat;
                                     background-size: 16px;
-                                "
+                                '
                             >
                                 <option
                                     v-for="p in options?.priorities"
@@ -235,7 +233,7 @@ const submit = () => {
                     <button
                         type="submit"
                         :disabled="form.processing"
-                        class="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-cyan-500 to-cyan-400 px-5 py-2.5 text-sm font-semibold text-black shadow-lg shadow-cyan-500/20 transition-all duration-300 hover:shadow-cyan-500/30 disabled:cursor-not-allowed disabled:opacity-50"
+                        class="inline-flex items-center gap-2 rounded-xl bg-linear-to-r from-cyan-500 to-cyan-400 px-5 py-2.5 text-sm font-semibold text-black shadow-lg shadow-cyan-500/20 transition-all duration-300 hover:shadow-cyan-500/30 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                         <svg
                             v-if="!task"
@@ -253,5 +251,4 @@ const submit = () => {
                 </div>
             </form>
         </PageWidth>
-    </AppLayout>
 </template>
