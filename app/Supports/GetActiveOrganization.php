@@ -5,6 +5,7 @@ namespace App\Supports;
 use App\Models\Organization;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 /**
  * Helper to get the currently active organization.
@@ -12,11 +13,13 @@ use Illuminate\Support\Facades\Session;
 class GetActiveOrganization
 {
     /**
-     * Get the selected organization ID from session.
+     * Get the selected organization ID from static state, header, or session.
      */
     public static function getSelected(): ?string
     {
-        return Session::get('organization_id');
+        return (app()->bound('active_organization_id') ? app('active_organization_id') : null)
+            ?? request()?->header('X-Organization-Id')
+            ?? Session::get('organization_id');
     }
 
     /**
@@ -39,18 +42,26 @@ class GetActiveOrganization
     }
 
     /**
-     * Set the active organization (validates membership).
+     * Get the selected organization model or fail if the context is invalid.
      */
-    public static function set(string $organizationId): bool
+    public static function resolveOrFail(): Organization
+    {
+        return self::get() ?? throw new AccessDeniedHttpException('Active workspace is invalid.');
+    }
+
+    /**
+     * Set the active organization (validates membership).
+     * Throws an exception if the user is not authorized.
+     */
+    public static function set(string $organizationId): void
     {
         $user = Auth::user();
         if (! $user || ! $user->belongsToOrganization($organizationId)) {
-            return false;
+            throw new AccessDeniedHttpException('Unauthorized access to workspace.');
         }
 
+        app()->instance('active_organization_id', $organizationId);
         Session::put('organization_id', $organizationId);
-
-        return true;
     }
 
     /**
@@ -58,6 +69,7 @@ class GetActiveOrganization
      */
     public static function setWithoutValidation(string $organizationId): void
     {
+        app()->instance('active_organization_id', $organizationId);
         Session::put('organization_id', $organizationId);
     }
 
@@ -66,6 +78,9 @@ class GetActiveOrganization
      */
     public static function clear(): void
     {
+        if (app()->bound('active_organization_id')) {
+            app()->forgetInstance('active_organization_id');
+        }
         Session::forget('organization_id');
     }
 
