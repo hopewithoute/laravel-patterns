@@ -330,7 +330,7 @@
                 hsl(var(--cyan) / 0.04) 0%,
                 transparent 55%
             ),
-            radial-gradient(ellipse 90% 60% at 50% 95%, hsl(240 10% 6%) 0%, transparent 70%),
+            radial-gradient(ellipse 90% 60% at 50% 95%, hsl(var(--muted)) 0%, transparent 70%),
             linear-gradient(180deg, hsl(var(--background)) 0%, hsl(var(--background)) 100%);
     }
 
@@ -353,19 +353,22 @@
     .glass {
         background: hsl(var(--card) / 0.75);
         backdrop-filter: blur(16px) saturate(1.1);
-        border: 1px solid hsl(var(--border) / 0.4);
+        border: 1px solid hsl(var(--border) / 0.6);
+        box-shadow: 0 4px 24px -4px hsl(var(--foreground) / 0.04);
     }
 
     .glass-elevated {
         background: hsl(var(--surface-elevated) / 0.85);
         backdrop-filter: blur(24px) saturate(1.15);
-        border: 1px solid hsl(var(--border) / 0.5);
+        border: 1px solid hsl(var(--border) / 0.8);
+        box-shadow: 0 8px 32px -6px hsl(var(--foreground) / 0.06);
     }
 
     .glass-overlay {
         background: hsl(var(--surface-overlay) / 0.92);
         backdrop-filter: blur(32px) saturate(1.2);
-        border: 1px solid hsl(var(--border) / 0.6);
+        border: 1px solid hsl(var(--border));
+        box-shadow: 0 12px 40px -8px hsl(var(--foreground) / 0.08);
     }
 
     /* ══ Text Gradients ══ */
@@ -607,7 +610,7 @@
     .card-hover:hover {
         @apply -translate-y-0.5;
         box-shadow:
-            0 8px 32px -8px hsl(240 8% 0% / 0.4),
+            0 8px 32px -8px hsl(var(--foreground) / 0.15),
             0 0 0 1px hsl(var(--border) / 0.7);
     }
 
