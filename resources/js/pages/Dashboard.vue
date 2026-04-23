@@ -1,7 +1,6 @@
 <script setup>
 import { Link, Head } from '@inertiajs/vue3'
 import PageWidth from '@/components/layout/PageWidth.vue'
-import AppLayout from '@/layouts/AppLayout.vue'
 import Badge from '@/components/ui/Badge.vue'
 import { TASK_STATUS_TONES } from '@/lib/badges'
 
@@ -31,18 +30,17 @@ defineProps({
 
 <template>
     <Head title="Dashboard" />
-    <AppLayout>
-        <PageWidth size="wide" class="space-y-8">
+    <PageWidth size="wide" class="space-y-8">
             <!-- ═══════════════════════════════════════════════════════════════════
                  HERO — Editorial greeting
                  ═══════════════════════════════════════════════════════════════════ -->
             <section class="relative overflow-hidden">
                 <!-- Decorative orbs -->
                 <div
-                    class="absolute top-0 right-0 h-80 w-80 rounded-full bg-amber-500/[0.04] blur-3xl"
+                    class="absolute top-0 right-0 h-80 w-80 rounded-full bg-amber-500/4 blur-3xl"
                 ></div>
                 <div
-                    class="absolute bottom-0 left-1/4 h-64 w-64 rounded-full bg-cyan-500/[0.025] blur-3xl"
+                    class="absolute bottom-0 left-1/4 h-64 w-64 rounded-full bg-cyan-500/2.5 blur-3xl"
                 ></div>
 
                 <div class="relative z-10">
@@ -79,10 +77,10 @@ defineProps({
                         <div class="hidden items-start gap-3 pt-2 lg:flex">
                             <Link
                                 href="/projects/create"
-                                class="group relative overflow-hidden rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-5 py-3 text-sm font-semibold text-black shadow-lg shadow-amber-500/15 transition-all duration-300 hover:shadow-amber-500/25"
+                                class="group relative overflow-hidden rounded-xl bg-linear-to-r from-amber-500 to-orange-500 px-5 py-3 text-sm font-semibold text-black shadow-lg shadow-amber-500/15 transition-all duration-300 hover:shadow-amber-500/25"
                             >
                                 <div
-                                    class="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-700 group-hover:translate-x-full"
+                                    class="absolute inset-0 -translate-x-full bg-linear-to-r from-transparent via-white/20 to-transparent transition-transform duration-700 group-hover:translate-x-full"
                                 ></div>
                                 <span class="relative flex items-center gap-2">
                                     <svg
@@ -130,7 +128,7 @@ defineProps({
                     class="group bg-card border-border/40 hover:border-border/60 animate-fade-in-up stagger-1 relative overflow-hidden rounded-2xl border p-5 transition-all duration-300"
                 >
                     <div
-                        class="absolute top-0 right-0 h-32 w-32 rounded-full bg-amber-500/[0.04] opacity-0 blur-3xl transition-opacity duration-500 group-hover:opacity-100"
+                        class="absolute top-0 right-0 h-32 w-32 rounded-full bg-amber-500/4 opacity-0 blur-3xl transition-opacity duration-500 group-hover:opacity-100"
                     ></div>
                     <div class="relative z-10">
                         <div class="mb-3 flex items-center justify-between">
@@ -166,7 +164,7 @@ defineProps({
                     class="group bg-card border-border/40 hover:border-border/60 animate-fade-in-up stagger-2 relative overflow-hidden rounded-2xl border p-5 transition-all duration-300"
                 >
                     <div
-                        class="absolute top-0 right-0 h-32 w-32 rounded-full bg-emerald-500/[0.04] opacity-0 blur-3xl transition-opacity duration-500 group-hover:opacity-100"
+                        class="absolute top-0 right-0 h-32 w-32 rounded-full bg-emerald-500/4 opacity-0 blur-3xl transition-opacity duration-500 group-hover:opacity-100"
                     ></div>
                     <div class="relative z-10">
                         <div class="mb-3 flex items-center justify-between">
@@ -200,7 +198,7 @@ defineProps({
                     class="group bg-card border-border/40 hover:border-border/60 animate-fade-in-up stagger-3 relative overflow-hidden rounded-2xl border p-5 transition-all duration-300"
                 >
                     <div
-                        class="absolute top-0 right-0 h-32 w-32 rounded-full bg-cyan-500/[0.04] opacity-0 blur-3xl transition-opacity duration-500 group-hover:opacity-100"
+                        class="absolute top-0 right-0 h-32 w-32 rounded-full bg-cyan-500/4 opacity-0 blur-3xl transition-opacity duration-500 group-hover:opacity-100"
                     ></div>
                     <div class="relative z-10">
                         <div class="mb-3 flex items-center justify-between">
@@ -235,7 +233,7 @@ defineProps({
                     class="group bg-card border-border/40 hover:border-border/60 animate-fade-in-up stagger-4 relative overflow-hidden rounded-2xl border p-5 transition-all duration-300"
                 >
                     <div
-                        class="absolute top-0 right-0 h-32 w-32 rounded-full bg-rose-500/[0.04] opacity-0 blur-3xl transition-opacity duration-500 group-hover:opacity-100"
+                        class="absolute top-0 right-0 h-32 w-32 rounded-full bg-rose-500/4 opacity-0 blur-3xl transition-opacity duration-500 group-hover:opacity-100"
                     ></div>
                     <div class="relative z-10">
                         <div class="mb-3 flex items-center justify-between">
@@ -507,5 +505,4 @@ defineProps({
                 </div>
             </section>
         </PageWidth>
-    </AppLayout>
 </template>
