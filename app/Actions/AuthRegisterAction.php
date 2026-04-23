@@ -22,12 +22,10 @@ readonly class AuthRegisterAction
     public function execute(RegisterData $data): array
     {
         return DB::transaction(function () use ($data) {
-            $user = User::create([
-                'name' => $data->name,
-                'email' => $data->email,
-                'password' => Hash::make($data->password),
-                'is_active' => true,
-            ]);
+            $user = User::create(array_merge(
+                $data->toModelData(),
+                ['password' => Hash::make($data->password)]
+            ));
 
             event(new Registered($user));
 

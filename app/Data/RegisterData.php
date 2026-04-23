@@ -24,4 +24,16 @@ class RegisterData extends Data
             'invite_code' => ['nullable', 'string', 'exists:organizations,invite_code'],
         ];
     }
+
+    /**
+     * Prepare data for storage.
+     */
+    public function toModelData(): array
+    {
+        return [
+            'name' => $this->name,
+            'email' => $this->email,
+            'is_active' => true,
+        ];
+    }
 }
