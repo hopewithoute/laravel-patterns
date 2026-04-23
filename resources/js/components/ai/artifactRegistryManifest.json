@@ -1,0 +1,168 @@
+[
+    {
+        "type": "approval_card",
+        "label": "Approval card",
+        "description": "Shows an approval-style card for a completed workspace action.",
+        "renderer": "approval-card",
+        "llmUsageGuidance": "Use when the user wants confirmation, approval, or review framing.",
+        "requiredDataKeys": [
+            "headline",
+            "summary",
+            "status",
+            "fields"
+        ],
+        "presentationContract": "Provide headline, summary, status, fields[], and optional next_step for approval presentation.",
+        "defaultIntent": "approval_card",
+        "enabled": true,
+        "version": 1,
+        "fallbackType": null
+    },
+    {
+        "type": "bar_chart",
+        "label": "Bar chart",
+        "description": "Displays categorical comparison data.",
+        "renderer": "bar-chart",
+        "llmUsageGuidance": "Use for comparing values across categories.",
+        "requiredDataKeys": [
+            "series",
+            "xLabel",
+            "yLabel"
+        ],
+        "presentationContract": "Provide series[] plus xLabel and yLabel for categorical chart rendering.",
+        "defaultIntent": "auto",
+        "enabled": true,
+        "version": 1,
+        "fallbackType": null
+    },
+    {
+        "type": "checklist",
+        "label": "Checklist",
+        "description": "Displays a sequence of checklist items.",
+        "renderer": "checklist",
+        "llmUsageGuidance": "Use when the result is best communicated as a checklist with completion states.",
+        "requiredDataKeys": [
+            "items"
+        ],
+        "presentationContract": "Provide items[] where each item has label, checked, and optional description.",
+        "defaultIntent": "auto",
+        "enabled": true,
+        "version": 1,
+        "fallbackType": null
+    },
+    {
+        "type": "json_fallback",
+        "label": "JSON fallback",
+        "description": "Fallback artifact for untyped structured results.",
+        "renderer": "json-fallback",
+        "llmUsageGuidance": "Use only when no richer artifact type is valid.",
+        "requiredDataKeys": [
+            "tool_name",
+            "result"
+        ],
+        "presentationContract": "Provide tool_name and raw result for fallback inspection.",
+        "defaultIntent": "auto",
+        "enabled": true,
+        "version": 1,
+        "fallbackType": null
+    },
+    {
+        "type": "key_value",
+        "label": "Key value",
+        "description": "Simple key-value output for failures or generic states.",
+        "renderer": "key-value",
+        "llmUsageGuidance": "Use for blocked actions or simple status output.",
+        "requiredDataKeys": [
+            "tool",
+            "status",
+            "failure_type",
+            "failure_behavior",
+            "message"
+        ],
+        "presentationContract": "Provide tool, status, failure_type, failure_behavior, and message.",
+        "defaultIntent": "none",
+        "enabled": true,
+        "version": 1,
+        "fallbackType": null
+    },
+    {
+        "type": "line_chart",
+        "label": "Line chart",
+        "description": "Displays trend data over a sequence.",
+        "renderer": "line-chart",
+        "llmUsageGuidance": "Use for trends over time or ordered sequences.",
+        "requiredDataKeys": [
+            "series",
+            "xLabel",
+            "yLabel"
+        ],
+        "presentationContract": "Provide series[] plus xLabel and yLabel for trend chart rendering.",
+        "defaultIntent": "auto",
+        "enabled": true,
+        "version": 1,
+        "fallbackType": null
+    },
+    {
+        "type": "markdown",
+        "label": "Markdown",
+        "description": "Displays rich markdown content.",
+        "renderer": "markdown",
+        "llmUsageGuidance": "Use when long-form explanation or formatted prose is the clearest output.",
+        "requiredDataKeys": [
+            "content"
+        ],
+        "presentationContract": "Provide a content string containing markdown-safe text.",
+        "defaultIntent": "auto",
+        "enabled": true,
+        "version": 1,
+        "fallbackType": null
+    },
+    {
+        "type": "stats_card",
+        "label": "Stats card",
+        "description": "Shows compact metrics for a task or workspace event.",
+        "renderer": "stats-card",
+        "llmUsageGuidance": "Use when the user asks for stats, metrics, or quantitative breakdowns.",
+        "requiredDataKeys": [
+            "items"
+        ],
+        "presentationContract": "Provide items[] where each item includes a label and value, with optional caption.",
+        "defaultIntent": "stats_card",
+        "enabled": true,
+        "version": 1,
+        "fallbackType": null
+    },
+    {
+        "type": "table",
+        "label": "Table",
+        "description": "Displays tabular structured data.",
+        "renderer": "table",
+        "llmUsageGuidance": "Use when rows and columns are the clearest presentation format.",
+        "requiredDataKeys": [
+            "columns",
+            "rows"
+        ],
+        "presentationContract": "Provide columns[] and rows[] arrays for tabular rendering.",
+        "defaultIntent": "auto",
+        "enabled": true,
+        "version": 1,
+        "fallbackType": null
+    },
+    {
+        "type": "task_summary",
+        "label": "Task summary",
+        "description": "Summarizes a created task.",
+        "renderer": "task-summary",
+        "llmUsageGuidance": "Use for concise confirmation after a task is created.",
+        "requiredDataKeys": [
+            "task_id",
+            "project_id",
+            "title",
+            "status"
+        ],
+        "presentationContract": "Provide task_id, project_id, project_name, title, status, assigned_to, and assigned_to_name for a created task summary card.",
+        "defaultIntent": "task_summary",
+        "enabled": true,
+        "version": 1,
+        "fallbackType": null
+    }
+]

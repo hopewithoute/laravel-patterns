@@ -1,0 +1,52 @@
+[
+    {
+        "name": "CreateTaskTool",
+        "uiIdentifier": "create_task",
+        "label": "Create task",
+        "description": "Create a new task in the active organization workspace.",
+        "whenToUse": "Use when the user wants to create a task and enough context is available to resolve the project and assignee.",
+        "whenNotToUse": "Do not use for listing tasks, listing projects, listing workspace users, or when the project or assignee is ambiguous and should be looked up first.",
+        "requiredInputs": [
+            "title"
+        ],
+        "outputContract": "Returns task_id, project_id, project_name, title, status, priority, due_date, assigned_to, and assigned_to_name.",
+        "capability": "task.create",
+        "operation": "write",
+        "maxAttempts": 1,
+        "scope": "workspace",
+        "enabled": true,
+        "version": 1
+    },
+    {
+        "name": "LookupProjectsTool",
+        "uiIdentifier": "lookup_projects",
+        "label": "Lookup projects",
+        "description": "Search projects in the active organization workspace.",
+        "whenToUse": "Use when the user mentions a project by name and the correct project identifier or canonical project name needs to be confirmed.",
+        "whenNotToUse": "Do not use when the target project is already clear enough to create the task directly.",
+        "requiredInputs": [],
+        "outputContract": "Returns count and projects[] with project_id, project_name, is_active, and description.",
+        "capability": "workspace.read",
+        "operation": "read",
+        "maxAttempts": 1,
+        "scope": "workspace",
+        "enabled": true,
+        "version": 1
+    },
+    {
+        "name": "LookupWorkspaceUsersTool",
+        "uiIdentifier": "lookup_workspace_users",
+        "label": "Lookup workspace users",
+        "description": "Search workspace members in the active organization workspace.",
+        "whenToUse": "Use when the user wants to assign a task but the exact workspace member reference is unclear or ambiguous.",
+        "whenNotToUse": "Do not use when the assignee is already clear, or when assign_to_me can be used instead.",
+        "requiredInputs": [],
+        "outputContract": "Returns count and users[] with user_id, user_name, email, and role.",
+        "capability": "workspace.read",
+        "operation": "read",
+        "maxAttempts": 1,
+        "scope": "workspace",
+        "enabled": true,
+        "version": 1
+    }
+]
