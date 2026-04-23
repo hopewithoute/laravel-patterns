@@ -164,6 +164,7 @@ class TaskControllerTest extends TestCase
         $task = Task::factory()->create([
             'organization_id' => $organization->id,
             'status' => TaskStatus::Todo,
+            'assigned_to' => $user->id,
         ]);
 
         $response = $this

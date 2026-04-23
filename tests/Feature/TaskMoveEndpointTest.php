@@ -30,6 +30,7 @@ class TaskMoveEndpointTest extends TestCase
             'priority' => 'High',
             'due_date' => '2026-04-06',
             'sort_order' => 0,
+            'assigned_to' => $user->id,
         ]);
 
         $response = $this
@@ -60,6 +61,7 @@ class TaskMoveEndpointTest extends TestCase
             'status' => 'Todo',
             'priority' => 'Low',
             'due_date' => '2026-04-06',
+            'assigned_to' => $user->id,
         ]);
 
         $response = $this
@@ -81,10 +83,10 @@ class TaskMoveEndpointTest extends TestCase
         [$user, $organization] = $this->createWorkspaceUser();
         $project = Project::create(['organization_id' => $organization->id, 'name' => 'P1', 'is_active' => true]);
 
-        $task1 = Task::create(['organization_id' => $organization->id, 'project_id' => $project->id, 'title' => 'T1', 'status' => 'Todo', 'priority' => 'Low', 'due_date' => '2026-04-08', 'sort_order' => 0]);
-        $task2 = Task::create(['organization_id' => $organization->id, 'project_id' => $project->id, 'title' => 'T2', 'status' => 'Todo', 'priority' => 'Low', 'due_date' => '2026-04-08', 'sort_order' => 1]);
+        $task1 = Task::create(['organization_id' => $organization->id, 'project_id' => $project->id, 'title' => 'T1', 'status' => 'Todo', 'priority' => 'Low', 'due_date' => '2026-04-08', 'sort_order' => 0, 'assigned_to' => $user->id]);
+        $task2 = Task::create(['organization_id' => $organization->id, 'project_id' => $project->id, 'title' => 'T2', 'status' => 'Todo', 'priority' => 'Low', 'due_date' => '2026-04-08', 'sort_order' => 1, 'assigned_to' => $user->id]);
 
-        $taskToMove = Task::create(['organization_id' => $organization->id, 'project_id' => $project->id, 'title' => 'Move Me', 'status' => 'Todo', 'priority' => 'Low', 'due_date' => '2026-04-06', 'sort_order' => 0]);
+        $taskToMove = Task::create(['organization_id' => $organization->id, 'project_id' => $project->id, 'title' => 'Move Me', 'status' => 'Todo', 'priority' => 'Low', 'due_date' => '2026-04-06', 'sort_order' => 0, 'assigned_to' => $user->id]);
 
         $response = $this
             ->actingAs($user)
