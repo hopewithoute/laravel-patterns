@@ -1,22 +1,44 @@
 <script setup>
-import { Link, Head } from '@inertiajs/vue3'
-import AppLayout from '@/layouts/AppLayout.vue'
+import { Link, Head, router } from '@inertiajs/vue3'
 import PageHeader from '@/components/layout/PageHeader.vue'
 import PaginationNav from '@/components/layout/PaginationNav.vue'
 import PageWidth from '@/components/layout/PageWidth.vue'
 import Badge from '@/components/ui/Badge.vue'
 import { TASK_PRIORITY_TONES, TASK_STATUS_TONES } from '@/lib/badges'
 
-defineProps({
+const props = defineProps({
     project: Object,
     tasks: Object,
 })
+
+const openTaskDetail = (taskId) => {
+    const url = new URL(window.location.href)
+    url.searchParams.set('task', taskId)
+    router.get(url.toString(), {}, {
+        preserveScroll: true,
+        preserveState: true,
+        replace: true,
+    })
+}
+
+const updateTaskStatus = (task, status) => {
+    router.patch(`/tasks/${task.id}/status`, { status }, {
+        preserveScroll: true,
+        onSuccess: () => {
+            // Optional: Show toast or feedback
+        }
+    })
+}
+
+const toggleTaskDone = (task) => {
+    const newStatus = task.status === 'Done' ? 'Todo' : 'Done'
+    updateTaskStatus(task, newStatus)
+}
 </script>
 
 <template>
     <Head :title="project.name" />
-    <AppLayout>
-        <PageWidth size="wide" class="space-y-8">
+    <PageWidth size="wide" class="space-y-8">
             <PageHeader
                 variant="stacked"
                 tone="amber"
@@ -40,38 +62,56 @@ defineProps({
                 </template>
 
                 <template #actions>
-                    <Link
-                        :href="`/projects/${project.id}/edit`"
-                        class="border-border/60 bg-surface/50 text-foreground hover:bg-surface hover:border-border inline-flex items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-medium transition-all duration-200"
-                    >
-                        <svg
-                            class="h-4 w-4"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="2"
-                        >
-                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-                        </svg>
-                        Edit
-                    </Link>
-                    <Link
-                        :href="`/tasks/create?project=${project.id}`"
-                        class="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-4 py-2.5 text-sm font-semibold text-black shadow-lg shadow-amber-500/20 transition-all duration-300 hover:shadow-amber-500/30"
-                    >
-                        <svg
-                            class="h-4 w-4"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="2.5"
-                        >
-                            <line x1="12" x2="12" y1="5" y2="19" />
-                            <line x1="5" x2="19" y1="12" y2="12" />
-                        </svg>
-                        Add Task
-                    </Link>
+                    <div class="flex flex-col gap-4">
+                        <div class="flex items-center gap-2">
+                             <Link
+                                :href="`/projects/${project.id}/edit`"
+                                class="border-border/60 bg-surface/50 text-foreground hover:bg-surface hover:border-border inline-flex items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-medium transition-all duration-200"
+                            >
+                                <svg
+                                    class="h-4 w-4"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                >
+                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                                </svg>
+                                Edit
+                            </Link>
+                            <Link
+                                :href="`/tasks/create?project=${project.id}`"
+                                class="inline-flex items-center gap-2 rounded-xl bg-linear-to-r from-amber-500 to-orange-500 px-4 py-2.5 text-sm font-semibold text-black shadow-lg shadow-amber-500/20 transition-all duration-300 hover:shadow-amber-500/30"
+                            >
+                                <svg
+                                    class="h-4 w-4"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2.5"
+                                >
+                                    <line x1="12" x2="12" y1="5" y2="19" />
+                                    <line x1="5" x2="19" y1="12" y2="12" />
+                                </svg>
+                                Add Task
+                            </Link>
+                        </div>
+
+                        <!-- Progress Bar Container -->
+                        <div class="w-full max-w-xs space-y-1.5">
+                            <div class="flex items-center justify-between text-[10px] font-bold tracking-widest uppercase">
+                                <span class="text-muted-foreground/60">Project Progress</span>
+                                <span class="text-amber-400">{{ project.completion_percentage }}%</span>
+                            </div>
+                            <div class="h-1.5 w-full overflow-hidden rounded-full bg-white/5 ring-1 ring-white/10">
+                                <div
+                                    class="h-full bg-linear-to-r from-amber-500 to-orange-500 shadow-[0_0_10px_rgba(245,158,11,0.3)] transition-all duration-700 ease-out"
+                                    :style="{ width: `${project.completion_percentage}%` }"
+                                ></div>
+                            </div>
+                        </div>
+                    </div>
                 </template>
             </PageHeader>
 
@@ -134,52 +174,82 @@ defineProps({
                 </div>
 
                 <div v-if="tasks.data.length > 0" class="space-y-2">
-                    <Link
+                    <div
                         v-for="task in tasks.data"
                         :key="task.id"
-                        :href="`/tasks/${task.id}`"
-                        class="group bg-card border-border/50 hover:border-border block rounded-xl border p-4 transition-all duration-300"
+                        class="group bg-card border-border/50 hover:border-border cursor-pointer block rounded-xl border p-4 transition-all duration-300"
+                        @click="openTaskDetail(task.id)"
                     >
                         <div class="flex items-center gap-4">
-                            <!-- Status indicator -->
-                            <div
+                            <!-- Quick Complete Checkbox -->
+                            <button
+                                @click.stop="toggleTaskDone(task)"
+                                class="group/check flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border transition-all duration-300"
                                 :class="[
-                                    'h-2.5 w-2.5 shrink-0 rounded-full',
                                     task.status === 'Done'
-                                        ? 'bg-emerald-500'
-                                        : task.status === 'In Progress'
-                                          ? 'bg-cyan-500'
-                                          : task.status === 'Review'
-                                            ? 'bg-amber-500'
-                                            : 'bg-slate-500',
+                                        ? 'bg-emerald-500/20 border-emerald-500/40 text-emerald-400'
+                                        : 'bg-surface-elevated border-white/5 hover:border-white/20 text-transparent'
                                 ]"
-                            ></div>
+                            >
+                                <svg
+                                    class="h-3.5 w-3.5 transition-transform duration-300 group-hover/check:scale-110"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="4"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                >
+                                    <polyline points="20 6 9 17 4 12" />
+                                </svg>
+                            </button>
 
                             <!-- Content -->
                             <div class="min-w-0 flex-1">
                                 <div class="flex items-start justify-between gap-4">
-                                    <div>
+                                    <div class="min-w-0">
                                         <span
-                                            class="text-foreground font-medium transition-colors group-hover:text-amber-400"
+                                            class="text-foreground block truncate font-medium transition-colors group-hover:text-amber-400"
+                                            :class="{ 'text-muted-foreground/50 line-through decoration-emerald-500/30': task.status === 'Done' }"
                                             >{{ task.title }}</span
                                         >
                                         <p
                                             v-if="task.description"
                                             class="text-muted-foreground mt-0.5 line-clamp-1 text-sm"
+                                            :class="{ 'opacity-40': task.status === 'Done' }"
                                         >
                                             {{ task.description }}
                                         </p>
                                     </div>
-                                    <div class="flex shrink-0 items-center gap-2">
-                                        <Badge
-                                            variant="compact"
-                                            :tone="
-                                                TASK_STATUS_TONES[task.status] ||
-                                                TASK_STATUS_TONES.Todo
-                                            "
-                                        >
-                                            {{ task.status }}
-                                        </Badge>
+                                    <div class="flex shrink-0 items-center gap-3">
+                                        <!-- Status Interactive Badge -->
+                                        <div class="group/status relative flex items-center">
+                                            <select
+                                                @click.stop
+                                                @change="updateTaskStatus(task, $event.target.value)"
+                                                class="absolute inset-0 z-20 w-full cursor-pointer opacity-0"
+                                            >
+                                                <option
+                                                    v-for="(tone, status) in TASK_STATUS_TONES"
+                                                    :key="status"
+                                                    :value="status"
+                                                    :selected="task.status === status"
+                                                >
+                                                    {{ status }}
+                                                </option>
+                                            </select>
+                                            <Badge
+                                                variant="compact"
+                                                :tone="TASK_STATUS_TONES[task.status] || TASK_STATUS_TONES.Todo"
+                                                class="group-hover/status:ring-2 group-hover/status:ring-amber-500/30 transition-all cursor-pointer relative z-10 pr-6"
+                                            >
+                                                {{ task.status }}
+                                                <div class="absolute right-1.5 top-1/2 -translate-y-1/2 text-muted-foreground/50 transition-colors group-hover/status:text-amber-400">
+                                                    <svg class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="m6 9 6 6 6-6"/></svg>
+                                                </div>
+                                            </Badge>
+                                        </div>
+
                                         <Badge
                                             v-if="task.priority"
                                             variant="compact"
@@ -237,7 +307,7 @@ defineProps({
                                 </div>
                             </div>
                         </div>
-                    </Link>
+                    </div>
                 </div>
 
                 <!-- Empty State -->
@@ -246,11 +316,11 @@ defineProps({
                     class="border-border/50 bg-card relative overflow-hidden rounded-2xl border p-12 text-center"
                 >
                     <div
-                        class="absolute inset-0 bg-gradient-to-br from-cyan-500/5 via-transparent to-amber-500/5"
+                        class="absolute inset-0 bg-linear-to-br from-cyan-500/5 via-transparent to-amber-500/5"
                     ></div>
                     <div class="relative z-10">
                         <div
-                            class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-cyan-500/20 to-cyan-500/5"
+                            class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-linear-to-br from-cyan-500/20 to-cyan-500/5"
                         >
                             <svg
                                 class="h-7 w-7 text-cyan-400"
@@ -273,7 +343,7 @@ defineProps({
                         </p>
                         <Link
                             :href="`/tasks/create?project=${project.id}`"
-                            class="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-4 py-2.5 text-sm font-semibold text-black shadow-lg shadow-amber-500/20 transition-all duration-300 hover:shadow-amber-500/30"
+                            class="inline-flex items-center gap-2 rounded-xl bg-linear-to-r from-amber-500 to-orange-500 px-4 py-2.5 text-sm font-semibold text-black shadow-lg shadow-amber-500/20 transition-all duration-300 hover:shadow-amber-500/30"
                         >
                             <svg
                                 class="h-4 w-4"
@@ -293,5 +363,4 @@ defineProps({
 
             <PaginationNav :resource="tasks" noun="tasks" tone="amber" />
         </PageWidth>
-    </AppLayout>
 </template>

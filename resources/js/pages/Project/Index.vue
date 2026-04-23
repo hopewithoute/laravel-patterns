@@ -1,6 +1,5 @@
 <script setup>
 import { Link, Head } from '@inertiajs/vue3'
-import AppLayout from '@/layouts/AppLayout.vue'
 import PageHeader from '@/components/layout/PageHeader.vue'
 import PaginationNav from '@/components/layout/PaginationNav.vue'
 import PageWidth from '@/components/layout/PageWidth.vue'
@@ -14,14 +13,13 @@ defineProps({
 
 <template>
     <Head title="Projects" />
-    <AppLayout>
-        <PageWidth size="wide" class="space-y-8">
+    <PageWidth size="wide" class="space-y-8">
             <PageHeader
                 badge="Workspace"
                 title="Projects"
                 description="Organize your work into focused workspaces. Track progress and collaborate with your team."
                 tone="amber"
-                glow-class="top-0 right-1/3 w-80 h-80 bg-amber-500/[0.04]"
+                glow-class="top-0 right-1/3 w-80 h-80 bg-amber-500/4"
             >
                 <template #badge-icon>
                     <svg
@@ -40,10 +38,10 @@ defineProps({
                 <template #actions>
                     <Link
                         href="/projects/create"
-                        class="group relative inline-flex items-center gap-2 overflow-hidden rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-5 py-3 text-sm font-semibold text-black shadow-lg shadow-amber-500/15 transition-all duration-300 hover:shadow-amber-500/25"
+                        class="group relative inline-flex items-center gap-2 overflow-hidden rounded-xl bg-linear-to-r from-amber-500 to-orange-500 px-5 py-3 text-sm font-semibold text-black shadow-lg shadow-amber-500/15 transition-all duration-300 hover:shadow-amber-500/25"
                     >
                         <div
-                            class="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-700 group-hover:translate-x-full"
+                            class="absolute inset-0 -translate-x-full bg-linear-to-r from-transparent via-white/20 to-transparent transition-transform duration-700 group-hover:translate-x-full"
                         ></div>
                         <svg
                             class="relative h-4 w-4"
@@ -130,7 +128,7 @@ defineProps({
 
                             <!-- Description -->
                             <p
-                                class="text-muted-foreground mb-4 line-clamp-2 min-h-[2.5rem] text-sm"
+                                class="text-muted-foreground mb-4 line-clamp-2 min-h-10 text-sm"
                             >
                                 {{ project.description || 'No description provided' }}
                             </p>
@@ -199,7 +197,7 @@ defineProps({
                 <!-- Empty State -->
                 <div v-else class="empty-state">
                     <div
-                        class="absolute inset-0 bg-gradient-to-br from-amber-500/[0.04] via-transparent to-cyan-500/[0.03]"
+                        class="absolute inset-0 bg-linear-to-br from-amber-500/4 via-transparent to-cyan-500/3"
                     ></div>
                     <div class="relative z-10">
                         <div class="empty-state-icon border border-amber-500/20 bg-amber-500/10">
@@ -222,7 +220,7 @@ defineProps({
                         </p>
                         <Link
                             href="/projects/create"
-                            class="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-5 py-3 text-sm font-semibold text-black shadow-lg shadow-amber-500/15 transition-all duration-300 hover:shadow-amber-500/25"
+                            class="inline-flex items-center gap-2 rounded-xl bg-linear-to-r from-amber-500 to-orange-500 px-5 py-3 text-sm font-semibold text-black shadow-lg shadow-amber-500/15 transition-all duration-300 hover:shadow-amber-500/25"
                         >
                             <svg
                                 class="h-4 w-4"
@@ -245,5 +243,4 @@ defineProps({
                  ═══════════════════════════════════════════════════════════════════ -->
             <PaginationNav :resource="projects" noun="projects" tone="amber" />
         </PageWidth>
-    </AppLayout>
 </template>
