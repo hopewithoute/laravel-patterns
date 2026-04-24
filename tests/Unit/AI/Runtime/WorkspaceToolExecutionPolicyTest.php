@@ -153,4 +153,53 @@ class WorkspaceToolExecutionPolicyTest extends TestCase
         $this->assertSame(2, $result->metadata['attempt']);
         $this->assertSame(2, $result->metadata['max_attempts']);
     }
+
+    public function test_it_blocks_task_create_tools_for_non_privileged_workspace_roles(): void
+    {
+        [$user, $organization] = $this->createWorkspaceUser();
+        $organization->members()->updateExistingPivot($user->id, [
+            'role' => 'member',
+        ]);
+        Log::spy();
+
+        $this->mock(ToolRegistry::class, function ($mock) {
+            $mock->shouldReceive('find')
+                ->with('CreateTaskTool')
+                ->andReturn(new ToolDefinition(
+                    name: 'CreateTaskTool',
+                    uiIdentifier: 'create_task',
+                    label: 'Create task',
+                    description: 'Create a task.',
+                    whenToUse: 'Use for creates.',
+                    whenNotToUse: 'Do not use for reads.',
+                    schemaBuilder: fn ($schema): array => [],
+                    capability: 'task.create',
+                    operation: 'write',
+                ));
+        });
+
+        $context = AiRuntimeContext::make(
+            user: $user,
+            organization: $organization,
+            session: null,
+            prompt: 'Create a task.',
+        );
+        $executed = false;
+
+        $result = app(WorkspaceToolExecutionPolicy::class)->execute(
+            context: $context,
+            toolName: 'CreateTaskTool',
+            input: ['title' => 'Release checklist'],
+            next: function () use (&$executed): string {
+                $executed = true;
+
+                return '{"status":"ok"}';
+            },
+        );
+
+        $this->assertFalse($executed);
+        $this->assertFalse($result->successful);
+        $this->assertSame('authorization_error', $result->failureType);
+        $this->assertSame('surface_to_user', $result->failureBehavior);
+    }
 }

@@ -25,7 +25,9 @@ class WorkspacePromptClassifier
         $workspaceLookupMatches = $this->matchedKeywords($normalizedPrompt, $this->keywordClassifier()['workspace_lookup'] ?? []);
         $knowledgeLookupMatches = $this->matchedKeywords($normalizedPrompt, $this->keywordClassifier()['knowledge_lookup'] ?? []);
 
-        if ($this->looksLikeMutationPrompt($normalizedPrompt)) {
+        $looksLikeMutationPrompt = $this->looksLikeMutationPrompt($normalizedPrompt);
+
+        if ($looksLikeMutationPrompt) {
             if (! $this->hasExplicitWorkspaceLookupSignal($normalizedPrompt)) {
                 $workspaceLookupMatches = [];
             }
@@ -49,7 +51,13 @@ class WorkspacePromptClassifier
         ]));
 
         $artifactIntent = $this->classifyArtifactIntent($normalizedPrompt, $context);
-        $metadata = $this->metadataFor($normalizedPrompt, $matchedTerms, $matchedIntents, $matchedGuardrails);
+        $metadata = $this->metadataFor(
+            $normalizedPrompt,
+            $matchedTerms,
+            $matchedIntents,
+            $matchedGuardrails,
+            $looksLikeMutationPrompt,
+        );
 
         if ($this->matchesPromptInjection($normalizedPrompt)) {
             return PreflightDecision::reject(
@@ -71,6 +79,7 @@ class WorkspacePromptClassifier
             return PreflightDecision::allow(
                 intent: AiIntent::HybridLookup,
                 artifactIntent: $artifactIntent,
+                allowedCapabilities: ['workspace.read'],
                 reasons: ['hybrid_lookup_requested', 'workspace_context_resolved'],
                 riskLevel: RiskLevel::Medium,
                 needsRetrieval: true,
@@ -82,6 +91,7 @@ class WorkspacePromptClassifier
             return PreflightDecision::allow(
                 intent: AiIntent::KnowledgeLookup,
                 artifactIntent: $artifactIntent,
+                allowedCapabilities: ['workspace.read'],
                 reasons: ['knowledge_lookup_requested', 'workspace_context_resolved'],
                 needsRetrieval: true,
                 metadata: $metadata,
@@ -92,8 +102,20 @@ class WorkspacePromptClassifier
             return PreflightDecision::allow(
                 intent: AiIntent::WorkspaceLookup,
                 artifactIntent: $artifactIntent,
+                allowedCapabilities: ['workspace.read'],
                 reasons: ['workspace_lookup_requested', 'workspace_context_resolved'],
                 needsRetrieval: true,
+                metadata: $metadata,
+            );
+        }
+
+        if ($looksLikeMutationPrompt) {
+            return PreflightDecision::allow(
+                intent: AiIntent::TaskCreate,
+                artifactIntent: $artifactIntent,
+                allowedCapabilities: ['workspace.read', 'task.create'],
+                reasons: ['workspace_mutation_requested', 'workspace_context_resolved'],
+                riskLevel: RiskLevel::Medium,
                 metadata: $metadata,
             );
         }
@@ -101,6 +123,7 @@ class WorkspacePromptClassifier
         return PreflightDecision::allow(
             intent: AiIntent::WorkspaceChat,
             artifactIntent: $artifactIntent,
+            allowedCapabilities: ['workspace.read'],
             reasons: ['workspace_context_resolved'],
             metadata: $metadata,
         );
@@ -221,6 +244,7 @@ class WorkspacePromptClassifier
         array $matchedTerms = [],
         array $matchedIntents = [],
         array $matchedGuardrails = [],
+        bool $looksLikeMutationPrompt = false,
     ): array {
         return [
             'classifier' => 'keyword_rule_based',
@@ -228,6 +252,7 @@ class WorkspacePromptClassifier
             'matched_terms' => $matchedTerms,
             'matched_intents' => $matchedIntents,
             'matched_guardrails' => $matchedGuardrails,
+            'mutation_prompt' => $looksLikeMutationPrompt,
         ];
     }
 

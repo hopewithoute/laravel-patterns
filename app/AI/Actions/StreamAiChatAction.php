@@ -2,24 +2,27 @@
 
 namespace App\AI\Actions;
 
-use App\AI\Http\SseStreamWriter;
+use App\AI\Runtime\Contracts\AiStreamOutput;
+use App\AI\Runtime\Contracts\AiStreamSink;
 use App\AI\Runtime\Enums\AiStreamEvent;
 use App\AI\Runtime\Execution\PreparedWorkspaceAssistantRun;
+use App\AI\Runtime\Streaming\AiStreamEnvelopeFactory;
 use App\AI\Runtime\Tools\ToolExecutionResult;
-use Symfony\Component\HttpFoundation\StreamedResponse;
+use Symfony\Component\HttpFoundation\Response;
 
 class StreamAiChatAction
 {
     public function __construct(
-        private readonly SseStreamWriter $sse,
+        private readonly AiStreamOutput $streamOutput,
+        private readonly AiStreamEnvelopeFactory $streamEnvelopeFactory,
         private readonly BuildAiArtifactsAction $buildAiArtifactsAction,
     ) {}
 
     public function streamAgentResponse(
         PreparedWorkspaceAssistantRun $preparedRun,
         iterable $stream,
-    ): StreamedResponse {
-        return $this->sse->stream(function (SseStreamWriter $sse) use ($preparedRun, $stream): void {
+    ): Response {
+        return $this->streamOutput->respond(function (AiStreamSink $streamSink) use ($preparedRun, $stream): void {
             $assistantText = '';
 
             foreach ($stream as $event) {
@@ -29,7 +32,7 @@ class StreamAiChatAction
                     continue;
                 }
 
-                $sse->writePayload($payload);
+                $streamSink->publish($payload);
 
                 $type = AiStreamEvent::tryFrom($payload['type'] ?? '');
                 $assistantText .= $this->assistantTextDelta($type, $payload);
@@ -44,35 +47,25 @@ class StreamAiChatAction
                 )?->toArray();
 
                 if ($artifact !== null) {
-                    $sse->writePayload($artifact);
+                    $streamSink->publish($artifact);
                 }
             }
 
             foreach ($this->buildAiArtifactsAction->resolve($preparedRun, [], $assistantText) as $artifact) {
-                $sse->writePayload($artifact->toArray());
+                $streamSink->publish($artifact->toArray());
             }
-        });
+        }, $this->metadataFor($preparedRun));
     }
 
     public function streamManualResponse(
         string $assistantText,
-        ?string $provider,
+        string $provider,
         ?string $model,
-    ): StreamedResponse {
-        return $this->sse->stream(function (SseStreamWriter $sse) use ($assistantText, $model, $provider): void {
-            $sse->writePayload([
-                'type' => AiStreamEvent::StreamStart->value,
-                'provider' => $provider ?? config('ai.default'),
-                'model' => $model ?? 'provider-default',
-            ]);
-            $sse->writePayload([
-                'type' => AiStreamEvent::TextDelta->value,
-                'delta' => $assistantText,
-            ]);
-            $sse->writePayload([
-                'type' => AiStreamEvent::StreamEnd->value,
-                'usage' => [],
-            ]);
+    ): Response {
+        return $this->streamOutput->respond(function (AiStreamSink $streamSink) use ($assistantText, $model, $provider): void {
+            $streamSink->publish($this->streamEnvelopeFactory->streamStart($provider, $model));
+            $streamSink->publish($this->streamEnvelopeFactory->textDelta($assistantText));
+            $streamSink->publish($this->streamEnvelopeFactory->streamEnd());
         });
     }
 
@@ -99,5 +92,19 @@ class StreamAiChatAction
                 result: $payload['result'] ?? null,
                 metadata: ['tool_id' => (string) ($payload['tool_id'] ?? '')],
             );
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function metadataFor(PreparedWorkspaceAssistantRun $preparedRun): array
+    {
+        return [
+            'session_id' => $preparedRun->context->session?->id,
+            'organization_id' => $preparedRun->context->organization->id,
+            'user_id' => $preparedRun->context->user->id,
+            'provider' => $preparedRun->context->provider,
+            'model' => $preparedRun->context->model,
+        ];
     }
 }

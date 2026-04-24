@@ -14,6 +14,7 @@ use App\AI\Runtime\Artifacts\Registry\DiscoveredArtifactRegistryBuilder;
 use App\AI\Runtime\Artifacts\Registry\InMemoryArtifactRegistry;
 use App\AI\Runtime\Artifacts\RuntimeArtifactModeCatalog;
 use App\AI\Runtime\Artifacts\WorkspaceArtifactResolver;
+use App\AI\Runtime\Contracts\AiStreamOutput;
 use App\AI\Runtime\Contracts\AvailableToolResolver;
 use App\AI\Runtime\Contracts\KnowledgeSource;
 use App\AI\Runtime\Contracts\LexicalSearchIndex;
@@ -37,6 +38,8 @@ use App\AI\Runtime\Retrieval\WorkspaceBasicKnowledgeSource;
 use App\AI\Runtime\Retrieval\WorkspaceBasicRetrievalPlanner;
 use App\AI\Runtime\Retrieval\WorkspaceDatabaseKnowledgeSource;
 use App\AI\Runtime\Retrieval\WorkspaceLexicalKnowledgeSource;
+use App\AI\Runtime\Streaming\AiStreamEnvelopeFactory;
+use App\AI\Runtime\Streaming\AiStreamTransportRegistry;
 use App\AI\Runtime\Support\AttributeClassDiscovery;
 use App\AI\Runtime\Telemetry\DatabaseTelemetryStore;
 use App\AI\Runtime\Telemetry\NullTelemetryStore;
@@ -152,6 +155,20 @@ class AiRuntimeServiceProvider extends ServiceProvider
                 ),
                 default => new NullTelemetryStore,
             };
+        });
+
+        $this->app->singleton(AiStreamEnvelopeFactory::class);
+
+        $this->app->scoped(AiStreamTransportRegistry::class, function ($app): AiStreamTransportRegistry {
+            return new AiStreamTransportRegistry(
+                envelopeFactory: $app->make(AiStreamEnvelopeFactory::class),
+                config: config('ai.runtime.stream', []),
+                debugMode: (bool) config('app.debug', false),
+            );
+        });
+
+        $this->app->scoped(AiStreamOutput::class, function (): AiStreamOutput {
+            return $this->app->make(AiStreamTransportRegistry::class)->resolve();
         });
 
         $this->app->singleton(LexicalSearchIndex::class, function (): LexicalSearchIndex {

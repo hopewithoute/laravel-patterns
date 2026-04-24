@@ -28,10 +28,6 @@ readonly class WorkspaceToolAccessResolver implements ToolAccessResolver
         $allowedCapabilities = $decision->allowedCapabilities;
         $normalizedTools = $this->normalizeTools($tools);
 
-        if ($allowedCapabilities === []) {
-            return $normalizedTools;
-        }
-
         return array_values(array_filter(
             $normalizedTools,
             fn (mixed $tool): bool => $this->toolIsAllowed($tool, $allowedCapabilities),
@@ -59,7 +55,7 @@ readonly class WorkspaceToolAccessResolver implements ToolAccessResolver
         $capability = $this->toolRegistry->findByTool($tool)?->capability;
 
         if ($capability === null) {
-            return true;
+            return $allowedCapabilities === [];
         }
 
         return in_array($capability, $allowedCapabilities, true);

@@ -116,7 +116,7 @@ class AiChatStreamControllerTest extends TestCase
         $assistantMeta = json_decode($messages[1]->meta ?? '[]', true);
 
         $this->assertIsArray($assistantMeta);
-        $this->assertSame('workspace_chat', $assistantMeta['preflight']['intent'] ?? null);
+        $this->assertSame('task_create', $assistantMeta['preflight']['intent'] ?? null);
         $this->assertSame('agent_stream', $assistantMeta['runtime']['completion_mode'] ?? null);
         $this->assertSame(0, $assistantMeta['runtime']['tools']['count'] ?? null);
         $this->assertSame('allow', $assistantMeta['runtime']['trace'][0]['status'] ?? null);

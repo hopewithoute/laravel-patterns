@@ -68,7 +68,7 @@ class WorkspacePromptClassifierTest extends TestCase
         $this->assertSame(['workspace_lookup', 'knowledge_lookup'], $classification->metadata['matched_intents']);
     }
 
-    public function test_it_treats_non_retrieval_create_prompts_as_in_scope_workspace_chat(): void
+    public function test_it_treats_non_retrieval_create_prompts_as_task_create_intent(): void
     {
         [$user, $organization] = $this->createWorkspaceUser();
 
@@ -81,8 +81,9 @@ class WorkspacePromptClassifierTest extends TestCase
 
         $classification = app(WorkspacePromptClassifier::class)->classify($context);
 
-        $this->assertSame(AiIntent::WorkspaceChat, $classification->intent);
+        $this->assertSame(AiIntent::TaskCreate, $classification->intent);
         $this->assertFalse($classification->needsRetrieval);
+        $this->assertSame(['workspace.read', 'task.create'], $classification->allowedCapabilities);
     }
 
     public function test_it_does_not_treat_checklist_as_a_lookup_signal_inside_create_prompts(): void
@@ -98,7 +99,7 @@ class WorkspacePromptClassifierTest extends TestCase
 
         $classification = app(WorkspacePromptClassifier::class)->classify($context);
 
-        $this->assertSame(AiIntent::WorkspaceChat, $classification->intent);
+        $this->assertSame(AiIntent::TaskCreate, $classification->intent);
         $this->assertFalse($classification->needsRetrieval);
     }
 

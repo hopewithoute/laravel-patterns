@@ -6,6 +6,7 @@ use App\AI\Runtime\Context\AiRuntimeContext;
 use App\AI\Runtime\Contracts\PolicyEngine;
 use App\AI\Runtime\Enums\AiIntent;
 use App\AI\Runtime\Preflight\PreflightDecision;
+use Illuminate\Support\Str;
 
 class WorkspaceScopePolicyEngine implements PolicyEngine
 {
@@ -13,6 +14,18 @@ class WorkspaceScopePolicyEngine implements PolicyEngine
     {
         if (! $context->organization->hasMember($context->user)) {
             return PreflightDecision::reject('workspace_membership_required', AiIntent::WorkspaceAccessDenied);
+        }
+
+        if (in_array('task.create', $decision->allowedCapabilities, true) && ! $this->canCreateTasks($context)) {
+            return PreflightDecision::reject(
+                reason: 'task_create_role_required',
+                intent: AiIntent::WorkspaceAccessDenied,
+                metadata: [
+                    ...$decision->metadata,
+                    'required_capability' => 'task.create',
+                    'role' => $context->organization->getMemberRole($context->user),
+                ],
+            );
         }
 
         return new PreflightDecision(
@@ -28,5 +41,12 @@ class WorkspaceScopePolicyEngine implements PolicyEngine
             ])),
             metadata: $decision->metadata,
         );
+    }
+
+    private function canCreateTasks(AiRuntimeContext $context): bool
+    {
+        $role = Str::lower((string) $context->organization->getMemberRole($context->user));
+
+        return in_array($role, ['owner', 'admin', 'super admin'], true);
     }
 }

@@ -225,5 +225,17 @@ return [
         'telemetry' => [
             'driver' => env('AI_RUNTIME_TELEMETRY_DRIVER', 'database'),
         ],
+        'stream' => [
+            'driver' => env('AI_RUNTIME_STREAM_DRIVER', 'sse'),
+            'redis' => [
+                'connection' => env('AI_RUNTIME_STREAM_REDIS_CONNECTION'),
+                'channel_prefix' => env('AI_RUNTIME_STREAM_REDIS_PREFIX', 'ai-runtime'),
+            ],
+            'mercure' => [
+                'hub_url' => env('MERCURE_HUB_URL'),
+                'jwt' => env('MERCURE_JWT'),
+                'topic_prefix' => env('AI_RUNTIME_STREAM_MERCURE_TOPIC_PREFIX', 'ai-runtime'),
+            ],
+        ],
     ],
 ];

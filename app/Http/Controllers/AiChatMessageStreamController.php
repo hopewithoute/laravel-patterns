@@ -8,7 +8,6 @@ use App\AI\Actions\BuildAiArtifactsAction;
 use App\AI\Actions\StreamAiChatAction;
 use App\AI\Agents\WorkspaceAssistantAgent;
 use App\AI\Data\AiChatPromptData;
-use App\AI\Http\SseStreamWriter;
 use App\AI\Resolvers\AiModelResolver;
 use App\AI\Runtime\Enums\ArtifactIntent;
 use App\AI\Runtime\Execution\PreparedWorkspaceAssistantRun;
@@ -19,12 +18,11 @@ use App\Models\User;
 use App\Supports\GetActiveOrganization;
 use Illuminate\Http\Request;
 use Laravel\Ai\Responses\StreamedAgentResponse;
-use Symfony\Component\HttpFoundation\StreamedResponse;
+use Symfony\Component\HttpFoundation\Response;
 
 class AiChatMessageStreamController extends Controller
 {
     public function __construct(
-        private readonly SseStreamWriter $sse,
         private readonly AiModelResolver $modelResolver,
     ) {}
 
@@ -36,7 +34,7 @@ class AiChatMessageStreamController extends Controller
         AiChatSessionManualReplyAction $manualReplyAction,
         BuildAiArtifactsAction $buildAiArtifactsAction,
         WorkspaceAssistantRuntime $workspaceAssistantRuntime,
-    ): StreamedResponse {
+    ): Response {
         $organization = GetActiveOrganization::resolveOrFail();
         $user = $request->user();
         $artifactIntent = ArtifactIntent::tryFrom($data->artifact_mode) ?? ArtifactIntent::Auto;
@@ -103,7 +101,7 @@ class AiChatMessageStreamController extends Controller
         AiChatSession $session,
         User $user,
         PreparedWorkspaceAssistantRun $preparedRun,
-    ): StreamedResponse {
+    ): Response {
         $assistantText = $preparedRun->decision->rejectionMessage();
 
         $manualReplyAction->execute(
@@ -115,7 +113,7 @@ class AiChatMessageStreamController extends Controller
 
         return app(StreamAiChatAction::class)->streamManualResponse(
             $assistantText,
-            $preparedRun->context->provider,
+            (string) ($preparedRun->context->provider ?? config('ai.default')),
             $preparedRun->context->model,
         );
     }

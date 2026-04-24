@@ -32,11 +32,15 @@ readonly class WorkspaceToolExecutionPolicy implements ToolExecutionPolicy
     ): ToolExecutionResult {
         $toolDefinition = $this->toolRegistry->find($toolName);
         $operation = $toolDefinition?->operation ?? 'unknown';
+        $capability = $toolDefinition?->capability;
         $attempt = 1;
         $maxAttempts = $toolDefinition?->maxAttempts ?? 1;
 
         while (true) {
             try {
+                if ($capability === 'task.create' && ! $this->canCreateTasks($context)) {
+                    throw new AuthorizationException('Your workspace role is not authorized to create tasks with AI tools.');
+                }
 
                 Log::info('AI tool invocation started.', [
                     'tool' => $toolName,
@@ -129,6 +133,13 @@ readonly class WorkspaceToolExecutionPolicy implements ToolExecutionPolicy
     private function shouldRetry(string $toolName, Throwable $exception): bool
     {
         return $exception instanceof ConnectionException;
+    }
+
+    private function canCreateTasks(AiRuntimeContext $context): bool
+    {
+        $role = strtolower((string) $context->organization->getMemberRole($context->user));
+
+        return in_array($role, ['owner', 'admin', 'super admin'], true);
     }
 
     /**

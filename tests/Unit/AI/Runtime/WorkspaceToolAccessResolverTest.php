@@ -14,7 +14,7 @@ class WorkspaceToolAccessResolverTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_it_returns_all_tools_for_allowed_runs_when_no_explicit_policy_override_exists(): void
+    public function test_it_only_returns_uncapable_tools_when_no_explicit_capabilities_exist(): void
     {
         [$user, $organization] = $this->createWorkspaceUser();
 
@@ -59,8 +59,44 @@ class WorkspaceToolAccessResolverTest extends TestCase
             [new FakeWriteTool, new FakeReadTool],
         );
 
-        $this->assertCount(2, $allowedTools);
-        $this->assertCount(2, $restrictedTools);
+        $this->assertCount(1, $allowedTools);
+        $this->assertInstanceOf(FakeReadTool::class, $allowedTools[0]);
+        $this->assertCount(1, $restrictedTools);
+        $this->assertInstanceOf(FakeWriteTool::class, $restrictedTools[0]);
+    }
+
+    public function test_it_filters_out_all_capability_tools_for_plain_chat_allowlists(): void
+    {
+        [$user, $organization] = $this->createWorkspaceUser();
+
+        $context = AiRuntimeContext::make(
+            user: $user,
+            organization: $organization,
+            session: null,
+            prompt: 'Hello.',
+        );
+
+        $resolver = new WorkspaceToolAccessResolver(new InMemoryToolRegistry([
+            new ToolDefinition(
+                name: 'FakeWriteTool',
+                uiIdentifier: 'fake_write',
+                label: 'Fake write',
+                description: 'Fake write tool.',
+                whenToUse: 'Use for writes.',
+                whenNotToUse: 'Do not use for reads.',
+                schemaBuilder: fn ($schema): array => [],
+                capability: 'task.create',
+                toolClass: FakeWriteTool::class,
+            ),
+        ]));
+
+        $tools = $resolver->resolve(
+            $context,
+            PreflightDecision::allow(allowedCapabilities: ['workspace.read']),
+            [new FakeWriteTool],
+        );
+
+        $this->assertSame([], $tools);
     }
 
     public function test_it_can_still_filter_tools_when_a_policy_explicitly_limits_capabilities(): void

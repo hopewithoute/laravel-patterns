@@ -37,8 +37,8 @@ class WorkspaceAssistantRuntimeTest extends TestCase
             model: 'gpt-4.1',
         );
 
-        $this->assertSame(AiIntent::WorkspaceChat, $preparedRun->decision->intent);
-        $this->assertSame([], $preparedRun->decision->allowedCapabilities);
+        $this->assertSame(AiIntent::TaskCreate, $preparedRun->decision->intent);
+        $this->assertSame(['workspace.read', 'task.create'], $preparedRun->decision->allowedCapabilities);
         $this->assertSame(ArtifactIntent::ApprovalCard, $preparedRun->decision->artifactIntent);
         $this->assertSame('cliproxyapi', $preparedRun->context->provider);
         $this->assertSame('gpt-4.1', $preparedRun->context->model);
