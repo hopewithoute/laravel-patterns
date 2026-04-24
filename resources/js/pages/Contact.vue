@@ -1,6 +1,6 @@
 <script>
 export default {
-  layout: null,
+    layout: null,
 }
 </script>
 
@@ -18,82 +18,143 @@ onMounted(() => {
 </script>
 
 <template>
-  <Head title="Contact Us - TaskFlow" />
-  
-  <div class="min-h-screen bg-background gradient-mesh text-foreground selection:bg-primary/25 grain relative overflow-hidden flex flex-col">
-    <div class="orb-cyan top-[-10%] right-[-10%] opacity-20"></div>
+    <Head title="Contact Us - TaskFlow" />
 
-    <header class="container mx-auto px-6 py-10 relative z-10 max-w-5xl">
-       <Link href="/" class="group inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-12">
-          <ArrowLeft class="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-          Back to Home
-       </Link>
-       
-       <div class="flex items-center gap-4 mb-6">
-          <div class="w-12 h-12 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center glow-cyan-sm">
-             <MessageSquare class="w-6 h-6 text-cyan-400" />
-          </div>
-          <h1 class="font-display text-4xl sm:text-5xl tracking-tight">Get in <span class="italic text-gradient-cyan">Touch</span></h1>
-       </div>
-       <p class="text-muted-foreground text-lg font-light max-w-2xl">Have questions about our tactile workspace? Our team is here to help you build better.</p>
-    </header>
+    <div
+        class="bg-background gradient-mesh text-foreground selection:bg-primary/25 grain relative flex min-h-screen flex-col overflow-hidden"
+    >
+        <div class="orb-cyan top-[-10%] right-[-10%] opacity-20"></div>
 
-    <main class="container mx-auto px-6 py-12 relative z-10 max-w-5xl flex-1 flex flex-col items-center">
-      <div class="grid md:grid-cols-3 gap-8 w-full mb-16">
-          <div class="glass-elevated p-8 rounded-3xl border border-border/50 text-center card-hover">
-             <div class="w-12 h-12 rounded-xl bg-surface mx-auto mb-6 flex items-center justify-center border border-border/60">
-                <Mail class="w-6 h-6 text-primary" />
-             </div>
-             <h3 class="font-display text-xl mb-2">Email</h3>
-             <p class="text-muted-foreground text-sm mb-4">Response within 24 hours.</p>
-             <a href="mailto:hello@taskflow.dev" class="text-primary hover:underline font-mono">hello@taskflow.dev</a>
-          </div>
+        <header class="relative z-10 container mx-auto max-w-5xl px-6 py-10">
+            <Link
+                href="/"
+                class="group text-muted-foreground hover:text-foreground mb-12 inline-flex items-center gap-2 text-sm transition-colors"
+            >
+                <ArrowLeft class="h-4 w-4 transition-transform group-hover:-translate-x-1" />
+                Back to Home
+            </Link>
 
-          <div class="glass-elevated p-8 rounded-3xl border border-border/50 text-center card-hover lg:scale-105">
-             <div class="w-12 h-12 rounded-xl bg-surface mx-auto mb-6 flex items-center justify-center border border-border/60">
-                <MessageSquare class="w-6 h-6 text-cyan-400" />
-             </div>
-             <h3 class="font-display text-xl mb-2">Support Chat</h3>
-             <p class="text-muted-foreground text-sm mb-4">Available for Enterprise.</p>
-             <button class="bg-foreground text-background px-6 py-2 rounded-full text-sm font-semibold hover:bg-primary transition-colors">Start Chat</button>
-          </div>
-
-          <div class="glass-elevated p-8 rounded-3xl border border-border/50 text-center card-hover">
-             <div class="w-12 h-12 rounded-xl bg-surface mx-auto mb-6 flex items-center justify-center border border-border/60">
-                <MapPin class="w-6 h-6 text-emerald-400" />
-             </div>
-             <h3 class="font-display text-xl mb-2">Studio</h3>
-             <p class="text-muted-foreground text-sm mb-4">Digital-first operation.</p>
-             <span class="text-emerald-400 font-mono text-sm uppercase">Global Remote</span>
-          </div>
-      </div>
-
-      <div class="w-full max-w-2xl glass p-8 sm:p-12 rounded-[2rem] border border-border/40">
-          <h2 class="font-display text-3xl mb-8 text-center italic text-gradient">Send a message</h2>
-          <form class="space-y-6" @submit.prevent>
-             <div class="grid sm:grid-cols-2 gap-6">
-                <div class="space-y-2">
-                   <label class="text-xs font-mono text-muted-foreground uppercase tracking-wider ml-1">Name</label>
-                   <input type="text" placeholder="John Doe" class="w-full bg-surface-elevated border border-border/60 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all" />
+            <div class="mb-6 flex items-center gap-4">
+                <div
+                    class="glow-cyan-sm flex h-12 w-12 items-center justify-center rounded-2xl border border-cyan-500/20 bg-cyan-500/10"
+                >
+                    <MessageSquare class="h-6 w-6 text-cyan-400" />
                 </div>
-                <div class="space-y-2">
-                   <label class="text-xs font-mono text-muted-foreground uppercase tracking-wider ml-1">Email</label>
-                   <input type="email" placeholder="john@example.com" class="w-full bg-surface-elevated border border-border/60 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all" />
-                </div>
-             </div>
-             <div class="space-y-2">
-                <label class="text-xs font-mono text-muted-foreground uppercase tracking-wider ml-1">Message</label>
-                <textarea rows="4" placeholder="How can we help?" class="w-full bg-surface-elevated border border-border/60 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all resize-none"></textarea>
-             </div>
-             <button class="w-full bg-primary text-primary-foreground py-4 rounded-xl font-bold shadow-lg shadow-primary/20 hover:scale-[1.01] active:scale-[0.99] transition-all">
-                Send Inquiry
-             </button>
-          </form>
-      </div>
-    </main>
+                <h1 class="font-display text-4xl tracking-tight sm:text-5xl">
+                    Get in <span class="text-gradient-cyan italic">Touch</span>
+                </h1>
+            </div>
+            <p class="text-muted-foreground max-w-2xl text-lg font-light">
+                Have questions about our tactile workspace? Our team is here to help you build
+                better.
+            </p>
+        </header>
 
-    <footer class="container mx-auto px-6 py-10 text-center text-xs text-muted-foreground font-mono">
-       <p>© 2026 TaskFlow Inc. Global Tactile Communications.</p>
-    </footer>
-  </div>
+        <main
+            class="relative z-10 container mx-auto flex max-w-5xl flex-1 flex-col items-center px-6 py-12"
+        >
+            <div class="mb-16 grid w-full gap-8 md:grid-cols-3">
+                <div
+                    class="glass-elevated border-border/50 card-hover rounded-3xl border p-8 text-center"
+                >
+                    <div
+                        class="bg-surface border-border/60 mx-auto mb-6 flex h-12 w-12 items-center justify-center rounded-xl border"
+                    >
+                        <Mail class="text-primary h-6 w-6" />
+                    </div>
+                    <h3 class="font-display mb-2 text-xl">Email</h3>
+                    <p class="text-muted-foreground mb-4 text-sm">Response within 24 hours.</p>
+                    <a
+                        href="mailto:hello@taskflow.dev"
+                        class="text-primary font-mono hover:underline"
+                        >hello@taskflow.dev</a
+                    >
+                </div>
+
+                <div
+                    class="glass-elevated border-border/50 card-hover rounded-3xl border p-8 text-center lg:scale-105"
+                >
+                    <div
+                        class="bg-surface border-border/60 mx-auto mb-6 flex h-12 w-12 items-center justify-center rounded-xl border"
+                    >
+                        <MessageSquare class="h-6 w-6 text-cyan-400" />
+                    </div>
+                    <h3 class="font-display mb-2 text-xl">Support Chat</h3>
+                    <p class="text-muted-foreground mb-4 text-sm">Available for Enterprise.</p>
+                    <button
+                        class="bg-foreground text-background hover:bg-primary rounded-full px-6 py-2 text-sm font-semibold transition-colors"
+                    >
+                        Start Chat
+                    </button>
+                </div>
+
+                <div
+                    class="glass-elevated border-border/50 card-hover rounded-3xl border p-8 text-center"
+                >
+                    <div
+                        class="bg-surface border-border/60 mx-auto mb-6 flex h-12 w-12 items-center justify-center rounded-xl border"
+                    >
+                        <MapPin class="h-6 w-6 text-emerald-400" />
+                    </div>
+                    <h3 class="font-display mb-2 text-xl">Studio</h3>
+                    <p class="text-muted-foreground mb-4 text-sm">Digital-first operation.</p>
+                    <span class="font-mono text-sm text-emerald-400 uppercase">Global Remote</span>
+                </div>
+            </div>
+
+            <div class="glass border-border/40 w-full max-w-2xl rounded-[2rem] border p-8 sm:p-12">
+                <h2 class="font-display text-gradient mb-8 text-center text-3xl italic">
+                    Send a message
+                </h2>
+                <form class="space-y-6" @submit.prevent>
+                    <div class="grid gap-6 sm:grid-cols-2">
+                        <div class="space-y-2">
+                            <label
+                                class="text-muted-foreground ml-1 font-mono text-xs tracking-wider uppercase"
+                                >Name</label
+                            >
+                            <input
+                                type="text"
+                                placeholder="John Doe"
+                                class="bg-surface-elevated border-border/60 focus:ring-primary/20 w-full rounded-xl border px-4 py-3 text-sm transition-all focus:ring-2 focus:outline-none"
+                            />
+                        </div>
+                        <div class="space-y-2">
+                            <label
+                                class="text-muted-foreground ml-1 font-mono text-xs tracking-wider uppercase"
+                                >Email</label
+                            >
+                            <input
+                                type="email"
+                                placeholder="john@example.com"
+                                class="bg-surface-elevated border-border/60 focus:ring-primary/20 w-full rounded-xl border px-4 py-3 text-sm transition-all focus:ring-2 focus:outline-none"
+                            />
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <label
+                            class="text-muted-foreground ml-1 font-mono text-xs tracking-wider uppercase"
+                            >Message</label
+                        >
+                        <textarea
+                            rows="4"
+                            placeholder="How can we help?"
+                            class="bg-surface-elevated border-border/60 focus:ring-primary/20 w-full resize-none rounded-xl border px-4 py-3 text-sm transition-all focus:ring-2 focus:outline-none"
+                        ></textarea>
+                    </div>
+                    <button
+                        class="bg-primary text-primary-foreground shadow-primary/20 w-full rounded-xl py-4 font-bold shadow-lg transition-all hover:scale-[1.01] active:scale-[0.99]"
+                    >
+                        Send Inquiry
+                    </button>
+                </form>
+            </div>
+        </main>
+
+        <footer
+            class="text-muted-foreground container mx-auto px-6 py-10 text-center font-mono text-xs"
+        >
+            <p>© 2026 TaskFlow Inc. Global Tactile Communications.</p>
+        </footer>
+    </div>
 </template>

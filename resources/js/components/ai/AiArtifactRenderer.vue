@@ -25,12 +25,12 @@ const artifactDefinitions = Object.fromEntries(
 
 const rendererRegistry = {
     'task-summary': AiArtifactTaskSummary,
-    'table': AiArtifactTable,
-    'checklist': AiArtifactChecklist,
+    table: AiArtifactTable,
+    checklist: AiArtifactChecklist,
     'key-value': AiArtifactKeyValue,
     'stats-card': AiArtifactStatsCard,
     'approval-card': AiArtifactApprovalCard,
-    'markdown': AiArtifactMarkdown,
+    markdown: AiArtifactMarkdown,
     'bar-chart': AiArtifactBarChart,
     'line-chart': AiArtifactLineChart,
     'json-fallback': AiArtifactJsonFallback,
@@ -44,7 +44,9 @@ const artifactRenderer = computed(
     () => props.artifact.meta?.renderer || artifactDefinition.value?.renderer || 'json-fallback',
 )
 
-const artifactComponent = computed(() => rendererRegistry[artifactRenderer.value] || AiArtifactJsonFallback)
+const artifactComponent = computed(
+    () => rendererRegistry[artifactRenderer.value] || AiArtifactJsonFallback,
+)
 </script>
 
 <template>

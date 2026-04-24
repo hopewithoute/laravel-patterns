@@ -23,13 +23,13 @@ const props = defineProps({
         </div>
         <div class="bg-background/70 rounded-2xl px-3 py-3">
             <p class="text-muted-foreground text-[11px] tracking-[0.16em] uppercase">Task ID</p>
-            <p class="text-foreground mt-1 break-all font-mono text-xs">
+            <p class="text-foreground mt-1 font-mono text-xs break-all">
                 {{ props.artifact.data.task_id || '—' }}
             </p>
         </div>
         <div class="bg-background/70 rounded-2xl px-3 py-3">
             <p class="text-muted-foreground text-[11px] tracking-[0.16em] uppercase">Project ID</p>
-            <p class="text-foreground mt-1 break-all font-mono text-xs">
+            <p class="text-foreground mt-1 font-mono text-xs break-all">
                 {{ props.artifact.data.project_id || '—' }}
             </p>
         </div>

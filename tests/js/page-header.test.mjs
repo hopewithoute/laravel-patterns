@@ -34,7 +34,10 @@ test('active AppLayout pages share the PageHeader component for header rhythm', 
 test('AI chat page intentionally uses a fullscreen chat layout instead of PageHeader', () => {
     const page = fs.readFileSync('resources/js/pages/Ai/Index.vue', 'utf8')
 
-    assert.doesNotMatch(page, /import PageHeader from ['"]@\/components\/layout\/PageHeader\.vue['"]/)
+    assert.doesNotMatch(
+        page,
+        /import PageHeader from ['"]@\/components\/layout\/PageHeader\.vue['"]/,
+    )
     assert.doesNotMatch(page, /<PageHeader/)
     assert.match(page, /setLayoutProps\(\{/)
     assert.match(page, /mainClass: 'h-\[calc\(100dvh-3\.5rem\)\] overflow-hidden'/)

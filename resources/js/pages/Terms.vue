@@ -1,6 +1,6 @@
 <script>
 export default {
-  layout: null,
+    layout: null,
 }
 </script>
 
@@ -18,60 +18,88 @@ onMounted(() => {
 </script>
 
 <template>
-  <Head title="Terms of Service - TaskFlow" />
-  
-  <div class="min-h-screen bg-background gradient-mesh text-foreground selection:bg-primary/25 grain relative overflow-hidden flex flex-col">
-    <div class="orb-amber top-[-15%] left-[-10%] opacity-20"></div>
+    <Head title="Terms of Service - TaskFlow" />
 
-    <header class="container mx-auto px-6 py-10 relative z-10 max-w-4xl">
-       <Link href="/" class="group inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-12">
-          <ArrowLeft class="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-          Back to Home
-       </Link>
-       
-       <div class="flex items-center gap-4 mb-6">
-          <div class="w-12 h-12 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center glow-amber-sm">
-             <ScrollText class="w-6 h-6 text-primary" />
-          </div>
-          <h1 class="font-display text-4xl sm:text-5xl tracking-tight">Terms of <span class="italic text-gradient">Service</span></h1>
-       </div>
-    </header>
+    <div
+        class="bg-background gradient-mesh text-foreground selection:bg-primary/25 grain relative flex min-h-screen flex-col overflow-hidden"
+    >
+        <div class="orb-amber top-[-15%] left-[-10%] opacity-20"></div>
 
-    <main class="container mx-auto px-6 py-12 relative z-10 max-w-4xl flex-1">
-      <div class="glass-elevated rounded-3xl p-8 sm:p-12 border border-border/50 relative overflow-hidden min-h-[400px]">
-         <div class="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
-         
-         <div class="prose prose-invert max-w-none space-y-8">
-            <section>
-               <h2 class="font-display text-2xl text-foreground mb-4">1. Acceptance of Terms</h2>
-               <p class="text-muted-foreground leading-relaxed">
-                  Welcome to TaskFlow. By accessing or using our platform, you agree to be bound by these Terms of Service. If you do not agree, please do not use our services.
-               </p>
-            </section>
+        <header class="relative z-10 container mx-auto max-w-4xl px-6 py-10">
+            <Link
+                href="/"
+                class="group text-muted-foreground hover:text-foreground mb-12 inline-flex items-center gap-2 text-sm transition-colors"
+            >
+                <ArrowLeft class="h-4 w-4 transition-transform group-hover:-translate-x-1" />
+                Back to Home
+            </Link>
 
-            <section>
-               <h2 class="font-display text-2xl text-foreground mb-4">2. User Responsibilities</h2>
-               <p class="text-muted-foreground leading-relaxed">
-                  You are responsible for maintaining the confidentiality of your account and password. You agree to accept responsibility for all activities that occur under your account.
-               </p>
-            </section>
-            
-            <section>
-               <h2 class="font-display text-2xl text-foreground mb-4">3. Premium Crafted Content</h2>
-               <p class="text-muted-foreground leading-relaxed">
-                  All design elements, including our tactile interactions and "Lunar Obsidian" aesthetic, are intellectual property of TaskFlow Inc.
-               </p>
-            </section>
-
-            <div class="pt-12 border-t border-border/40 mt-12">
-               <p class="text-xs font-mono text-muted-foreground">LAST UPDATED: APRIL 14, 2026</p>
+            <div class="mb-6 flex items-center gap-4">
+                <div
+                    class="bg-primary/10 border-primary/20 glow-amber-sm flex h-12 w-12 items-center justify-center rounded-2xl border"
+                >
+                    <ScrollText class="text-primary h-6 w-6" />
+                </div>
+                <h1 class="font-display text-4xl tracking-tight sm:text-5xl">
+                    Terms of <span class="text-gradient italic">Service</span>
+                </h1>
             </div>
-         </div>
-      </div>
-    </main>
+        </header>
 
-    <footer class="container mx-auto px-6 py-10 text-center text-xs text-muted-foreground font-mono">
-       <p>© 2026 TaskFlow Inc. Premium Tactile Systems.</p>
-    </footer>
-  </div>
+        <main class="relative z-10 container mx-auto max-w-4xl flex-1 px-6 py-12">
+            <div
+                class="glass-elevated border-border/50 relative min-h-[400px] overflow-hidden rounded-3xl border p-8 sm:p-12"
+            >
+                <div
+                    class="bg-primary/5 absolute top-0 right-0 h-64 w-64 translate-x-1/2 -translate-y-1/2 rounded-full blur-3xl"
+                ></div>
+
+                <div class="prose prose-invert max-w-none space-y-8">
+                    <section>
+                        <h2 class="font-display text-foreground mb-4 text-2xl">
+                            1. Acceptance of Terms
+                        </h2>
+                        <p class="text-muted-foreground leading-relaxed">
+                            Welcome to TaskFlow. By accessing or using our platform, you agree to be
+                            bound by these Terms of Service. If you do not agree, please do not use
+                            our services.
+                        </p>
+                    </section>
+
+                    <section>
+                        <h2 class="font-display text-foreground mb-4 text-2xl">
+                            2. User Responsibilities
+                        </h2>
+                        <p class="text-muted-foreground leading-relaxed">
+                            You are responsible for maintaining the confidentiality of your account
+                            and password. You agree to accept responsibility for all activities that
+                            occur under your account.
+                        </p>
+                    </section>
+
+                    <section>
+                        <h2 class="font-display text-foreground mb-4 text-2xl">
+                            3. Premium Crafted Content
+                        </h2>
+                        <p class="text-muted-foreground leading-relaxed">
+                            All design elements, including our tactile interactions and "Lunar
+                            Obsidian" aesthetic, are intellectual property of TaskFlow Inc.
+                        </p>
+                    </section>
+
+                    <div class="border-border/40 mt-12 border-t pt-12">
+                        <p class="text-muted-foreground font-mono text-xs">
+                            LAST UPDATED: APRIL 14, 2026
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer
+            class="text-muted-foreground container mx-auto px-6 py-10 text-center font-mono text-xs"
+        >
+            <p>© 2026 TaskFlow Inc. Premium Tactile Systems.</p>
+        </footer>
+    </div>
 </template>

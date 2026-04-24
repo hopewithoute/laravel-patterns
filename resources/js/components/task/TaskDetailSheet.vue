@@ -1,13 +1,7 @@
 <script setup>
 import { computed, ref, watch } from 'vue'
 import { router, usePage } from '@inertiajs/vue3'
-import {
-    Sheet,
-    SheetContent,
-    SheetHeader,
-    SheetTitle,
-    SheetDescription,
-} from '@/components/ui/sheet'
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import TaskDetailContent from '@/components/task/TaskDetailContent.vue'
 import Button from '@/components/ui/Button.vue'
 import { Loader2, ExternalLink, X } from 'lucide-vue-next'
@@ -37,11 +31,15 @@ const getTaskIdFromUrl = () => {
 const close = () => {
     const url = new URL(window.location.href)
     url.searchParams.delete('task')
-    router.get(url.toString(), {}, {
-        preserveScroll: true,
-        preserveState: true,
-        replace: true,
-    })
+    router.get(
+        url.toString(),
+        {},
+        {
+            preserveScroll: true,
+            preserveState: true,
+            replace: true,
+        },
+    )
 }
 
 function fetchTask(id) {
@@ -72,9 +70,9 @@ watch(
 
 <template>
     <Sheet v-model:open="isOpen">
-        <SheetContent 
+        <SheetContent
             :show-close-button="false"
-            class="w-full glass-overlay flex flex-col p-0 border-l border-border/50 sm:max-w-md md:max-w-lg lg:max-w-xl overflow-hidden"
+            class="glass-overlay border-border/50 flex w-full flex-col overflow-hidden border-l p-0 sm:max-w-md md:max-w-lg lg:max-w-xl"
         >
             <!-- Decorative background orbs -->
             <div class="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
@@ -83,26 +81,37 @@ watch(
             </div>
 
             <!-- Header -->
-            <SheetHeader class="relative border-b border-border/50 bg-background/40 px-6 py-6 backdrop-blur-xl">
+            <SheetHeader
+                class="border-border/50 bg-background/40 relative border-b px-6 py-6 backdrop-blur-xl"
+            >
                 <div class="flex items-start justify-between">
                     <div class="space-y-1.5 pr-6">
                         <div class="flex items-center gap-2">
-                            <div v-if="task && task.project" class="flex items-center gap-1.5 font-mono text-[9px] font-bold tracking-[0.2em] uppercase text-muted-foreground/80">
-                                <span class="h-1 w-1 rounded-full animate-pulse" :style="{ backgroundColor: task.project.color || '#f59e0b' }"></span>
+                            <div
+                                v-if="task && task.project"
+                                class="text-muted-foreground/80 flex items-center gap-1.5 font-mono text-[9px] font-bold tracking-[0.2em] uppercase"
+                            >
+                                <span
+                                    class="h-1 w-1 animate-pulse rounded-full"
+                                    :style="{ backgroundColor: task.project.color || '#f59e0b' }"
+                                ></span>
                                 {{ task.project.name }}
                             </div>
                         </div>
-                        
-                        <SheetTitle 
-                            v-if="task" 
-                            class="font-display text-2xl font-bold tracking-tight text-foreground leading-tight"
+
+                        <SheetTitle
+                            v-if="task"
+                            class="font-display text-foreground text-2xl leading-tight font-bold tracking-tight"
                         >
                             {{ task.title }}
                         </SheetTitle>
-                        <SheetTitle v-else-if="isLoading" class="animate-pulse font-display text-2xl font-medium text-muted-foreground/60">
+                        <SheetTitle
+                            v-else-if="isLoading"
+                            class="font-display text-muted-foreground/60 animate-pulse text-2xl font-medium"
+                        >
                             Loading Detail...
                         </SheetTitle>
-                        <SheetTitle v-else class="font-display text-2xl font-bold text-foreground">
+                        <SheetTitle v-else class="font-display text-foreground text-2xl font-bold">
                             Task Detail
                         </SheetTitle>
                     </div>
@@ -113,7 +122,7 @@ watch(
                             variant="surface"
                             size="icon-sm"
                             as-child
-                            class="h-9 w-9 rounded-xl border-border/40 bg-surface/40 shadow-sm backdrop-blur-sm transition-all hover:bg-surface/60 hover:scale-105 active:scale-95"
+                            class="border-border/40 bg-surface/40 hover:bg-surface/60 h-9 w-9 rounded-xl shadow-sm backdrop-blur-sm transition-all hover:scale-105 active:scale-95"
                             title="Open in new tab"
                         >
                             <a :href="`/tasks/${task.id}`" target="_blank">
@@ -124,7 +133,7 @@ watch(
                         <Button
                             variant="surface"
                             size="icon-sm"
-                            class="h-9 w-9 rounded-xl border-border/40 bg-surface/40 shadow-sm backdrop-blur-sm transition-all hover:bg-surface/60 hover:scale-105 active:scale-95"
+                            class="border-border/40 bg-surface/40 hover:bg-surface/60 h-9 w-9 rounded-xl shadow-sm backdrop-blur-sm transition-all hover:scale-105 active:scale-95"
                             title="Close"
                             @click="close"
                         >
@@ -136,12 +145,21 @@ watch(
 
             <!-- Content Area -->
             <div class="custom-scrollbar flex-1 overflow-y-auto px-6 py-8">
-                <div v-if="isLoading" class="flex flex-col items-center justify-center py-24 text-center">
+                <div
+                    v-if="isLoading"
+                    class="flex flex-col items-center justify-center py-24 text-center"
+                >
                     <div class="relative mb-6">
-                        <div class="absolute inset-0 animate-ping rounded-full bg-amber-500/20"></div>
+                        <div
+                            class="absolute inset-0 animate-ping rounded-full bg-amber-500/20"
+                        ></div>
                         <Loader2 class="relative z-10 h-10 w-10 animate-spin text-amber-500" />
                     </div>
-                    <p class="font-mono text-[10px] font-bold tracking-[0.3em] uppercase text-muted-foreground">Accessing Task Data...</p>
+                    <p
+                        class="text-muted-foreground font-mono text-[10px] font-bold tracking-[0.3em] uppercase"
+                    >
+                        Accessing Task Data...
+                    </p>
                 </div>
 
                 <div v-else-if="task" class="pb-24">
@@ -149,11 +167,15 @@ watch(
                 </div>
 
                 <div v-else class="flex flex-col items-center justify-center py-24 text-center">
-                    <div class="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-surface-elevated/50 shadow-inner">
-                        <X class="h-8 w-8 text-muted-foreground/40" />
+                    <div
+                        class="bg-surface-elevated/50 mb-6 flex h-16 w-16 items-center justify-center rounded-2xl shadow-inner"
+                    >
+                        <X class="text-muted-foreground/40 h-8 w-8" />
                     </div>
-                    <h3 class="font-display text-xl font-bold text-foreground">Task Not Found</h3>
-                    <p class="mt-2 text-sm text-muted-foreground max-w-60 leading-relaxed">The requested task record could not be found in the current datastream.</p>
+                    <h3 class="font-display text-foreground text-xl font-bold">Task Not Found</h3>
+                    <p class="text-muted-foreground mt-2 max-w-60 text-sm leading-relaxed">
+                        The requested task record could not be found in the current datastream.
+                    </p>
                 </div>
             </div>
         </SheetContent>

@@ -41,13 +41,13 @@ const toolResultItems = computed(() =>
 <template>
     <details
         v-if="toolCallItems.length > 0 || toolResultItems.length > 0"
-        class="mt-4 rounded-2xl border border-dashed border-black/10 bg-background/45"
+        class="bg-background/45 mt-4 rounded-2xl border border-dashed border-black/10"
     >
         <summary
             class="text-muted-foreground cursor-pointer list-none px-4 py-3 text-[11px] font-semibold tracking-[0.18em] uppercase"
         >
             Debug trace
-            <span class="ml-2 normal-case tracking-normal">
+            <span class="ml-2 tracking-normal normal-case">
                 {{ toolCallItems.length }} call{{ toolCallItems.length === 1 ? '' : 's' }},
                 {{ toolResultItems.length }} result{{ toolResultItems.length === 1 ? '' : 's' }}
             </span>
@@ -84,7 +84,8 @@ const toolResultItems = computed(() =>
                     </p>
                     <pre
                         class="text-muted-foreground mt-2 overflow-x-auto text-xs leading-6 whitespace-pre-wrap"
-                    >{{ props.formatPayload(toolCall.arguments) }}</pre>
+                        >{{ props.formatPayload(toolCall.arguments) }}</pre
+                    >
                     <p
                         v-if="toolCall.definition?.outputContract"
                         class="text-muted-foreground mt-2 text-[11px] leading-5"
@@ -105,7 +106,11 @@ const toolResultItems = computed(() =>
                 >
                     <div class="flex flex-wrap items-center gap-2">
                         <p class="text-foreground text-sm font-semibold">
-                            {{ toolResult.definition?.label || toolResult.tool_name || toolResult.name }}
+                            {{
+                                toolResult.definition?.label ||
+                                toolResult.tool_name ||
+                                toolResult.name
+                            }}
                         </p>
                         <span
                             class="text-muted-foreground rounded-full border border-black/8 px-2 py-0.5 text-[10px] tracking-[0.14em] uppercase"
@@ -118,7 +123,8 @@ const toolResultItems = computed(() =>
                     </div>
                     <pre
                         class="text-muted-foreground mt-2 overflow-x-auto text-xs leading-6 whitespace-pre-wrap"
-                    >{{ props.formatPayload(toolResult.result) }}</pre>
+                        >{{ props.formatPayload(toolResult.result) }}</pre
+                    >
                     <p
                         v-if="toolResult.definition?.outputContract"
                         class="text-muted-foreground mt-2 text-[11px] leading-5"

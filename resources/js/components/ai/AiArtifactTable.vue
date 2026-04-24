@@ -41,7 +41,10 @@ function normalizeRow(row, columns) {
                         class="border-t border-black/6"
                     >
                         <td
-                            v-for="(value, columnIndex) in normalizeRow(row, props.artifact.data.columns || [])"
+                            v-for="(value, columnIndex) in normalizeRow(
+                                row,
+                                props.artifact.data.columns || [],
+                            )"
                             :key="`${rowIndex}-${columnIndex}`"
                             class="text-foreground px-3 py-2 align-top"
                         >

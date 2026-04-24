@@ -40,7 +40,7 @@ const items = computed(() =>
                     :class="
                         item.checked
                             ? 'border-emerald-500/30 bg-emerald-500/15 text-emerald-600'
-                            : 'border-black/8 bg-background text-muted-foreground'
+                            : 'bg-background text-muted-foreground border-black/8'
                     "
                 >
                     <span class="text-xs font-semibold">{{ item.checked ? '✓' : '•' }}</span>

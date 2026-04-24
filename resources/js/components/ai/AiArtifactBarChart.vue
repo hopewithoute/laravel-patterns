@@ -51,10 +51,14 @@ const maxValue = computed(() => Math.max(...points.value.map((point) => point.va
                         :style="{ height: `${Math.max((point.value / maxValue) * 100, 6)}%` }"
                     />
                 </div>
-                <span class="text-muted-foreground text-center text-xs leading-5">{{ point.label }}</span>
+                <span class="text-muted-foreground text-center text-xs leading-5">{{
+                    point.label
+                }}</span>
             </div>
         </div>
-        <div class="text-muted-foreground flex justify-between text-[11px] uppercase tracking-[0.2em]">
+        <div
+            class="text-muted-foreground flex justify-between text-[11px] tracking-[0.2em] uppercase"
+        >
             <span>{{ props.artifact.data?.xLabel || 'X Axis' }}</span>
             <span>{{ props.artifact.data?.yLabel || 'Y Axis' }}</span>
         </div>

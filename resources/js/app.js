@@ -14,7 +14,16 @@ createInertiaApp({
         )
 
         if (page.default.layout === undefined) {
-            const excludePatterns = ['Auth/', 'Workspace/', 'Welcome', 'Landing', 'Terms', 'Privacy', 'Api', 'Contact']
+            const excludePatterns = [
+                'Auth/',
+                'Workspace/',
+                'Welcome',
+                'Landing',
+                'Terms',
+                'Privacy',
+                'Api',
+                'Contact',
+            ]
             if (!excludePatterns.some((pattern) => name.startsWith(pattern))) {
                 page.default.layout = AppLayout
             }

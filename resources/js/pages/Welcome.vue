@@ -41,7 +41,7 @@ defineProps({
             <!-- Logo -->
             <div class="flex items-center gap-3">
                 <div class="relative flex items-center justify-center py-1">
-                    <AppLogo class="h-9 w-9 text-foreground drop-shadow-md" />
+                    <AppLogo class="text-foreground h-9 w-9 drop-shadow-md" />
                 </div>
                 <span class="font-display text-foreground text-lg tracking-tight">TaskFlow</span>
             </div>
@@ -376,7 +376,7 @@ defineProps({
             >
                 <div class="flex items-center gap-3">
                     <div class="relative flex items-center justify-center">
-                        <AppLogo class="h-6 w-6 text-foreground" />
+                        <AppLogo class="text-foreground h-6 w-6" />
                     </div>
                     <span class="text-muted-foreground text-sm">TaskFlow</span>
                 </div>

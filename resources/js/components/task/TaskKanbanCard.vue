@@ -37,11 +37,15 @@ const navigateToTask = (e) => {
 
     const url = new URL(window.location.href)
     url.searchParams.set('task', props.task.id)
-    router.get(url.toString(), {}, {
-        preserveScroll: true,
-        preserveState: true,
-        replace: true,
-    })
+    router.get(
+        url.toString(),
+        {},
+        {
+            preserveScroll: true,
+            preserveState: true,
+            replace: true,
+        },
+    )
 }
 </script>
 

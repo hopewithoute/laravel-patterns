@@ -14,10 +14,14 @@ defineProps({
     <SidebarHeader class="relative z-10">
         <Link href="/" class="group flex items-center gap-3 px-3 py-4">
             <!-- Logo Mark -->
-            <div class="relative flex items-center justify-center transition-transform duration-300 group-hover:scale-105">
-                <AppLogo class="h-8 w-8 text-foreground" />
+            <div
+                class="relative flex items-center justify-center transition-transform duration-300 group-hover:scale-105"
+            >
+                <AppLogo class="text-foreground h-8 w-8" />
                 <!-- Glow effect -->
-                <div class="absolute inset-0 rounded-full bg-amber-500/20 opacity-0 blur-xl transition-opacity duration-300 group-hover:opacity-100"></div>
+                <div
+                    class="absolute inset-0 rounded-full bg-amber-500/20 opacity-0 blur-xl transition-opacity duration-300 group-hover:opacity-100"
+                ></div>
             </div>
             <!-- Logo Text -->
             <div

@@ -117,7 +117,9 @@ const polylinePoints = computed(() =>
                 <p class="text-muted-foreground mt-1 text-xs">{{ point.value }}</p>
             </div>
         </div>
-        <div class="text-muted-foreground flex justify-between text-[11px] uppercase tracking-[0.2em]">
+        <div
+            class="text-muted-foreground flex justify-between text-[11px] tracking-[0.2em] uppercase"
+        >
             <span>{{ props.artifact.data?.xLabel || 'X Axis' }}</span>
             <span>{{ props.artifact.data?.yLabel || 'Y Axis' }}</span>
         </div>

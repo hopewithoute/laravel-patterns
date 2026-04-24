@@ -24,7 +24,7 @@ const props = defineProps({
                 </div>
 
                 <span
-                    class="rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.14em]"
+                    class="rounded-full px-2.5 py-1 text-[11px] font-semibold tracking-[0.14em] uppercase"
                     :class="
                         props.artifact.data.status === 'approved'
                             ? 'bg-emerald-500/12 text-emerald-600'
@@ -38,10 +38,7 @@ const props = defineProps({
             </div>
         </div>
 
-        <div
-            v-if="(props.artifact.data.fields || []).length > 0"
-            class="grid gap-3 sm:grid-cols-2"
-        >
+        <div v-if="(props.artifact.data.fields || []).length > 0" class="grid gap-3 sm:grid-cols-2">
             <div
                 v-for="(field, index) in props.artifact.data.fields"
                 :key="`${field.label || 'field'}-${index}`"
@@ -58,7 +55,7 @@ const props = defineProps({
 
         <div
             v-if="props.artifact.data.next_step"
-            class="rounded-2xl border border-black/6 bg-background/70 px-4 py-3"
+            class="bg-background/70 rounded-2xl border border-black/6 px-4 py-3"
         >
             <p class="text-muted-foreground text-[11px] tracking-[0.16em] uppercase">Next step</p>
             <p class="text-foreground mt-1 text-sm font-medium">

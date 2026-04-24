@@ -32,7 +32,10 @@ test('tool manifest stays aligned with the debug panel contract', () => {
 })
 
 test('AI chat page derives visible tool labels from the shared manifest', () => {
-    assert.match(chatPage, /import toolRegistryManifest from ['"]@\/components\/ai\/toolRegistryManifest\.json['"]/)
+    assert.match(
+        chatPage,
+        /import toolRegistryManifest from ['"]@\/components\/ai\/toolRegistryManifest\.json['"]/,
+    )
     assert.match(chatPage, /const toolDefinitions = Object\.fromEntries/)
     assert.match(chatPage, /const availableToolDefinitions = computed/)
     assert.match(chatPage, /definition\.label\)\.join\(', '\)/)

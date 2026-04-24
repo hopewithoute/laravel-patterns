@@ -1,6 +1,6 @@
 <script setup>
-import { computed, watch, ref, onMounted, nextTick } from 'vue'
-import { usePage, router } from '@inertiajs/vue3'
+import { computed, watch, onMounted, nextTick } from 'vue'
+import { usePage } from '@inertiajs/vue3'
 import { toast } from 'vue-sonner'
 
 // UI Components
@@ -184,7 +184,7 @@ watch(
 }
 
 .gradient-mesh-subtle {
-    background-image: 
+    background-image:
         radial-gradient(at 0% 0%, rgba(245, 158, 11, 0.02) 0px, transparent 50%),
         radial-gradient(at 100% 0%, rgba(6, 182, 212, 0.02) 0px, transparent 50%);
 }

@@ -26,7 +26,7 @@ test('markdown renderer escapes raw html and adds safe link attributes', () => {
 })
 
 test('markdown renderer preserves fenced code blocks', () => {
-    const html = renderMarkdownToHtml('```json\n{\"ok\":true}\n```')
+    const html = renderMarkdownToHtml('```json\n{"ok":true}\n```')
 
     assert.match(html, /<pre><code class="language-json">\{&quot;ok&quot;:true\}\n<\/code><\/pre>/)
 })

@@ -267,17 +267,25 @@ const isOverdue = (task) => {
 const openTaskDetail = (taskId) => {
     const url = new URL(window.location.href)
     url.searchParams.set('task', taskId)
-    router.get(url.toString(), {}, {
-        preserveScroll: true,
-        preserveState: true,
-        replace: true,
-    })
+    router.get(
+        url.toString(),
+        {},
+        {
+            preserveScroll: true,
+            preserveState: true,
+            replace: true,
+        },
+    )
 }
 
 const updateTaskStatus = (task, status) => {
-    router.patch(`/tasks/${task.id}/status`, { status }, {
-        preserveScroll: true,
-    })
+    router.patch(
+        `/tasks/${task.id}/status`,
+        { status },
+        {
+            preserveScroll: true,
+        },
+    )
 }
 
 const toggleTaskDone = (task) => {
@@ -289,36 +297,311 @@ const toggleTaskDone = (task) => {
 <template>
     <Head title="Tasks" />
     <PageWidth size="wide" class="space-y-8">
-            <PageHeader
-                badge="Work Queue"
-                title="Tasks"
-                description="Switch between the fast quicklist and a weekly kanban timeline without leaving the task index."
-                tone="cyan"
-                glow-class="top-0 right-1/4 w-80 h-80 bg-cyan-500/[0.04]"
-            >
-                <template #badge-icon>
+        <PageHeader
+            badge="Work Queue"
+            title="Tasks"
+            description="Switch between the fast quicklist and a weekly kanban timeline without leaving the task index."
+            tone="cyan"
+            glow-class="top-0 right-1/4 w-80 h-80 bg-cyan-500/[0.04]"
+        >
+            <template #badge-icon>
+                <svg
+                    class="h-3.5 w-3.5 text-cyan-400"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                >
+                    <path d="M9 11l3 3L22 4" />
+                    <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+                </svg>
+            </template>
+
+            <template #actions>
+                <Link
+                    href="/tasks/create"
+                    class="group relative inline-flex items-center gap-2 overflow-hidden rounded-xl bg-linear-to-r from-cyan-500 to-cyan-400 px-5 py-3 text-sm font-semibold text-black shadow-lg shadow-cyan-500/15 transition-all duration-300 hover:shadow-cyan-500/25"
+                >
+                    <div
+                        class="absolute inset-0 -translate-x-full bg-linear-to-r from-transparent via-white/20 to-transparent transition-transform duration-700 group-hover:translate-x-full"
+                    ></div>
                     <svg
-                        class="h-3.5 w-3.5 text-cyan-400"
+                        class="relative h-4 w-4"
                         viewBox="0 0 24 24"
                         fill="none"
                         stroke="currentColor"
-                        stroke-width="1.5"
+                        stroke-width="2.5"
                     >
-                        <path d="M9 11l3 3L22 4" />
-                        <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+                        <line x1="12" x2="12" y1="5" y2="19" />
+                        <line x1="5" x2="19" y1="12" y2="12" />
                     </svg>
-                </template>
+                    <span class="relative">New Task</span>
+                </Link>
+            </template>
+        </PageHeader>
 
-                <template #actions>
+        <section
+            class="border-border/40 bg-card/40 flex flex-col gap-4 rounded-3xl border p-4 sm:p-5"
+        >
+            <div class="flex flex-wrap items-center justify-between gap-3">
+                <TaskViewSwitch v-model="viewMode" />
+                <p class="text-muted-foreground text-xs">
+                    Quicklist keeps the current paginated flow. Kanban loads weekly columns as you
+                    scroll.
+                </p>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-3">
+                <div class="relative min-w-60 flex-1">
+                    <svg
+                        class="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                    >
+                        <circle cx="11" cy="11" r="8" />
+                        <path d="m21 21-4.3-4.3" />
+                    </svg>
+                    <input
+                        v-model="search"
+                        type="text"
+                        placeholder="Search tasks..."
+                        class="border-border/50 bg-surface/50 text-foreground placeholder:text-muted-foreground/70 focus:ring-primary/20 focus:border-primary/35 focus:bg-surface/60 h-10 w-full rounded-xl border pr-4 pl-10 text-sm transition-all duration-200 focus:ring-2 focus:outline-none"
+                    />
+                </div>
+
+                <select
+                    v-model="statusFilter"
+                    class="border-border/50 bg-surface/50 text-foreground focus:ring-primary/20 focus:border-primary/35 h-10 cursor-pointer appearance-none rounded-xl border px-4 pr-10 text-sm transition-all duration-200 focus:ring-2 focus:outline-none"
+                    style="
+                        background-image: url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2224%22 height=%2224%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%2371717a%22 stroke-width=%222%22><path d=%22m6 9 6 6 6-6%22/></svg>');
+                        background-position: right 12px center;
+                        background-repeat: no-repeat;
+                        background-size: 16px;
+                    "
+                >
+                    <option value="">All Statuses</option>
+                    <option v-for="s in filters.statuses" :key="s.value" :value="s.value">
+                        {{ s.text }}
+                    </option>
+                </select>
+
+                <select
+                    v-model="priorityFilter"
+                    class="border-border/50 bg-surface/50 text-foreground focus:ring-primary/20 focus:border-primary/35 h-10 cursor-pointer appearance-none rounded-xl border px-4 pr-10 text-sm transition-all duration-200 focus:ring-2 focus:outline-none"
+                    style="
+                        background-image: url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2224%22 height=%2224%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%2371717a%22 stroke-width=%222%22><path d=%22m6 9 6 6 6-6%22/></svg>');
+                        background-position: right 12px center;
+                        background-repeat: no-repeat;
+                        background-size: 16px;
+                    "
+                >
+                    <option value="">All Priorities</option>
+                    <option v-for="p in filters.priorities" :key="p.value" :value="p.value">
+                        {{ p.text }}
+                    </option>
+                </select>
+            </div>
+        </section>
+
+        <section v-if="viewMode === 'quicklist'" class="space-y-6">
+            <div v-if="tasks.data.length > 0" class="space-y-2">
+                <div
+                    v-for="task in tasks.data"
+                    :key="task.id"
+                    class="group bg-card border-border/40 hover:border-border/60 block cursor-pointer rounded-xl border p-4 transition-all duration-300"
+                    @click="openTaskDetail(task.id)"
+                >
+                    <div class="flex items-start gap-4">
+                        <!-- Quick Complete Checkbox -->
+                        <div class="pt-1">
+                            <button
+                                class="group/check flex h-5 w-5 shrink-0 items-center justify-center rounded border transition-all duration-300"
+                                :class="[
+                                    task.status === 'Done'
+                                        ? 'border-emerald-500/40 bg-emerald-500/20 text-emerald-400'
+                                        : 'bg-surface-elevated border-white/5 text-transparent hover:border-white/20',
+                                ]"
+                                @click.stop="toggleTaskDone(task)"
+                            >
+                                <svg
+                                    class="h-3 w-3 transition-transform duration-300 group-hover/check:scale-110"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="4"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                >
+                                    <polyline points="20 6 9 17 4 12" />
+                                </svg>
+                            </button>
+                        </div>
+
+                        <div class="min-w-0 flex-1">
+                            <div class="flex items-start justify-between gap-4">
+                                <div class="space-y-1">
+                                    <h3
+                                        class="text-foreground font-medium transition-colors group-hover:text-cyan-400"
+                                        :class="{
+                                            'text-muted-foreground/50 line-through decoration-emerald-500/30':
+                                                task.status === 'Done',
+                                        }"
+                                    >
+                                        {{ task.title }}
+                                    </h3>
+                                    <div class="flex flex-wrap items-center gap-2">
+                                        <span
+                                            v-if="task.project"
+                                            class="bg-surface text-muted-foreground inline-flex items-center gap-1.5 rounded-md px-2 py-0.5 text-xs"
+                                        >
+                                            <span
+                                                class="h-2 w-2 shrink-0 rounded-full"
+                                                :style="{
+                                                    backgroundColor:
+                                                        task.project.color || '#6b7280',
+                                                }"
+                                            ></span>
+                                            {{ task.project.name }}
+                                        </span>
+                                        <span
+                                            v-if="task.assignee"
+                                            class="text-muted-foreground inline-flex items-center gap-1.5 text-xs"
+                                        >
+                                            <div
+                                                class="bg-surface-elevated flex h-4 w-4 items-center justify-center rounded"
+                                            >
+                                                <span class="text-[8px] font-bold text-amber-400">{{
+                                                    task.assignee.name?.charAt(0)?.toUpperCase()
+                                                }}</span>
+                                            </div>
+                                            {{ task.assignee.name }}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div class="flex shrink-0 items-center gap-2">
+                                    <!-- Status Interactive Badge -->
+                                    <div class="group/status relative flex items-center">
+                                        <select
+                                            class="absolute inset-0 z-20 w-full cursor-pointer opacity-0"
+                                            @click.stop
+                                            @change="updateTaskStatus(task, $event.target.value)"
+                                        >
+                                            <option
+                                                v-for="(tone, status) in TASK_STATUS_TONES"
+                                                :key="status"
+                                                :value="status"
+                                                :selected="task.status === status"
+                                            >
+                                                {{ status }}
+                                            </option>
+                                        </select>
+                                        <Badge
+                                            variant="compact"
+                                            :tone="
+                                                TASK_STATUS_TONES[task.status] ||
+                                                TASK_STATUS_TONES.Todo
+                                            "
+                                            class="relative z-10 cursor-pointer pr-6 transition-all group-hover/status:ring-2 group-hover/status:ring-cyan-500/30"
+                                        >
+                                            {{ task.status }}
+                                            <div
+                                                class="text-muted-foreground/50 absolute top-1/2 right-1.5 -translate-y-1/2 transition-colors group-hover/status:text-cyan-400"
+                                            >
+                                                <svg
+                                                    class="h-3 w-3"
+                                                    viewBox="0 0 24 24"
+                                                    fill="none"
+                                                    stroke="currentColor"
+                                                    stroke-width="3"
+                                                >
+                                                    <path d="m6 9 6 6 6-6" />
+                                                </svg>
+                                            </div>
+                                        </Badge>
+                                    </div>
+
+                                    <Badge
+                                        v-if="task.priority"
+                                        variant="compact"
+                                        :tone="
+                                            TASK_PRIORITY_TONES[task.priority] ||
+                                            TASK_PRIORITY_TONES.Low
+                                        "
+                                    >
+                                        {{ task.priority }}
+                                    </Badge>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="shrink-0 pt-0.5 text-right">
+                            <div
+                                v-if="task.due_date"
+                                :class="[
+                                    'font-mono text-xs',
+                                    isOverdue(task) ? 'text-rose-400' : 'text-muted-foreground',
+                                ]"
+                            >
+                                {{
+                                    new Date(task.due_date).toLocaleDateString('en-US', {
+                                        month: 'short',
+                                        day: 'numeric',
+                                    })
+                                }}
+                            </div>
+                            <div
+                                v-if="isOverdue(task)"
+                                class="mt-0.5 text-[10px] tracking-wider text-rose-400 uppercase"
+                            >
+                                Overdue
+                            </div>
+                        </div>
+
+                        <div class="flex shrink-0 items-center">
+                            <svg
+                                class="text-muted-foreground h-4 w-4 transition-all duration-200 group-hover:translate-x-0.5 group-hover:text-cyan-400"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                            >
+                                <path d="M9 18l6-6-6-6" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div v-else class="empty-state">
+                <div
+                    class="absolute inset-0 bg-linear-to-br from-cyan-500/4 via-transparent to-amber-500/3"
+                ></div>
+                <div class="relative z-10">
+                    <div class="empty-state-icon border border-cyan-500/20 bg-cyan-500/10">
+                        <svg
+                            class="h-8 w-8 text-cyan-400"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="1.5"
+                        >
+                            <path d="M9 11l3 3L22 4" />
+                            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+                        </svg>
+                    </div>
+                    <h3 class="font-display text-foreground mb-2 text-xl">No tasks found</h3>
+                    <p class="text-muted-foreground mx-auto mb-6 max-w-sm text-sm">
+                        Create your first task or adjust your filters to see results.
+                    </p>
                     <Link
                         href="/tasks/create"
-                        class="group relative inline-flex items-center gap-2 overflow-hidden rounded-xl bg-linear-to-r from-cyan-500 to-cyan-400 px-5 py-3 text-sm font-semibold text-black shadow-lg shadow-cyan-500/15 transition-all duration-300 hover:shadow-cyan-500/25"
+                        class="inline-flex items-center gap-2 rounded-xl bg-linear-to-r from-cyan-500 to-cyan-400 px-5 py-3 text-sm font-semibold text-black shadow-lg shadow-cyan-500/15 transition-all duration-300 hover:shadow-cyan-500/25"
                     >
-                        <div
-                            class="absolute inset-0 -translate-x-full bg-linear-to-r from-transparent via-white/20 to-transparent transition-transform duration-700 group-hover:translate-x-full"
-                        ></div>
                         <svg
-                            class="relative h-4 w-4"
+                            class="h-4 w-4"
                             viewBox="0 0 24 24"
                             fill="none"
                             stroke="currentColor"
@@ -327,298 +610,32 @@ const toggleTaskDone = (task) => {
                             <line x1="12" x2="12" y1="5" y2="19" />
                             <line x1="5" x2="19" y1="12" y2="12" />
                         </svg>
-                        <span class="relative">New Task</span>
+                        Create Task
                     </Link>
-                </template>
-            </PageHeader>
-
-            <section
-                class="border-border/40 bg-card/40 flex flex-col gap-4 rounded-3xl border p-4 sm:p-5"
-            >
-                <div class="flex flex-wrap items-center justify-between gap-3">
-                    <TaskViewSwitch v-model="viewMode" />
-                    <p class="text-muted-foreground text-xs">
-                        Quicklist keeps the current paginated flow. Kanban loads weekly columns as
-                        you scroll.
-                    </p>
                 </div>
+            </div>
 
-                <div class="flex flex-wrap items-center gap-3">
-                    <div class="relative min-w-60 flex-1">
-                        <svg
-                            class="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="2"
-                        >
-                            <circle cx="11" cy="11" r="8" />
-                            <path d="m21 21-4.3-4.3" />
-                        </svg>
-                        <input
-                            v-model="search"
-                            type="text"
-                            placeholder="Search tasks..."
-                            class="border-border/50 bg-surface/50 text-foreground placeholder:text-muted-foreground/70 focus:ring-primary/20 focus:border-primary/35 focus:bg-surface/60 h-10 w-full rounded-xl border pr-4 pl-10 text-sm transition-all duration-200 focus:ring-2 focus:outline-none"
-                        />
-                    </div>
+            <PaginationNav :resource="tasks" noun="tasks" tone="cyan" />
+        </section>
 
-                    <select
-                        v-model="statusFilter"
-                        class="border-border/50 bg-surface/50 text-foreground focus:ring-primary/20 focus:border-primary/35 h-10 cursor-pointer appearance-none rounded-xl border px-4 pr-10 text-sm transition-all duration-200 focus:ring-2 focus:outline-none"
-                        style="
-                            background-image: url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2224%22 height=%2224%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%2371717a%22 stroke-width=%222%22><path d=%22m6 9 6 6 6-6%22/></svg>');
-                            background-position: right 12px center;
-                            background-repeat: no-repeat;
-                            background-size: 16px;
-                        "
-                    >
-                        <option value="">All Statuses</option>
-                        <option v-for="s in filters.statuses" :key="s.value" :value="s.value">
-                            {{ s.text }}
-                        </option>
-                    </select>
-
-                    <select
-                        v-model="priorityFilter"
-                        class="border-border/50 bg-surface/50 text-foreground focus:ring-primary/20 focus:border-primary/35 h-10 cursor-pointer appearance-none rounded-xl border px-4 pr-10 text-sm transition-all duration-200 focus:ring-2 focus:outline-none"
-                        style="
-                            background-image: url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2224%22 height=%2224%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%2371717a%22 stroke-width=%222%22><path d=%22m6 9 6 6 6-6%22/></svg>');
-                            background-position: right 12px center;
-                            background-repeat: no-repeat;
-                            background-size: 16px;
-                        "
-                    >
-                        <option value="">All Priorities</option>
-                        <option v-for="p in filters.priorities" :key="p.value" :value="p.value">
-                            {{ p.text }}
-                        </option>
-                    </select>
-                </div>
-            </section>
-
-            <section v-if="viewMode === 'quicklist'" class="space-y-6">
-                <div v-if="tasks.data.length > 0" class="space-y-2">
-                    <div
-                        v-for="task in tasks.data"
-                        :key="task.id"
-                        class="group bg-card border-border/40 hover:border-border/60 block cursor-pointer rounded-xl border p-4 transition-all duration-300"
-                        @click="openTaskDetail(task.id)"
-                    >
-                        <div class="flex items-start gap-4">
-                            <!-- Quick Complete Checkbox -->
-                            <div class="pt-1">
-                                <button
-                                    @click.stop="toggleTaskDone(task)"
-                                    class="group/check flex h-5 w-5 shrink-0 items-center justify-center rounded border transition-all duration-300"
-                                    :class="[
-                                        task.status === 'Done'
-                                            ? 'bg-emerald-500/20 border-emerald-500/40 text-emerald-400'
-                                            : 'bg-surface-elevated border-white/5 hover:border-white/20 text-transparent'
-                                    ]"
-                                >
-                                    <svg
-                                        class="h-3 w-3 transition-transform duration-300 group-hover/check:scale-110"
-                                        viewBox="0 0 24 24"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        stroke-width="4"
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                    >
-                                        <polyline points="20 6 9 17 4 12" />
-                                    </svg>
-                                </button>
-                            </div>
-
-                            <div class="min-w-0 flex-1">
-                                <div class="flex items-start justify-between gap-4">
-                                    <div class="space-y-1">
-                                        <h3
-                                            class="text-foreground font-medium transition-colors group-hover:text-cyan-400"
-                                            :class="{ 'text-muted-foreground/50 line-through decoration-emerald-500/30': task.status === 'Done' }"
-                                        >
-                                            {{ task.title }}
-                                        </h3>
-                                        <div class="flex flex-wrap items-center gap-2">
-                                            <span
-                                                v-if="task.project"
-                                                class="bg-surface text-muted-foreground inline-flex items-center gap-1.5 rounded-md px-2 py-0.5 text-xs"
-                                            >
-                                                <span
-                                                    class="h-2 w-2 shrink-0 rounded-full"
-                                                    :style="{
-                                                        backgroundColor:
-                                                            task.project.color || '#6b7280',
-                                                    }"
-                                                ></span>
-                                                {{ task.project.name }}
-                                            </span>
-                                            <span
-                                                v-if="task.assignee"
-                                                class="text-muted-foreground inline-flex items-center gap-1.5 text-xs"
-                                            >
-                                                <div
-                                                    class="bg-surface-elevated flex h-4 w-4 items-center justify-center rounded"
-                                                >
-                                                    <span
-                                                        class="text-[8px] font-bold text-amber-400"
-                                                        >{{
-                                                            task.assignee.name
-                                                                ?.charAt(0)
-                                                                ?.toUpperCase()
-                                                        }}</span
-                                                    >
-                                                </div>
-                                                {{ task.assignee.name }}
-                                            </span>
-                                        </div>
-                                    </div>
-
-                                    <div class="flex shrink-0 items-center gap-2">
-                                        <!-- Status Interactive Badge -->
-                                        <div class="group/status relative flex items-center">
-                                            <select
-                                                @click.stop
-                                                @change="updateTaskStatus(task, $event.target.value)"
-                                                class="absolute inset-0 z-20 w-full cursor-pointer opacity-0"
-                                            >
-                                                <option
-                                                    v-for="(tone, status) in TASK_STATUS_TONES"
-                                                    :key="status"
-                                                    :value="status"
-                                                    :selected="task.status === status"
-                                                >
-                                                    {{ status }}
-                                                </option>
-                                            </select>
-                                            <Badge
-                                                variant="compact"
-                                                :tone="TASK_STATUS_TONES[task.status] || TASK_STATUS_TONES.Todo"
-                                                class="group-hover/status:ring-2 group-hover/status:ring-cyan-500/30 transition-all cursor-pointer relative z-10 pr-6"
-                                            >
-                                                {{ task.status }}
-                                                <div class="absolute right-1.5 top-1/2 -translate-y-1/2 text-muted-foreground/50 transition-colors group-hover/status:text-cyan-400">
-                                                    <svg class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="m6 9 6 6 6-6"/></svg>
-                                                </div>
-                                            </Badge>
-                                        </div>
-
-                                        <Badge
-                                            v-if="task.priority"
-                                            variant="compact"
-                                            :tone="
-                                                TASK_PRIORITY_TONES[task.priority] ||
-                                                TASK_PRIORITY_TONES.Low
-                                            "
-                                        >
-                                            {{ task.priority }}
-                                        </Badge>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="shrink-0 pt-0.5 text-right">
-                                <div
-                                    v-if="task.due_date"
-                                    :class="[
-                                        'font-mono text-xs',
-                                        isOverdue(task) ? 'text-rose-400' : 'text-muted-foreground',
-                                    ]"
-                                >
-                                    {{
-                                        new Date(task.due_date).toLocaleDateString('en-US', {
-                                            month: 'short',
-                                            day: 'numeric',
-                                        })
-                                    }}
-                                </div>
-                                <div
-                                    v-if="isOverdue(task)"
-                                    class="mt-0.5 text-[10px] tracking-wider text-rose-400 uppercase"
-                                >
-                                    Overdue
-                                </div>
-                            </div>
-
-                            <div class="flex shrink-0 items-center">
-                                <svg
-                                    class="text-muted-foreground h-4 w-4 transition-all duration-200 group-hover:translate-x-0.5 group-hover:text-cyan-400"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    stroke-width="2"
-                                >
-                                    <path d="M9 18l6-6-6-6" />
-                                </svg>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div v-else class="empty-state">
-                    <div
-                        class="absolute inset-0 bg-linear-to-br from-cyan-500/4 via-transparent to-amber-500/3"
-                    ></div>
-                    <div class="relative z-10">
-                        <div class="empty-state-icon border border-cyan-500/20 bg-cyan-500/10">
-                            <svg
-                                class="h-8 w-8 text-cyan-400"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                stroke-width="1.5"
-                            >
-                                <path d="M9 11l3 3L22 4" />
-                                <path
-                                    d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"
-                                />
-                            </svg>
-                        </div>
-                        <h3 class="font-display text-foreground mb-2 text-xl">No tasks found</h3>
-                        <p class="text-muted-foreground mx-auto mb-6 max-w-sm text-sm">
-                            Create your first task or adjust your filters to see results.
-                        </p>
-                        <Link
-                            href="/tasks/create"
-                            class="inline-flex items-center gap-2 rounded-xl bg-linear-to-r from-cyan-500 to-cyan-400 px-5 py-3 text-sm font-semibold text-black shadow-lg shadow-cyan-500/15 transition-all duration-300 hover:shadow-cyan-500/25"
-                        >
-                            <svg
-                                class="h-4 w-4"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                stroke-width="2.5"
-                            >
-                                <line x1="12" x2="12" y1="5" y2="19" />
-                                <line x1="5" x2="19" y1="12" y2="12" />
-                            </svg>
-                            Create Task
-                        </Link>
-                    </div>
-                </div>
-
-                <PaginationNav :resource="tasks" noun="tasks" tone="cyan" />
-            </section>
-
-            <TaskKanbanBoard
-                v-else
-                :columns="kanbanState.columns"
-                :tasks-by-column="kanbanState.tasksByColumn"
-                :loading="kanbanState.loading"
-                :error="kanbanState.error"
-                :prepend-shift-px="kanbanState.prependShiftPx"
-                :reset-token="kanbanState.resetToken"
-                :focus-date-key="kanbanState.focusDateKey"
-                :today-date-key="todayDateKey"
-                today-label="Today"
-                @ready="ensureKanbanLoaded"
-                @move-to-today="moveKanbanToToday"
-                @request-previous="loadPreviousWeek"
-                @request-next="loadNextWeek"
-                @retry="retryKanbanLoad"
-                @prepend-shift-applied="clearPrependShift"
-                @task-moved="moveTask"
-            />
-        </PageWidth>
+        <TaskKanbanBoard
+            v-else
+            :columns="kanbanState.columns"
+            :tasks-by-column="kanbanState.tasksByColumn"
+            :loading="kanbanState.loading"
+            :error="kanbanState.error"
+            :prepend-shift-px="kanbanState.prependShiftPx"
+            :reset-token="kanbanState.resetToken"
+            :focus-date-key="kanbanState.focusDateKey"
+            :today-date-key="todayDateKey"
+            today-label="Today"
+            @ready="ensureKanbanLoaded"
+            @move-to-today="moveKanbanToToday"
+            @request-previous="loadPreviousWeek"
+            @request-next="loadNextWeek"
+            @retry="retryKanbanLoad"
+            @prepend-shift-applied="clearPrependShift"
+            @task-moved="moveTask"
+        />
+    </PageWidth>
 </template>

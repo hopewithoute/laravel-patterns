@@ -9,7 +9,10 @@ const manifest = JSON.parse(
 )
 
 test('artifact renderer uses the shared artifact manifest and explicit renderer registry', () => {
-    assert.match(renderer, /import artifactRegistryManifest from '\.\/artifactRegistryManifest\.json'/)
+    assert.match(
+        renderer,
+        /import artifactRegistryManifest from '\.\/artifactRegistryManifest\.json'/,
+    )
     assert.match(renderer, /const artifactDefinitions = Object\.fromEntries/)
     assert.match(renderer, /'task-summary': AiArtifactTaskSummary/)
     assert.match(renderer, /'table': AiArtifactTable/)
@@ -21,7 +24,10 @@ test('artifact renderer uses the shared artifact manifest and explicit renderer 
     assert.match(renderer, /'bar-chart': AiArtifactBarChart/)
     assert.match(renderer, /'line-chart': AiArtifactLineChart/)
     assert.match(renderer, /'json-fallback': AiArtifactJsonFallback/)
-    assert.match(renderer, /props\.artifact\.meta\?\.renderer \|\| artifactDefinition\.value\?\.renderer/)
+    assert.match(
+        renderer,
+        /props\.artifact\.meta\?\.renderer \|\| artifactDefinition\.value\?\.renderer/,
+    )
 })
 
 test('artifact manifest stays aligned with the renderer registry contract', () => {
@@ -30,7 +36,12 @@ test('artifact manifest stays aligned with the renderer registry contract', () =
     assert.ok(manifest.some((definition) => definition.type === 'bar_chart'))
     assert.ok(manifest.some((definition) => definition.type === 'line_chart'))
     assert.ok(manifest.some((definition) => definition.type === 'markdown'))
-    assert.ok(manifest.every((definition) => typeof definition.renderer === 'string' && definition.renderer.length > 0))
+    assert.ok(
+        manifest.every(
+            (definition) =>
+                typeof definition.renderer === 'string' && definition.renderer.length > 0,
+        ),
+    )
 })
 
 test('AI chat page consumes artifact events and renders artifacts as first-class blocks', () => {
