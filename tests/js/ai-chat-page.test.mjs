@@ -15,18 +15,22 @@ test('AI interaction lives in the dedicated chat page instead of the dashboard p
         chatPage,
         /import \{ Head, router, setLayoutProps \} from ['"]@inertiajs\/vue3['"]/,
     )
-    assert.match(
-        chatPage,
-        /Single-lane chat with session memory, tool calls, and streamed output\./,
-    )
+    assert.match(chatPage, /Single-lane chat with session memory, tool calls, and streamed/)
     assert.match(chatPage, /axios\.post\('\/ai\/sessions'/)
     assert.match(chatPage, /async function createSession\(\)/)
     assert.match(chatPage, /activeSessionId\.value = session\.id/)
     assert.match(chatPage, /messages\.value = \[\]/)
-    assert.match(chatPage, /fetch\(`\/ai\/sessions\/\$\{sessionId\}\/messages\/stream`/)
-    assert.match(chatPage, /consumeEventStream/)
+    assert.match(
+        chatPage,
+        /import \{ createAiStreamTransportRegistry \} from ['"]\.\/streamTransportRegistry\.js['"]/,
+    )
+    assert.match(chatPage, /const streamTransportRegistry = createAiStreamTransportRegistry\(\{/)
+    assert.match(chatPage, /const transportSession = await streamTransportRegistry\.open\(\{/)
+    assert.match(chatPage, /url: `\/ai\/sessions\/\$\{sessionId\}\/messages\/stream`/)
+    assert.match(chatPage, /await transportSession\.finished/)
+    assert.match(chatPage, /destroyActiveTransportSession\(\)/)
     assert.match(chatPage, /ai_debug/)
-    assert.match(chatPage, /console\.debug\(`\[ai-chat\]/)
+    assert.match(chatPage, /globalThis\.console\?\.debug\(`\[ai-chat\]/)
     assert.match(chatPage, /const assistantMessage = reactive\(\{/)
     assert.match(chatPage, /const artifactMode = ref\(resolveInitialArtifactMode\(\)\)/)
     assert.match(
@@ -61,6 +65,9 @@ test('AI interaction lives in the dedicated chat page instead of the dashboard p
     assert.match(chatPage, /function normalizeList\(value\)/)
     assert.match(chatPage, /function normalizeMap\(value\)/)
     assert.match(chatPage, /tool_results: normalizeList\(message\.tool_results\)/)
+    assert.match(chatPage, /let activeTransportSession = null/)
+    assert.match(chatPage, /activeTransportSession = transportSession/)
+    assert.match(chatPage, /Accept: 'text\/event-stream, application\/json'/)
     assert.doesNotMatch(chatPage, /Phase 0/)
     assert.doesNotMatch(
         chatPage,

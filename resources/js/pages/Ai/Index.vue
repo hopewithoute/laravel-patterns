@@ -10,6 +10,7 @@ import toolRegistryManifest from '@/components/ai/toolRegistryManifest.json'
 import Badge from '@/components/ui/Badge.vue'
 import Button from '@/components/ui/Button.vue'
 import { createCharacterStreamRenderer } from './characterStreamRenderer.js'
+import { createAiStreamTransportRegistry } from './streamTransportRegistry.js'
 
 const props = defineProps({
     sessions: {
@@ -55,8 +56,14 @@ const sessions = ref(cloneSessions(props.sessions))
 const activeSessionId = ref(props.activeSessionId)
 const messages = ref(cloneMessages(props.messages))
 let activeCharacterStream = null
+let activeTransportSession = null
 let queuedScrollFrame = null
 const aiDebugEnabled = isAiDebugEnabled()
+const streamTransportRegistry = createAiStreamTransportRegistry({
+    onDebug(label, payload) {
+        debugAi(label, payload)
+    },
+})
 
 setLayoutProps({
     mainClass: 'h-[calc(100dvh-3.5rem)] overflow-hidden',
@@ -72,16 +79,16 @@ const toolDefinitions = Object.fromEntries(
     toolRegistryManifest.map((definition) => [definition.uiIdentifier, definition]),
 )
 const availableToolDefinitions = computed(() =>
-    props.availableTools
-        .map((identifier) => toolDefinitions[identifier] || null)
-        .filter(Boolean),
+    props.availableTools.map((identifier) => toolDefinitions[identifier] || null).filter(Boolean),
 )
 const availableToolsLabel = computed(() =>
     availableToolDefinitions.value.length > 0
         ? availableToolDefinitions.value.map((definition) => definition.label).join(', ')
         : 'No tools configured',
 )
-const primaryToolLabel = computed(() => availableToolDefinitions.value[0]?.label || 'Workspace tool')
+const primaryToolLabel = computed(
+    () => availableToolDefinitions.value[0]?.label || 'Workspace tool',
+)
 const effectiveArtifactMode = computed(() => (aiDebugEnabled ? artifactMode.value : 'auto'))
 const artifactModeLabel = computed(() => {
     const selectedMode = props.availableArtifactModes.find(
@@ -241,12 +248,12 @@ function debugAi(label, payload = undefined) {
     }
 
     if (payload === undefined) {
-        console.debug(`[ai-chat] ${label}`)
+        globalThis.console?.debug(`[ai-chat] ${label}`)
 
         return
     }
 
-    console.debug(`[ai-chat] ${label}`, payload)
+    globalThis.console?.debug(`[ai-chat] ${label}`, payload)
 }
 
 function formatPayload(value) {
@@ -457,6 +464,11 @@ function destroyActiveCharacterStream() {
     activeCharacterStream = null
 }
 
+function destroyActiveTransportSession() {
+    activeTransportSession?.cancel()
+    activeTransportSession = null
+}
+
 function createAssistantCharacterStream(assistantMessage) {
     destroyActiveCharacterStream()
 
@@ -481,66 +493,6 @@ function createAssistantCharacterStream(assistantMessage) {
     })
 
     return activeCharacterStream
-}
-
-async function consumeEventStream(response, onEvent) {
-    if (!response.body) {
-        throw new Error('Streaming is not supported by this browser.')
-    }
-
-    debugAi('stream response opened', {
-        status: response.status,
-        headers: Object.fromEntries(response.headers.entries()),
-    })
-
-    const reader = response.body.getReader()
-    const decoder = new TextDecoder()
-    let buffer = ''
-
-    while (true) {
-        const { value, done } = await reader.read()
-        const decodedChunk = decoder.decode(value || new Uint8Array(), { stream: !done })
-
-        debugAi('raw reader chunk', {
-            done,
-            byte_length: value?.byteLength ?? 0,
-            preview: decodedChunk.slice(0, 200),
-        })
-
-        buffer += decodedChunk
-        buffer = buffer.replaceAll('\r\n', '\n')
-
-        let separatorIndex = buffer.indexOf('\n\n')
-
-        while (separatorIndex !== -1) {
-            const rawEvent = buffer.slice(0, separatorIndex).trim()
-            buffer = buffer.slice(separatorIndex + 2)
-
-            if (rawEvent !== '') {
-                const data = rawEvent
-                    .split('\n')
-                    .filter((line) => line.startsWith('data:'))
-                    .map((line) => line.slice(5).trim())
-                    .join('\n')
-
-                if (data === '[DONE]') {
-                    return
-                }
-
-                if (data) {
-                    const parsedEvent = JSON.parse(data)
-                    debugAi('parsed event', parsedEvent)
-                    onEvent(parsedEvent)
-                }
-            }
-
-            separatorIndex = buffer.indexOf('\n\n')
-        }
-
-        if (done) {
-            return
-        }
-    }
 }
 
 function handleStreamEvent(event, assistantMessage, characterStream) {
@@ -610,6 +562,7 @@ async function submitPrompt() {
     try {
         const sessionId = await ensureSession()
 
+        destroyActiveTransportSession()
         assistantMessage = appendOptimisticMessages(prompt)
         characterStream = createAssistantCharacterStream(assistantMessage)
         debugAi('submit prompt', {
@@ -619,32 +572,33 @@ async function submitPrompt() {
         touchCurrentSession(prompt)
         await scrollToBottom()
 
-        const response = await fetch(`/ai/sessions/${sessionId}/messages/stream`, {
-            method: 'POST',
+        const transportSession = await streamTransportRegistry.open({
+            url: `/ai/sessions/${sessionId}/messages/stream`,
             credentials: 'same-origin',
             headers: {
-                Accept: 'text/event-stream',
+                Accept: 'text/event-stream, application/json',
                 'Content-Type': 'application/json',
                 'X-CSRF-TOKEN': getCsrfToken(),
                 'X-Requested-With': 'XMLHttpRequest',
             },
-            body: JSON.stringify({
+            payload: {
                 prompt,
                 artifact_mode: effectiveArtifactMode.value,
-            }),
+            },
+            onEvent(event) {
+                handleStreamEvent(event, assistantMessage, characterStream)
+            },
         })
 
-        if (!response.ok) {
-            throw new Error('Unable to stream the assistant response.')
-        }
-
-        await consumeEventStream(response, (event) => {
-            handleStreamEvent(event, assistantMessage, characterStream)
-        })
+        activeTransportSession = transportSession
+        await transportSession.finished
 
         await characterStream.complete()
         if (activeCharacterStream === characterStream) {
             activeCharacterStream = null
+        }
+        if (activeTransportSession === transportSession) {
+            activeTransportSession = null
         }
 
         if (assistantMessage.error_message) {
@@ -653,6 +607,7 @@ async function submitPrompt() {
 
         toast.success('Assistant response completed.')
     } catch (error) {
+        destroyActiveTransportSession()
         const message =
             error.response?.data?.message || error.message || 'Unable to stream assistant response.'
 
@@ -674,6 +629,7 @@ async function submitPrompt() {
 }
 
 onBeforeUnmount(() => {
+    destroyActiveTransportSession()
     destroyActiveCharacterStream()
     cancelQueuedScroll()
 })
@@ -805,7 +761,8 @@ onBeforeUnmount(() => {
                                     {{ currentSession?.title || 'Workspace assistant' }}
                                 </h2>
                                 <p class="text-muted-foreground text-sm">
-                                    Single-lane chat with session memory, tool calls, and streamed output.
+                                    Single-lane chat with session memory, tool calls, and streamed
+                                    output.
                                 </p>
                             </div>
 

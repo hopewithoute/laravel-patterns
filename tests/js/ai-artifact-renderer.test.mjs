@@ -15,12 +15,12 @@ test('artifact renderer uses the shared artifact manifest and explicit renderer 
     )
     assert.match(renderer, /const artifactDefinitions = Object\.fromEntries/)
     assert.match(renderer, /'task-summary': AiArtifactTaskSummary/)
-    assert.match(renderer, /'table': AiArtifactTable/)
-    assert.match(renderer, /'checklist': AiArtifactChecklist/)
+    assert.match(renderer, /table: AiArtifactTable/)
+    assert.match(renderer, /checklist: AiArtifactChecklist/)
     assert.match(renderer, /'key-value': AiArtifactKeyValue/)
     assert.match(renderer, /'stats-card': AiArtifactStatsCard/)
     assert.match(renderer, /'approval-card': AiArtifactApprovalCard/)
-    assert.match(renderer, /'markdown': AiArtifactMarkdown/)
+    assert.match(renderer, /markdown: AiArtifactMarkdown/)
     assert.match(renderer, /'bar-chart': AiArtifactBarChart/)
     assert.match(renderer, /'line-chart': AiArtifactLineChart/)
     assert.match(renderer, /'json-fallback': AiArtifactJsonFallback/)
@@ -56,11 +56,11 @@ test('AI chat page consumes artifact events and renders artifacts as first-class
     assert.match(chatPage, /v-if="aiDebugEnabled" class="flex flex-wrap gap-2"/)
     assert.match(chatPage, /v-for="mode in availableArtifactModes"/)
     assert.match(chatPage, /@click="artifactMode = mode\.value"/)
-    assert.match(chatPage, /artifacts: \[\.\.\.\(message\.artifacts \|\| \[\]\)\]/)
+    assert.match(chatPage, /artifacts: normalizeList\(message\.artifacts\)/)
     assert.match(chatPage, /if \(event\.type === 'artifact'\)/)
     assert.match(
         chatPage,
-        /assistantMessage\.artifacts = \[\.\.\.assistantMessage\.artifacts, event\]/,
+        /assistantMessage\.artifacts = \[\.\.\.normalizeList\(assistantMessage\.artifacts\), event\]/,
     )
     assert.match(chatPage, /v-if="message\.artifacts\?\.length > 0"/)
     assert.match(chatPage, /<AiToolTracePanel/)
