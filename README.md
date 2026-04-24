@@ -22,6 +22,7 @@
 - [Quick Start](#-quick-start)
 - [Development Commands](#-development-commands)
 - [Testing](#-testing)
+- [AI Configuration](docs/ai-configuration.md)
 
 ---
 
