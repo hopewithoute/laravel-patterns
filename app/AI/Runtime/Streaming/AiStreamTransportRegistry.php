@@ -21,7 +21,11 @@ readonly class AiStreamTransportRegistry
         return match ($driver ?? $this->defaultDriver()) {
             'mercure' => new MercureAiStreamOutput(
                 envelopeFactory: $this->envelopeFactory,
-                hubUrl: $this->mercureConfig('hub_url'),
+                publishUrl: $this->mercureConfig('publish_url', $this->mercureConfig('hub_url')),
+                subscribeUrl: $this->mercureConfig(
+                    'subscribe_url',
+                    $this->mercureConfig('hub_url', '/.well-known/mercure'),
+                ),
                 jwt: $this->mercureConfig('jwt'),
                 topicPrefix: (string) $this->mercureConfig('topic_prefix', 'ai-runtime'),
                 debugMode: $this->debugMode,

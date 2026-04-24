@@ -12,7 +12,7 @@ class AiStreamSubscriptionDescriptorTest extends TestCase
         $descriptor = AiStreamSubscriptionDescriptor::mercure(
             sessionId: 'session-123',
             topic: 'workspace-ai/session-123',
-            hubUrl: 'https://mercure.test/.well-known/mercure',
+            hubUrl: '/.well-known/mercure',
         );
 
         $this->assertSame([
@@ -23,7 +23,7 @@ class AiStreamSubscriptionDescriptorTest extends TestCase
                     'topic' => 'workspace-ai/session-123',
                 ],
                 'meta' => [
-                    'hub_url' => 'https://mercure.test/.well-known/mercure',
+                    'hub_url' => '/.well-known/mercure',
                 ],
             ],
         ], $descriptor->toArray());

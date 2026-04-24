@@ -15,7 +15,8 @@ readonly class MercureAiStreamOutput implements AiStreamOutput
 {
     public function __construct(
         private AiStreamEnvelopeFactory $envelopeFactory,
-        private ?string $hubUrl,
+        private ?string $publishUrl,
+        private ?string $subscribeUrl,
         private ?string $jwt,
         private string $topicPrefix = 'ai-runtime',
         private bool $debugMode = false,
@@ -31,7 +32,7 @@ readonly class MercureAiStreamOutput implements AiStreamOutput
         $topic = $this->topicFor($sessionId);
         $sink = new MercureAiStreamSink(
             envelopeFactory: $this->envelopeFactory,
-            hubUrl: $this->hubUrl,
+            publishUrl: $this->publishUrl,
             jwt: $this->jwt,
             topic: $topic,
             debugMode: $this->debugMode,
@@ -50,7 +51,7 @@ readonly class MercureAiStreamOutput implements AiStreamOutput
             AiStreamSubscriptionDescriptor::mercure(
                 sessionId: $sessionId,
                 topic: $topic,
-                hubUrl: $this->hubUrl,
+                hubUrl: $this->subscribeUrl,
             )->toArray(),
             Response::HTTP_ACCEPTED,
         );
@@ -76,7 +77,7 @@ final class MercureAiStreamSink implements AiStreamSink
 {
     public function __construct(
         private readonly AiStreamEnvelopeFactory $envelopeFactory,
-        private readonly ?string $hubUrl,
+        private readonly ?string $publishUrl,
         private readonly ?string $jwt,
         private readonly string $topic,
         private readonly bool $debugMode = false,
@@ -84,8 +85,8 @@ final class MercureAiStreamSink implements AiStreamSink
 
     public function publish(array $payload): void
     {
-        if ($this->hubUrl === null || $this->hubUrl === '') {
-            throw new \RuntimeException('Mercure hub URL is not configured for AI stream output.');
+        if ($this->publishUrl === null || $this->publishUrl === '') {
+            throw new \RuntimeException('Mercure publish URL is not configured for AI stream output.');
         }
 
         $request = Http::asForm();
@@ -94,7 +95,7 @@ final class MercureAiStreamSink implements AiStreamSink
             $request = $request->withToken($this->jwt);
         }
 
-        $request->post($this->hubUrl, [
+        $request->post($this->publishUrl, [
             'topic' => $this->topic,
             'data' => json_encode($payload, JSON_THROW_ON_ERROR),
         ])->throw();

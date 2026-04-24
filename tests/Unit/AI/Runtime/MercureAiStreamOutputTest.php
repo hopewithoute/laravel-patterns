@@ -14,12 +14,13 @@ class MercureAiStreamOutputTest extends TestCase
     public function test_it_returns_a_normalized_subscription_descriptor_response(): void
     {
         Http::fake([
-            'https://mercure.test/.well-known/mercure' => Http::response('', Response::HTTP_OK),
+            'http://php/.well-known/mercure' => Http::response('', Response::HTTP_OK),
         ]);
 
         $response = (new MercureAiStreamOutput(
             envelopeFactory: new AiStreamEnvelopeFactory,
-            hubUrl: 'https://mercure.test/.well-known/mercure',
+            publishUrl: 'http://php/.well-known/mercure',
+            subscribeUrl: '/.well-known/mercure',
             jwt: 'stream-token',
             topicPrefix: 'workspace-ai',
             debugMode: false,
@@ -40,14 +41,14 @@ class MercureAiStreamOutputTest extends TestCase
                     'topic' => 'workspace-ai/session-123',
                 ],
                 'meta' => [
-                    'hub_url' => 'https://mercure.test/.well-known/mercure',
+                    'hub_url' => '/.well-known/mercure',
                 ],
             ],
         ], $response->getData(true));
 
         Http::assertSentCount(2);
         Http::assertSent(function ($request): bool {
-            return $request->url() === 'https://mercure.test/.well-known/mercure'
+            return $request->url() === 'http://php/.well-known/mercure'
                 && $request['topic'] === 'workspace-ai/session-123';
         });
     }

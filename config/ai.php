@@ -232,7 +232,11 @@ return [
                 'channel_prefix' => env('AI_RUNTIME_STREAM_REDIS_PREFIX', 'ai-runtime'),
             ],
             'mercure' => [
-                'hub_url' => env('MERCURE_HUB_URL'),
+                'publish_url' => env('MERCURE_PUBLISH_URL', env('MERCURE_HUB_URL')),
+                'subscribe_url' => env(
+                    'MERCURE_SUBSCRIBE_URL',
+                    env('MERCURE_HUB_URL', '/.well-known/mercure'),
+                ),
                 'jwt' => env('MERCURE_JWT'),
                 'topic_prefix' => env('AI_RUNTIME_STREAM_MERCURE_TOPIC_PREFIX', 'ai-runtime'),
             ],

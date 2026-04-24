@@ -75,13 +75,20 @@ test('registry subscribes to Mercure descriptors and closes on done', async (t) 
     let mercureClient = null
     const previousEventSource = globalThis.EventSource
     const previousFetch = globalThis.fetch
+    const previousWindow = globalThis.window
 
     t.after(() => {
         globalThis.EventSource = previousEventSource
         globalThis.fetch = previousFetch
+        globalThis.window = previousWindow
     })
 
     globalThis.EventSource = class EventSourceMock {}
+    globalThis.window = {
+        location: {
+            href: 'https://app.test/ai',
+        },
+    }
     globalThis.fetch = async () => ({
         ok: true,
         headers: {
@@ -98,7 +105,7 @@ test('registry subscribes to Mercure descriptors and closes on done', async (t) 
                         topic: 'workspace-ai/session-123',
                     },
                     meta: {
-                        hub_url: 'https://mercure.test/.well-known/mercure',
+                        hub_url: '/.well-known/mercure',
                     },
                 },
             }
@@ -131,7 +138,7 @@ test('registry subscribes to Mercure descriptors and closes on done', async (t) 
 
     assert.equal(
         mercureClient.url,
-        'https://mercure.test/.well-known/mercure?topic=workspace-ai%2Fsession-123',
+        'https://app.test/.well-known/mercure?topic=workspace-ai%2Fsession-123',
     )
 
     mercureClient.onopen?.()

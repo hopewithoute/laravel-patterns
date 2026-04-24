@@ -96,7 +96,7 @@ async function consumeSseResponse(response, onEvent, onDebug) {
 }
 
 function createMercureSubscriptionUrl(hubUrl, topic) {
-    const url = new URL(hubUrl)
+    const url = new URL(hubUrl, globalThis.window?.location?.href ?? 'http://localhost')
     url.searchParams.append('topic', topic)
 
     return url.toString()
