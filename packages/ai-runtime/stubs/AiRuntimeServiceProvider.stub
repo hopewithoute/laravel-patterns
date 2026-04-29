@@ -1,0 +1,41 @@
+<?php
+
+namespace App\Providers;
+
+use App\AI\Runtime\AssistantDefinition;
+use Illuminate\Support\ServiceProvider;
+use Labtime\AiRuntime\Artifacts\Registry\ArtifactRegistry;
+use Labtime\AiRuntime\RuntimeComposition;
+use Labtime\AiRuntime\RuntimeCompositionFactory;
+use Labtime\AiRuntime\Tools\Registry\ToolRegistry;
+
+class AiRuntimeServiceProvider extends ServiceProvider
+{
+    public function register(): void
+    {
+        $this->registerRuntimeComposition();
+    }
+
+    public function boot(): void
+    {
+        //
+    }
+
+    private function registerRuntimeComposition(): void
+    {
+        $this->app->scoped(RuntimeComposition::class, function ($app): RuntimeComposition {
+            return $app->make(RuntimeCompositionFactory::class)
+                ->resolve($app->make(AssistantDefinition::class));
+        });
+
+        $this->app->scoped(ToolRegistry::class, function ($app): ToolRegistry {
+            return $app->make(RuntimeComposition::class)
+                ->toolRegistry;
+        });
+
+        $this->app->scoped(ArtifactRegistry::class, function ($app): ArtifactRegistry {
+            return $app->make(RuntimeComposition::class)
+                ->artifactRegistry;
+        });
+    }
+}
