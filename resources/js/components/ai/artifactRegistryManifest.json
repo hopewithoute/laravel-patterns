@@ -5,16 +5,14 @@
         "description": "Shows an approval-style card for a completed workspace action.",
         "renderer": "approval-card",
         "llmUsageGuidance": "Use when the user wants confirmation, approval, or review framing.",
-        "requiredDataKeys": [
-            "headline",
-            "summary",
-            "status",
-            "fields"
-        ],
+        "requiredDataKeys": ["headline", "summary", "status", "fields"],
         "presentationContract": "Provide headline, summary, status, fields[], and optional next_step for approval presentation.",
+        "sources": [],
+        "intents": [],
+        "capabilities": [],
         "defaultIntent": "approval_card",
         "enabled": true,
-        "version": 1,
+        "version": "1.0.0",
         "fallbackType": null
     },
     {
@@ -23,15 +21,14 @@
         "description": "Displays categorical comparison data.",
         "renderer": "bar-chart",
         "llmUsageGuidance": "Use for comparing values across categories.",
-        "requiredDataKeys": [
-            "series",
-            "xLabel",
-            "yLabel"
-        ],
+        "requiredDataKeys": ["series", "xLabel", "yLabel"],
         "presentationContract": "Provide series[] plus xLabel and yLabel for categorical chart rendering.",
+        "sources": [],
+        "intents": [],
+        "capabilities": [],
         "defaultIntent": "auto",
         "enabled": true,
-        "version": 1,
+        "version": "1.0.0",
         "fallbackType": null
     },
     {
@@ -40,13 +37,14 @@
         "description": "Displays a sequence of checklist items.",
         "renderer": "checklist",
         "llmUsageGuidance": "Use when the result is best communicated as a checklist with completion states.",
-        "requiredDataKeys": [
-            "items"
-        ],
+        "requiredDataKeys": ["items"],
         "presentationContract": "Provide items[] where each item has label, checked, and optional description.",
+        "sources": [],
+        "intents": [],
+        "capabilities": [],
         "defaultIntent": "auto",
         "enabled": true,
-        "version": 1,
+        "version": "1.0.0",
         "fallbackType": null
     },
     {
@@ -55,14 +53,14 @@
         "description": "Fallback artifact for untyped structured results.",
         "renderer": "json-fallback",
         "llmUsageGuidance": "Use only when no richer artifact type is valid.",
-        "requiredDataKeys": [
-            "tool_name",
-            "result"
-        ],
+        "requiredDataKeys": ["tool_name", "result"],
         "presentationContract": "Provide tool_name and raw result for fallback inspection.",
+        "sources": [],
+        "intents": [],
+        "capabilities": [],
         "defaultIntent": "auto",
         "enabled": true,
-        "version": 1,
+        "version": "1.0.0",
         "fallbackType": null
     },
     {
@@ -71,17 +69,14 @@
         "description": "Simple key-value output for failures or generic states.",
         "renderer": "key-value",
         "llmUsageGuidance": "Use for blocked actions or simple status output.",
-        "requiredDataKeys": [
-            "tool",
-            "status",
-            "failure_type",
-            "failure_behavior",
-            "message"
-        ],
+        "requiredDataKeys": ["tool", "status", "failure_type", "failure_behavior", "message"],
         "presentationContract": "Provide tool, status, failure_type, failure_behavior, and message.",
+        "sources": [],
+        "intents": [],
+        "capabilities": [],
         "defaultIntent": "none",
         "enabled": true,
-        "version": 1,
+        "version": "1.0.0",
         "fallbackType": null
     },
     {
@@ -90,15 +85,14 @@
         "description": "Displays trend data over a sequence.",
         "renderer": "line-chart",
         "llmUsageGuidance": "Use for trends over time or ordered sequences.",
-        "requiredDataKeys": [
-            "series",
-            "xLabel",
-            "yLabel"
-        ],
+        "requiredDataKeys": ["series", "xLabel", "yLabel"],
         "presentationContract": "Provide series[] plus xLabel and yLabel for trend chart rendering.",
+        "sources": [],
+        "intents": [],
+        "capabilities": [],
         "defaultIntent": "auto",
         "enabled": true,
-        "version": 1,
+        "version": "1.0.0",
         "fallbackType": null
     },
     {
@@ -107,13 +101,46 @@
         "description": "Displays rich markdown content.",
         "renderer": "markdown",
         "llmUsageGuidance": "Use when long-form explanation or formatted prose is the clearest output.",
-        "requiredDataKeys": [
-            "content"
-        ],
+        "requiredDataKeys": ["content"],
         "presentationContract": "Provide a content string containing markdown-safe text.",
+        "sources": [],
+        "intents": [],
+        "capabilities": [],
         "defaultIntent": "auto",
         "enabled": true,
-        "version": 1,
+        "version": "1.0.0",
+        "fallbackType": null
+    },
+    {
+        "type": "project_detail",
+        "label": "Project detail",
+        "description": "Displays one project with its workspace fields and task counters.",
+        "renderer": "project-detail",
+        "llmUsageGuidance": "Use after showing, creating, or updating a single project. When the ProjectCrudTool action is show, create, or update, you MUST generate a project_detail marker using the project object returned by the tool. Never print project detail as aligned text columns.",
+        "requiredDataKeys": ["project_id", "name", "is_active"],
+        "presentationContract": "Marker data must be an object with project_id, name, description, color, is_active, tasks_count, completed_tasks_count, and completion_percentage. Example: <runtime-artifact>{\"type\":\"artifact\",\"artifactType\":\"project_detail\",\"title\":\"Project detail\",\"data\":{\"project_id\":\"project-id\",\"name\":\"Website redesign\",\"description\":null,\"color\":\"#3B82F6\",\"is_active\":true,\"tasks_count\":0,\"completed_tasks_count\":0,\"completion_percentage\":0}}</runtime-artifact>",
+        "sources": [],
+        "intents": [],
+        "capabilities": [],
+        "defaultIntent": "project_detail",
+        "enabled": true,
+        "version": "1.0.0",
+        "fallbackType": null
+    },
+    {
+        "type": "project_list",
+        "label": "Project list",
+        "description": "Displays workspace projects in a table.",
+        "renderer": "project-list",
+        "llmUsageGuidance": "Use when listing, searching, or comparing multiple projects. When the ProjectCrudTool action is list, you MUST generate a project_list marker using the projects returned by the tool. Never print the project list as a markdown table or aligned text columns.",
+        "requiredDataKeys": ["columns", "rows"],
+        "presentationContract": "Marker data must contain columns [\"name\",\"is_active\",\"tasks_count\",\"completed_tasks_count\",\"completion_percentage\"] and rows[] objects with project_id, name, color, is_active, tasks_count, completed_tasks_count, and completion_percentage. Example: <runtime-artifact>{\"type\":\"artifact\",\"artifactType\":\"project_list\",\"title\":\"Project list\",\"data\":{\"columns\":[\"name\",\"is_active\",\"tasks_count\",\"completed_tasks_count\",\"completion_percentage\"],\"rows\":[{\"project_id\":\"project-id\",\"name\":\"Website redesign\",\"color\":\"#3B82F6\",\"is_active\":true,\"tasks_count\":0,\"completed_tasks_count\":0,\"completion_percentage\":0}]}}</runtime-artifact>",
+        "sources": [],
+        "intents": [],
+        "capabilities": [],
+        "defaultIntent": "project_list",
+        "enabled": true,
+        "version": "1.0.0",
         "fallbackType": null
     },
     {
@@ -122,13 +149,14 @@
         "description": "Shows compact metrics for a task or workspace event.",
         "renderer": "stats-card",
         "llmUsageGuidance": "Use when the user asks for stats, metrics, or quantitative breakdowns.",
-        "requiredDataKeys": [
-            "items"
-        ],
+        "requiredDataKeys": ["items"],
         "presentationContract": "Provide items[] where each item includes a label and value, with optional caption.",
+        "sources": [],
+        "intents": [],
+        "capabilities": [],
         "defaultIntent": "stats_card",
         "enabled": true,
-        "version": 1,
+        "version": "1.0.0",
         "fallbackType": null
     },
     {
@@ -137,14 +165,14 @@
         "description": "Displays tabular structured data.",
         "renderer": "table",
         "llmUsageGuidance": "Use when rows and columns are the clearest presentation format.",
-        "requiredDataKeys": [
-            "columns",
-            "rows"
-        ],
+        "requiredDataKeys": ["columns", "rows"],
         "presentationContract": "Provide columns[] and rows[] arrays for tabular rendering.",
+        "sources": [],
+        "intents": [],
+        "capabilities": [],
         "defaultIntent": "auto",
         "enabled": true,
-        "version": 1,
+        "version": "1.0.0",
         "fallbackType": null
     },
     {
@@ -153,16 +181,30 @@
         "description": "Summarizes a created task.",
         "renderer": "task-summary",
         "llmUsageGuidance": "Use for concise confirmation after a task is created.",
-        "requiredDataKeys": [
-            "task_id",
-            "project_id",
-            "title",
-            "status"
-        ],
+        "requiredDataKeys": ["task_id", "project_id", "title", "status"],
         "presentationContract": "Provide task_id, project_id, project_name, title, status, assigned_to, and assigned_to_name for a created task summary card.",
+        "sources": [],
+        "intents": [],
+        "capabilities": [],
         "defaultIntent": "task_summary",
         "enabled": true,
-        "version": 1,
+        "version": "1.0.0",
+        "fallbackType": null
+    },
+    {
+        "type": "website_design",
+        "label": "Website design",
+        "description": "Displays a high-quality bespoke website design generated as a self-contained HTML document.",
+        "renderer": "website-design",
+        "llmUsageGuidance": "Use after DesignWebsiteTool loads the frontend-design skill. You MUST create a fresh website_design marker by applying the loaded skill to request_context. The design must be a self-contained HTML document string with inline CSS and optional inline JavaScript. Do not use a fixed schema for palette, typography, sections, or cards. Make all visual choices directly in the HTML/CSS.",
+        "requiredDataKeys": ["html"],
+        "presentationContract": "Marker data must be an object with html and optional title. The html value must be a complete self-contained HTML document or fragment with inline CSS. Do not include markdown fences. Use marker shape: <runtime-artifact>{\"type\":\"artifact\",\"artifactType\":\"website_design\",\"title\":\"Website design\",\"data\":{\"title\":\"...\",\"html\":\"<!doctype html><html><head><style>...</style></head><body>...</body></html>\"}}</runtime-artifact>",
+        "sources": ["DesignWebsiteTool"],
+        "intents": ["website.design"],
+        "capabilities": ["artifact.design"],
+        "defaultIntent": "auto",
+        "enabled": true,
+        "version": "1.0.0",
         "fallbackType": null
     }
 ]

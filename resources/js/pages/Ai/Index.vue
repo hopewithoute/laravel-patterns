@@ -79,7 +79,9 @@ const toolDefinitions = Object.fromEntries(
     toolRegistryManifest.map((definition) => [definition.uiIdentifier, definition]),
 )
 const availableToolDefinitions = computed(() =>
-    props.availableTools.map((identifier) => toolDefinitions[identifier] || null).filter(Boolean),
+    props.availableTools
+        .map((identifier) => toolDefinitions[identifier] || null)
+        .filter((definition) => definition && definition.scope !== 'internal'),
 )
 const availableToolsLabel = computed(() =>
     availableToolDefinitions.value.length > 0

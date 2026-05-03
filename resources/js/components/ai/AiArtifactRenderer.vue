@@ -7,9 +7,12 @@ import AiArtifactJsonFallback from './AiArtifactJsonFallback.vue'
 import AiArtifactKeyValue from './AiArtifactKeyValue.vue'
 import AiArtifactLineChart from './AiArtifactLineChart.vue'
 import AiArtifactMarkdown from './AiArtifactMarkdown.vue'
+import AiArtifactProjectDetail from './AiArtifactProjectDetail.vue'
+import AiArtifactProjectList from './AiArtifactProjectList.vue'
 import AiArtifactStatsCard from './AiArtifactStatsCard.vue'
 import AiArtifactTable from './AiArtifactTable.vue'
 import AiArtifactTaskSummary from './AiArtifactTaskSummary.vue'
+import AiArtifactWebsiteDesign from './AiArtifactWebsiteDesign.vue'
 import artifactRegistryManifest from './artifactRegistryManifest.json'
 
 const props = defineProps({
@@ -33,6 +36,9 @@ const rendererRegistry = {
     markdown: AiArtifactMarkdown,
     'bar-chart': AiArtifactBarChart,
     'line-chart': AiArtifactLineChart,
+    'project-detail': AiArtifactProjectDetail,
+    'project-list': AiArtifactProjectList,
+    'website-design': AiArtifactWebsiteDesign,
     'json-fallback': AiArtifactJsonFallback,
 }
 

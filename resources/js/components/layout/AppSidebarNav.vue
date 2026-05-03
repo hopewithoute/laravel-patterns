@@ -25,12 +25,6 @@ const navItems = [
         description: 'Overview & analytics',
     },
     {
-        title: 'AI Chat',
-        href: '/ai',
-        icon: `<path d="M12 3l1.9 4.6L19 9.5l-4 3.4 1.2 5.1L12 15.5 7.8 18l1.2-5.1-4-3.4 5.1-1.9L12 3z" />`,
-        description: 'Workspace assistant',
-    },
-    {
         title: 'Projects',
         href: '/projects',
         icon: `<path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z" />`,

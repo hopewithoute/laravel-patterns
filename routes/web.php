@@ -34,7 +34,6 @@ Route::get('/contact', function () {
 
 // Domain Routes
 require __DIR__.'/web/auth.php';
-require __DIR__.'/web/ai.php';
 require __DIR__.'/web/dashboard.php';
 require __DIR__.'/web/projects.php';
 require __DIR__.'/web/settings.php';

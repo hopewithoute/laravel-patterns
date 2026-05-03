@@ -1,52 +1,71 @@
 [
     {
-        "name": "CreateTaskTool",
-        "uiIdentifier": "create_task",
-        "label": "Create task",
-        "description": "Create a new task in the active organization workspace.",
-        "whenToUse": "Use when the user wants to create a task and enough context is available to resolve the project and assignee.",
-        "whenNotToUse": "Do not use for listing tasks, listing projects, listing workspace users, or when the project or assignee is ambiguous and should be looked up first.",
-        "requiredInputs": [
-            "title"
-        ],
-        "outputContract": "Returns task_id, project_id, project_name, title, status, priority, due_date, assigned_to, and assigned_to_name.",
-        "capability": "task.create",
+        "name": "DesignWebsiteTool",
+        "uiIdentifier": "design_website",
+        "label": "Design Website",
+        "description": "Loads the frontend-design skill and returns a structured website design brief for artifact rendering.",
+        "whenToUse": "Use when the user asks to design, redesign, style, or create a website, landing page, frontend page, or visual web interface.",
+        "whenNotToUse": "Do not use for backend-only work, database CRUD, project management CRUD, or non-visual writing tasks.",
+        "requiredInputs": ["title", "purpose"],
+        "outputContract": "Returns JSON with frontend-design skill guidance and request context. The assistant must use that guidance to generate a website_design artifact marker.",
+        "capability": null,
+        "operation": "read",
+        "maxAttempts": 1,
+        "scope": "global",
+        "mandatoryArtifactType": "website_design",
+        "accessPolicy": {
+            "requiresMember": true,
+            "roles": [],
+            "intents": [],
+            "capabilities": []
+        },
+        "enabled": true,
+        "version": "1.0.0"
+    },
+    {
+        "name": "resolve_artifact_contract",
+        "uiIdentifier": "internal_artifact_resolver",
+        "label": "Resolve artifact contract",
+        "description": "Internal runtime tool that resolves the best artifact contract for structured UI output.",
+        "whenToUse": "Use when structured UI output may be useful, including explicit artifact requests, contract-bound tool results, and assistant-authored artifacts.",
+        "whenNotToUse": "Do not use for business data lookup, persistence, or when the response should remain plain text.",
+        "requiredInputs": ["source"],
+        "outputContract": "Returns the single best artifact contract for the current source and intent. Alternatives are exceptional and returned only when resolver confidence is low.",
+        "capability": null,
+        "operation": "read",
+        "maxAttempts": 1,
+        "scope": "internal",
+        "mandatoryArtifactType": null,
+        "accessPolicy": {
+            "requiresMember": false,
+            "roles": [],
+            "intents": [],
+            "capabilities": []
+        },
+        "enabled": true,
+        "version": "1.0.0"
+    },
+    {
+        "name": "ProjectCrudTool",
+        "uiIdentifier": "project_crud",
+        "label": "Project CRUD",
+        "description": "Create, list, inspect, update, and delete projects in the active workspace.",
+        "whenToUse": "Use when an admin asks to manage projects for the active workspace.",
+        "whenNotToUse": "Do not use for task CRUD, user management, or requests from non-admin workspace members.",
+        "requiredInputs": ["action"],
+        "outputContract": "Returns JSON with status, action, and a project or projects payload scoped to the active workspace.",
+        "capability": null,
         "operation": "write",
         "maxAttempts": 1,
-        "scope": "workspace",
+        "scope": "tenant",
+        "mandatoryArtifactType": null,
+        "accessPolicy": {
+            "requiresMember": true,
+            "roles": ["admin"],
+            "intents": [],
+            "capabilities": []
+        },
         "enabled": true,
-        "version": 1
-    },
-    {
-        "name": "LookupProjectsTool",
-        "uiIdentifier": "lookup_projects",
-        "label": "Lookup projects",
-        "description": "Search projects in the active organization workspace.",
-        "whenToUse": "Use when the user mentions a project by name and the correct project identifier or canonical project name needs to be confirmed.",
-        "whenNotToUse": "Do not use when the target project is already clear enough to create the task directly.",
-        "requiredInputs": [],
-        "outputContract": "Returns count and projects[] with project_id, project_name, is_active, and description.",
-        "capability": "workspace.read",
-        "operation": "read",
-        "maxAttempts": 1,
-        "scope": "workspace",
-        "enabled": true,
-        "version": 1
-    },
-    {
-        "name": "LookupWorkspaceUsersTool",
-        "uiIdentifier": "lookup_workspace_users",
-        "label": "Lookup workspace users",
-        "description": "Search workspace members in the active organization workspace.",
-        "whenToUse": "Use when the user wants to assign a task but the exact workspace member reference is unclear or ambiguous.",
-        "whenNotToUse": "Do not use when the assignee is already clear, or when assign_to_me can be used instead.",
-        "requiredInputs": [],
-        "outputContract": "Returns count and users[] with user_id, user_name, email, and role.",
-        "capability": "workspace.read",
-        "operation": "read",
-        "maxAttempts": 1,
-        "scope": "workspace",
-        "enabled": true,
-        "version": 1
+        "version": "1.0.0"
     }
 ]
