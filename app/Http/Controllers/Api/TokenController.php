@@ -38,7 +38,9 @@ class TokenController extends Controller
             return response()->json(['message' => 'Token not found.'], 404);
         }
 
-        $token->delete();
+        if (method_exists($token, 'delete')) {
+            $token->delete();
+        }
 
         return response()->json(['message' => 'Token revoked.']);
     }
