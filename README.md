@@ -14,6 +14,8 @@
 
 ## About This Repository
 
+> **Note:** This is a work in progress. Patterns and documentation are continuously updated as I refine my approach across projects.
+
 This is not a boilerplate. This is a **collection of architecture patterns and decisions** that I use repeatedly across Laravel projects.
 
 Each pattern here was born from real problems:

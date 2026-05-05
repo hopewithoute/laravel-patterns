@@ -14,6 +14,8 @@
 
 ## Tentang Repository Ini
 
+> **Catatan:** Ini masih dalam pengerjaan. Pattern dan dokumentasi akan terus diperbarui seiring penyempurnaan pendekatan di setiap project.
+
 Ini bukan boilerplate siap pakai. Ini adalah **kumpulan pattern dan keputusan arsitektur** yang saya gunakan berulang kali di setiap project Laravel.
 
 Setiap pattern di sini lahir dari masalah nyata:
