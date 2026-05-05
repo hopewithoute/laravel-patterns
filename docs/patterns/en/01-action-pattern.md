@@ -200,6 +200,62 @@ public function store(TaskData $data, TaskCreateAction $action): RedirectRespons
 }
 ```
 
+## Reuse Across Web and API
+
+Actions are designed to be **reused** across different contexts:
+
+### Web Controller (Inertia)
+
+```php
+public function store(TaskData $data, TaskCreateAction $action): RedirectResponse
+{
+    $task = $action->execute($data);
+
+    return redirect()
+        ->route('tasks.show', $task)
+        ->with('success', 'Task created successfully.');
+}
+```
+
+### API Controller (Sanctum)
+
+```php
+public function store(TaskData $data, TaskCreateAction $action): TaskResource
+{
+    $task = $action->execute($data);
+
+    return new TaskResource($task);
+}
+```
+
+**Same Action, different response type.**
+
+### API Partial Updates
+
+For partial updates, DTOs use `sometimes|required` rules:
+
+```php
+// In DTO rules()
+'title' => ['sometimes', 'required', 'string', 'max:255'],
+'status' => ['sometimes', 'required', new Enum(TaskStatus::class)],
+```
+
+Action uses `array_filter` to only update non-null fields:
+
+```php
+public function execute(TaskData $data, Task $task): Task
+{
+    return DB::transaction(function () use ($data, $task) {
+        $task->update(array_filter(
+            $data->toModelData(),
+            fn ($value) => $value !== null
+        ));
+
+        return $task->fresh();
+    });
+}
+```
+
 ## When to Create a New Action?
 
 - ✅ **CRUD operations** — Create, Update, Delete for each domain

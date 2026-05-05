@@ -235,6 +235,57 @@ GET /tasks?filter[search]=Bug&filter[project_id]=uuid-here
 GET /projects?filter[is_active]=1&sort=name
 ```
 
+## API Usage with jsonPaginate()
+
+API controllers use QueryBuilder injection with `jsonPaginate()` from `spatie/laravel-json-api-paginate`:
+
+```php
+// Controller
+public function index(TaskIndexQuery $query): AnonymousResourceCollection
+{
+    return TaskResource::collection($query->jsonPaginate());
+}
+```
+
+**Package Required:** `composer require spatie/laravel-json-api-paginate`
+
+**Response Format:**
+```json
+{
+    "data": [...],
+    "links": {
+        "first": "...",
+        "last": "...",
+        "prev": null,
+        "next": "..."
+    },
+    "meta": {
+        "current_page": 1,
+        "last_page": 5,
+        "per_page": 15,
+        "total": 75
+    }
+}
+```
+
+## API-Specific QueryBuilders
+
+Create separate QueryBuilders when API needs differ from Web:
+
+```
+app/QueryBuilders/
+├── TaskIndexQuery.php              ← Web (Inertia pagination)
+├── ProjectIndexQuery.php           ← Web
+└── Api/
+    ├── TaskIndexQuery.php          ← API (jsonPaginate, different eager loading)
+    └── ProjectIndexQuery.php       ← API
+```
+
+**When to create API-specific QueryBuilder:**
+- Eager loading differs (API needs more/fewer relations)
+- Pagination differs (`jsonPaginate()` vs `paginate()`)
+- Filter/sort differs
+
 ---
 
-**Reference files:** `app/QueryBuilders/*.php`
+**Reference files:** `app/QueryBuilders/*.php`, `app/Http/Controllers/Api/*.php`

@@ -249,11 +249,81 @@ protected static function booted(): void
 }
 ```
 
+## API Multi-tenancy
+
+API uses `X-Organization` header instead of session for multi-tenancy.
+
+### ApiSetOrganization Middleware
+
+```php
+class ApiSetOrganization
+{
+    public function handle(Request $request, Closure $next): Response
+    {
+        $organizationId = $request->header('X-Organization');
+
+        if ($organizationId) {
+            // Set in session so GetActiveOrganization works
+            Session::put('organization_id', $organizationId);
+        }
+
+        return $next($request);
+    }
+}
+```
+
+**Registration in bootstrap/app.php:**
+```php
+->withMiddleware(function (Middleware $middleware) {
+    $middleware->api(prepend: [
+        \App\Http\Middleware\ApiSetOrganization::class,
+    ]);
+})
+```
+
+### Usage in API Requests
+
+```bash
+curl -H "Authorization: Bearer {token}" \
+     -H "X-Organization: {organization_id}" \
+     https://api.example.com/api/tasks
+```
+
+### How It Works
+
+```
+API Request
+    │
+    ▼
+X-Organization Header
+    │
+    ▼
+ApiSetOrganization Middleware
+    │
+    ▼
+Session::put('organization_id')
+    │
+    ▼
+GetActiveOrganization::getSelected()
+    │
+    ▼
+HasOrganization Scope filters data
+```
+
+### Testing API Multi-tenancy
+
+```php
+$this->withHeader('X-Organization', $org->id)
+     ->getJson('/api/tasks')
+     ->assertOk();
+```
+
 ---
 
 **Reference files:**
 - `app/Traits/HasOrganization.php`
 - `app/Supports/GetActiveOrganization.php`
 - `app/Http/Middleware/EnsureWorkspaceSelected.php`
+- `app/Http/Middleware/ApiSetOrganization.php`
 - `app/Http/Middleware/ContextualRoleMiddleware.php`
 - `app/Models/Organization.php`

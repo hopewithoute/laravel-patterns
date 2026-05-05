@@ -204,6 +204,42 @@ Model      → menyimpan data
 
 ---
 
+## 15. Sanctum untuk Autentikasi API
+
+**Keputusan:** Gunakan Laravel Sanctum untuk autentikasi token API, bukan library JWT.
+
+**Mengapa:**
+- Built-in di Laravel, tanpa dependency tambahan
+- Token di database dengan revocation instant
+- Fine-grained abilities per token
+- Lebih sederhana dari JWT untuk first-party SPA
+
+**Trade-off:** Token disimpan di database (bukan stateless). Diterima karena kontrol revocation > statelessness.
+
+**Implementasi:**
+- Custom model `Token` extends `PersonalAccessToken`
+- `Sanctum::usePersonalAccessTokenModel(Token::class)` di AppServiceProvider
+- Token management UI di halaman Settings
+
+---
+
+## 16. API Resources untuk Response Formatting
+
+**Keputusan:** Gunakan Eloquent API Resources untuk response API, bukan Model `toArray()`.
+
+**Mengapa:**
+- Memisahkan format API dari logic Model
+- Conditional relationship loading dengan `whenLoaded()`
+- Struktur response konsisten di semua endpoint
+- Dukungan IDE dengan `@mixin`
+
+**Konvensi:**
+- Resources di `app/Http/Resources/Api/`
+- Satu Resource per Model
+- Format tanggal di Resource, bukan Model
+
+---
+
 ## Ringkasan
 
 | Prinsip | Keputusan |
@@ -214,3 +250,5 @@ Model      → menyimpan data
 | Reusability | QueryBuilder + Scope delegation |
 | Testability | Behavior-focused, workspace helper |
 | Dokumentasi | Access patterns, delegation maps, tabel perbandingan |
+| API Auth | Sanctum tokens |
+| API Response | Eloquent API Resources |

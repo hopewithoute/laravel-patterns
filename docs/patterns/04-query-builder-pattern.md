@@ -235,6 +235,57 @@ GET /tasks?filter[search]=Bug&filter[project_id]=uuid-here
 GET /projects?filter[is_active]=1&sort=name
 ```
 
+## Penggunaan API dengan jsonPaginate()
+
+Controller API menggunakan QueryBuilder injection dengan `jsonPaginate()` dari `spatie/laravel-json-api-paginate`:
+
+```php
+// Controller
+public function index(TaskIndexQuery $query): AnonymousResourceCollection
+{
+    return TaskResource::collection($query->jsonPaginate());
+}
+```
+
+**Package yang Dibutuhkan:** `composer require spatie/laravel-json-api-paginate`
+
+**Format Response:**
+```json
+{
+    "data": [...],
+    "links": {
+        "first": "...",
+        "last": "...",
+        "prev": null,
+        "next": "..."
+    },
+    "meta": {
+        "current_page": 1,
+        "last_page": 5,
+        "per_page": 15,
+        "total": 75
+    }
+}
+```
+
+## API-Specific QueryBuilders
+
+Buat QueryBuilder terpisah ketika kebutuhan API berbeda dari Web:
+
+```
+app/QueryBuilders/
+├── TaskIndexQuery.php              ← Web (Inertia pagination)
+├── ProjectIndexQuery.php           ← Web
+└── Api/
+    ├── TaskIndexQuery.php          ← API (jsonPaginate, eager loading berbeda)
+    └── ProjectIndexQuery.php       ← API
+```
+
+**Kapan buat API-specific QueryBuilder:**
+- Eager loading berbeda (API butuh lebih/banyak relasi)
+- Pagination berbeda (`jsonPaginate()` vs `paginate()`)
+- Filter/sort berbeda
+
 ---
 
-**Referensi file:** `app/QueryBuilders/*.php`
+**Referensi file:** `app/QueryBuilders/*.php`, `app/Http/Controllers/Api/*.php`

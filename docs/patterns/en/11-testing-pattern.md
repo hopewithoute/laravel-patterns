@@ -213,9 +213,135 @@ $this->assertNotNull($task->fresh()->completed_at);
 // ❌ Test implementation — "calls markAsCompleted method"
 ```
 
+## API Testing with Sanctum
+
+### Setup
+
+```php
+use Laravel\Sanctum\Sanctum;
+
+class TaskControllerTest extends TestCase
+{
+    use RefreshDatabase;
+}
+```
+
+### Acting as Sanctum User
+
+```php
+// Simple authentication
+Sanctum::actingAs($user);
+
+// With specific abilities
+Sanctum::actingAs($user, ['tasks:read', 'tasks:write']);
+```
+
+### API Test Structure
+
+```php
+public function test_can_list_tasks(): void
+{
+    $user = User::factory()->create();
+    $organization = Organization::factory()->create();
+    $organization->addMember($user);
+
+    Task::factory(3)->create([
+        'organization_id' => $organization->id,
+    ]);
+
+    $this->withHeader('X-Organization', $organization->id)
+         ->getJson('/api/tasks')
+         ->assertOk()
+         ->assertJsonStructure([
+             'data' => [
+                 '*' => ['id', 'title', 'status'],
+             ],
+             'links',
+             'meta',
+         ])
+         ->assertJsonCount(3, 'data');
+}
+```
+
+### Token Management Tests
+
+```php
+public function test_user_can_create_token(): void
+{
+    $user = User::factory()->create();
+
+    Sanctum::actingAs($user);
+
+    $this->postJson('/api/auth/tokens', [
+        'name' => 'My App',
+        'abilities' => ['tasks:read'],
+    ])
+    ->assertOk()
+    ->assertJsonStructure(['token', 'token' => ['id', 'name']]);
+}
+```
+
+### Multi-tenancy in API Tests
+
+```php
+public function test_cannot_access_other_organization_tasks(): void
+{
+    $user = User::factory()->create();
+    $org1 = Organization::factory()->create();
+    $org2 = Organization::factory()->create();
+    $org1->addMember($user);
+
+    $task = Task::factory()->create([
+        'organization_id' => $org2->id,
+    ]);
+
+    $this->withHeader('X-Organization', $org1->id)
+         ->getJson("/api/tasks/{$task->id}")
+         ->assertNotFound();
+}
+```
+
+### Authentication Tests
+
+```php
+public function test_cannot_access_without_token(): void
+{
+    $this->getJson('/api/tasks')
+         ->assertUnauthorized();
+}
+
+public function test_login_returns_token(): void
+{
+    $user = User::factory()->create([
+        'password' => bcrypt('password123'),
+    ]);
+
+    $this->postJson('/api/auth/login', [
+        'email' => $user->email,
+        'password' => 'password123',
+    ])
+    ->assertOk()
+    ->assertJsonStructure(['token', 'user']);
+}
+```
+
+### API Test Helpers
+
+```php
+// Get headers for API requests
+protected function apiHeaders(Organization $organization): array
+{
+    return [
+        'X-Organization' => $organization->id,
+        'Accept' => 'application/json',
+    ];
+}
+```
+
 ---
 
 **Reference files:**
 - `tests/TestCase.php`
+- `tests/Feature/Api/**/*.php`
 - `tests/Feature/*.php`
 - `database/factories/*.php`

@@ -200,6 +200,62 @@ public function store(TaskData $data, TaskCreateAction $action): RedirectRespons
 }
 ```
 
+## Reuse Across Web dan API
+
+Action dirancang untuk **digunakan kembali** di berbagai konteks:
+
+### Web Controller (Inertia)
+
+```php
+public function store(TaskData $data, TaskCreateAction $action): RedirectResponse
+{
+    $task = $action->execute($data);
+
+    return redirect()
+        ->route('tasks.show', $task)
+        ->with('success', 'Task created successfully.');
+}
+```
+
+### API Controller (Sanctum)
+
+```php
+public function store(TaskData $data, TaskCreateAction $action): TaskResource
+{
+    $task = $action->execute($data);
+
+    return new TaskResource($task);
+}
+```
+
+**Action yang sama, tipe response berbeda.**
+
+### API Partial Updates
+
+Untuk partial updates, DTO menggunakan aturan `sometimes|required`:
+
+```php
+// Di DTO rules()
+'title' => ['sometimes', 'required', 'string', 'max:255'],
+'status' => ['sometimes', 'required', new Enum(TaskStatus::class)],
+```
+
+Action menggunakan `array_filter` untuk hanya update field yang tidak null:
+
+```php
+public function execute(TaskData $data, Task $task): Task
+{
+    return DB::transaction(function () use ($data, $task) {
+        $task->update(array_filter(
+            $data->toModelData(),
+            fn ($value) => $value !== null
+        ));
+
+        return $task->fresh();
+    });
+}
+```
+
 ## Kapan Membuat Action Baru?
 
 - ✅ **Operasi CRUD** — Create, Update, Delete untuk setiap domain

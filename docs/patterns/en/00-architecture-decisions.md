@@ -204,6 +204,42 @@ Model      → persists data
 
 ---
 
+## 15. Sanctum for API Authentication
+
+**Decision:** Use Laravel Sanctum for API token authentication, not JWT library.
+
+**Why:**
+- Built-in to Laravel, no extra dependency
+- Database-backed tokens with instant revocation
+- Fine-grained abilities per token
+- Simpler than JWT for first-party SPA
+
+**Trade-off:** Tokens stored in database (not stateless). Accepted because revocation control > statelessness.
+
+**Implementation:**
+- Custom `Token` model extends `PersonalAccessToken`
+- `Sanctum::usePersonalAccessTokenModel(Token::class)` in AppServiceProvider
+- Token management UI in Settings page
+
+---
+
+## 16. API Resources for Response Formatting
+
+**Decision:** Use Eloquent API Resources for API responses, not Model `toArray()`.
+
+**Why:**
+- Separates API format from Model logic
+- Conditional relationship loading with `whenLoaded()`
+- Consistent response structure across endpoints
+- IDE support with `@mixin`
+
+**Convention:**
+- Resources in `app/Http/Resources/Api/`
+- One Resource per Model
+- Format dates in Resource, not Model
+
+---
+
 ## Summary
 
 | Principle | Decision |
@@ -214,3 +250,5 @@ Model      → persists data
 | Reusability | QueryBuilder + Scope delegation |
 | Testability | Behavior-focused, workspace helper |
 | Documentation | Access patterns, delegation maps, comparison tables |
+| API Auth | Sanctum tokens |
+| API Response | Eloquent API Resources |

@@ -108,9 +108,57 @@ PUT    /tasks/{task}/assign   → Full reassignment
 POST   /tasks/{task}/comments → Create nested resource
 ```
 
+## Organisasi Route API
+
+Route API didefinisikan di `routes/api.php`:
+
+```php
+// routes/api.php
+
+// Public routes (tidak perlu auth)
+Route::prefix('auth')->group(function () {
+    Route::post('register', [AuthController::class, 'register']);
+    Route::post('login', [AuthController::class, 'login']);
+});
+
+// Protected routes (perlu auth)
+Route::middleware('auth:sanctum')->group(function () {
+    // Auth
+    Route::get('auth/me', [AuthController::class, 'me']);
+    Route::post('auth/logout', [AuthController::class, 'logout']);
+
+    // Token management
+    Route::get('auth/tokens', [TokenController::class, 'index']);
+    Route::post('auth/tokens', [TokenController::class, 'store']);
+    Route::delete('auth/tokens/{token}', [TokenController::class, 'destroy']);
+
+    // Resources
+    Route::apiResource('tasks', TaskController::class);
+    Route::apiResource('projects', ProjectController::class);
+
+    // Nested resources
+    Route::get('tasks/{task}/comments', [CommentController::class, 'index']);
+    Route::post('tasks/{task}/comments', [CommentController::class, 'store']);
+
+    // Custom actions
+    Route::get('organizations/{organization}/members', [OrganizationController::class, 'members']);
+});
+```
+
+### Penamaan Route API
+
+```
+/api/auth/login          → api.auth.login
+/api/tasks               → api.tasks.index
+/api/tasks/{task}        → api.tasks.show
+/api/projects            → api.projects.index
+/api/tasks/{task}/comments → api.tasks.comments.index
+```
+
 ---
 
 **Referensi file:**
 - `routes/web.php`
 - `routes/web/*.php`
+- `routes/api.php`
 - `app/Supports/RouteHelper.php`

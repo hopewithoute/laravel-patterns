@@ -143,6 +143,67 @@ class TaskData extends Data
 | IDE autocomplete   | ❌ `$request['key']`  | ✅ `$data->title`               |
 | Serialization      | ❌ Tidak ada          | ✅ `toArray()`, `toJson()`      |
 
+## DTO Khusus API
+
+Beberapa DTO dibuat khusus untuk endpoint API:
+
+### CreateTokenData
+
+```php
+class CreateTokenData extends Data
+{
+    public function __construct(
+        public string $name,
+        public array $abilities = ['*'],
+        #[WithCast(DateTimeInterfaceCast::class)]
+        public ?Carbon $expires_at = null,
+    ) {}
+
+    public static function rules(): array
+    {
+        return [
+            'name' => ['required', 'string', 'max:255'],
+            'abilities' => ['nullable', 'array'],
+            'abilities.*' => ['string'],
+            'expires_at' => ['nullable', 'date', 'after:today'],
+        ];
+    }
+}
+```
+
+### Partial Update DTOs
+
+Untuk partial updates di API, gunakan aturan `sometimes|required`:
+
+```php
+class TaskData extends Data
+{
+    public function __construct(
+        public ?string $title = null,
+        public ?string $status = null,
+        public ?string $priority = null,
+    ) {}
+
+    public static function rules(): array
+    {
+        return [
+            'title' => ['sometimes', 'required', 'string', 'max:255'],
+            'status' => ['sometimes', 'required', new Enum(TaskStatus::class)],
+            'priority' => ['sometimes', 'required', new Enum(Priority::class)],
+        ];
+    }
+}
+```
+
+**Controller:**
+```php
+public function update(TaskData $data, TaskUpdateAction $action, Task $task): TaskResource
+{
+    $task = $action->execute($data, $task);
+    return new TaskResource($task);
+}
+```
+
 ## Pola-Pola Kunci
 
 ### 1. Enum-based Validation
