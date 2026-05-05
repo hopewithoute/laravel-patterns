@@ -1,316 +1,184 @@
-# Laravel Clean Architecture Boilerplate
+# Laravel Architecture Patterns
 
-> **Showcase project yang menerapkan best practices, clean code, dan design patterns di Laravel 13 — dibangun sebagai referensi arsitektur untuk memulai project baru.**
+> **Reference architecture yang saya gunakan untuk membangun aplikasi Laravel production-ready. Multi-tenant, type-safe, testable.**
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="320" alt="Laravel Logo">
 </p>
 
 <p align="center">
-  <strong>Laravel 13</strong> · <strong>PHP 8.3</strong> · <strong>Vue 3</strong> · <strong>Inertia.js</strong> · <strong>TailwindCSS 4</strong>
+  <strong>Laravel 13</strong> · <strong>PHP 8.4</strong> · <strong>Vue 3</strong> · <strong>Inertia.js v3</strong> · <strong>TailwindCSS 4</strong>
 </p>
 
 ---
 
-## 📋 Table of Contents
+## Tentang Repository Ini
 
-- [About](#-about)
-- [Tech Stack](#-tech-stack)
-- [Architecture Overview](#-architecture-overview)
-- [Design Patterns](#-design-patterns)
-- [Project Structure](#-project-structure)
-- [Quick Start](#-quick-start)
-- [Development Commands](#-development-commands)
-- [Testing](#-testing)
-- [AI Configuration](docs/ai-configuration.md)
+Ini bukan boilerplate siap pakai. Ini adalah **kumpulan pattern dan keputusan arsitektur** yang saya kumpulkan dan gunakan berulang kali di setiap project Laravel.
 
----
+Setiap pattern di sini lahir dari masalah nyata:
+- Fat controller yang sulit di-test → **Action Pattern**
+- Data tidak konsisten antar layer → **DTO Pattern**
+- Lupa filter data tenant → **Multi-Tenancy via Global Scope**
+- Logic tersebar di mana-mana → **Enum sebagai Business Logic Container**
 
-## 🎯 About
-
-Project ini adalah **Task Management SaaS** yang berfungsi sebagai showcase penerapan clean code dan design patterns di ekosistem Laravel. Setiap pattern didokumentasikan secara detail dengan code examples, rationale, dan best practices.
-
-### Fitur Utama
-
-- **Multi-Tenancy** — Workspace-based data isolation (Organization → Projects → Tasks)
-- **Kanban Board** — Drag-and-drop task management dengan date-based columns
-- **Role-Based Access** — Global (Super Admin) + Contextual (Owner/Admin/Member) roles
-- **Team Management** — Invite system dengan invite code
-- **Dashboard Analytics** — Real-time task & project statistics
+Dokumentasi tersedia dalam **dua bahasa**:
+- 🇮🇩 [`docs/patterns/`](docs/patterns/) — Bahasa Indonesia (dengan code examples lengkap)
+- 🇬🇧 [`docs/patterns/en/`](docs/patterns/en/) — English version
 
 ---
 
-## 🛠 Tech Stack
+## Arsitektur dalam Satu Gambar
+
+```
+Request → Middleware (auth + workspace + role)
+       → Controller (thin orchestrator)
+       → DTO (validate) → Action (write) / QueryBuilder (read) / Service (aggregate)
+       → Model (scope + cast + business method)
+       → Response (Inertia → Vue)
+```
+
+**Prinsip utama:**
+- **Controller tidak berisi logic** — hanya delegasi
+- **Model tidak bodoh** — berisi scopes, accessors, business methods
+- **Enum bukan sekadar constant** — berisi rules, UI metadata, permission groups
+- **Setiap query otomatis di-scope by organization** — tidak bisa lupa
+
+---
+
+## Keputusan Arsitektur
+
+> Lihat [Architecture Decisions](docs/patterns/en/00-architecture-decisions.md) untuk penjelasan lengkap setiap keputusan dan trade-off-nya.
+
+| # | Keputusan | Satu Kalimat |
+|---|-----------|--------------|
+| 1 | **Action over Fat Controller** | Setiap write operation punya class sendiri |
+| 2 | **DTO over Form Request** | Type-safe, reusable di luar HTTP context |
+| 3 | **Enum as Logic Container** | Constants + rules + UI metadata dalam satu tempat |
+| 4 | **Global Scope Multi-Tenancy** | Filter org_id otomatis, tidak bisa lupa |
+| 5 | **QueryBuilder per View** | Filter/sort logic ter-encapsulate per halaman |
+| 6 | **Policy + Role Dual Check** | Org membership dulu, baru role |
+| 7 | **Service for Read Aggregation** | Write di Action, read complex di Service |
+| 8 | **Rich Model, Bukan Anemic** | Scopes, accessors, business methods di Model |
+| 9 | **UUID Primary Key** | Aman untuk multi-tenant dan public URLs |
+| 10 | **Domain-Split Routes** | Route per fitur, auto-load dari directory |
+| 11 | **Behavior Testing** | Test hasil, bukan implementasi |
+| 12 | **Query-Driven Indexing** | Setiap index punya documented access pattern |
+| 13 | **Thin Controller** | ≤ 10 baris, kalau lebih ada yang salah |
+
+---
+
+## Pattern Documentation
+
+### Core
+
+| Pattern | Masalah | Solusi | [📖 Detail](docs/patterns/en/) |
+|---------|---------|--------|------|
+| **Action** | Fat controller, logic tersebar | Satu class, satu operasi | [01](docs/patterns/en/01-action-pattern.md) |
+| **DTO** | Raw array, tidak type-safe | Spatie Data, auto-validation | [02](docs/patterns/en/02-data-transfer-object.md) |
+| **Enum** | Hardcoded strings, logic di controller | Constants + behavior | [03](docs/patterns/en/03-enum-pattern.md) |
+| **Query Builder** | Filter logic di controller | Encapsulated per view | [04](docs/patterns/en/04-query-builder-pattern.md) |
+
+### Architecture
+
+| Pattern | Masalah | Solusi | [📖 Detail](docs/patterns/en/) |
+|---------|---------|--------|------|
+| **Multi-Tenancy** | Data leakage antar org | Global Scope + Trait | [05](docs/patterns/en/05-multi-tenancy.md) |
+| **Policy Auth** | Hardcode permission check | Org + Role dual check | [06](docs/patterns/en/06-policy-authorization.md) |
+| **Service** | Aggregation di controller | Read-only service + memoization | [07](docs/patterns/en/07-service-pattern.md) |
+| **Support Helper** | Utility logic bertebaran | Stateless static helpers | [08](docs/patterns/en/08-support-helper.md) |
+
+### Infrastructure
+
+| Pattern | Masalah | Solusi | [📖 Detail](docs/patterns/en/) |
+|---------|---------|--------|------|
+| **Rich Model** | Anemic model, logic di mana-mana | Scopes + accessors + business methods | [09](docs/patterns/en/09-model-pattern.md) |
+| **Route Org** | routes/web.php 500 baris | Split per domain + auto-load | [10](docs/patterns/en/10-route-organization.md) |
+| **Testing** | Test lupa setup tenant context | Workspace helper + Inertia assertions | [11](docs/patterns/en/11-testing-pattern.md) |
+| **Indexing** | Index tanpa tujuan | Documented access patterns | [12](docs/patterns/en/12-performance-indexing.md) |
+| **Thin Controller** | Controller 200 baris | Orchestrator pattern, delegation map | [13](docs/patterns/en/13-thin-controller.md) |
+
+---
+
+## Tech Stack
 
 ### Backend
 
-| Package                       | Versi    | Kegunaan                        |
-|-------------------------------|----------|---------------------------------|
-| **Laravel Framework**         | ^13.0    | Core framework                  |
-| **Inertia.js Laravel**        | ^3.0     | SPA bridge (server-driven)      |
-| **Spatie Laravel Data**       | ^4.21    | DTO + Validation                |
-| **Spatie Laravel Permission** | ^7.3     | Role & permission management    |
-| **Spatie Laravel Query Builder** | ^7.2  | API filtering, sorting          |
-| **Spatie Laravel Settings**   | ^3.7     | Persistent app settings         |
-| **BenSampo Laravel Enum**     | ^6.14    | Type-safe enum constants        |
-| **Laravel Sanctum**           | ^4.3     | API authentication              |
-| **Laravel Pint**              | ^1.27    | Code style fixer                |
+| Package | Versi | Untuk |
+|---------|-------|-------|
+| Laravel Framework | ^13.0 | Core |
+| Inertia.js Laravel | ^3.0 | SPA bridge |
+| Spatie Laravel Data | ^4.21 | DTO + Validation |
+| Spatie Laravel Permission | ^7.3 | Role management |
+| Spatie Laravel Query Builder | ^7.2 | API filtering |
+| BenSampo Laravel Enum | ^6.14 | Type-safe enums |
+| Laravel Sanctum | ^4.3 | API auth |
 
 ### Frontend
 
-| Package                | Versi    | Kegunaan                          |
-|------------------------|----------|-----------------------------------|
-| **Vue 3**              | ^3.5     | UI framework                      |
-| **Inertia.js Vue 3**   | ^3.0     | SPA adapter                       |
-| **TailwindCSS**        | ^4.0     | Utility-first CSS                 |
-| **Radix Vue / Reka UI**| ^1.9/^2.9| Headless UI primitives           |
-| **Lucide Vue Next**    | ^1.0     | Icon library                      |
-| **VueUse**             | ^14.2    | Composable utilities              |
-| **Vue Draggable Plus** | ^0.6     | Drag-and-drop                     |
-| **Vue Sonner**         | ^2.0     | Toast notifications               |
+| Package | Versi | Untuk |
+|---------|-------|-------|
+| Vue 3 | ^3.5 | UI framework |
+| Inertia.js Vue 3 | ^3.0 | SPA adapter |
+| TailwindCSS | ^4.0 | Styling |
+| Radix Vue / Reka UI | ^1.9 / ^2.9 | Headless UI |
+| Vue Draggable Plus | ^0.6 | Drag-and-drop |
 
 ---
 
-## 🏗 Architecture Overview
-
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                        HTTP Request                             │
-├──────────┬──────────────────────────────────────────────────────┤
-│          │  Middleware Layer                                     │
-│          │  ├── EnsureWorkspaceSelected (multi-tenancy gate)    │
-│          │  ├── ContextualRoleMiddleware (authorization)        │
-│          │  └── HandleInertiaRequests (shared data)             │
-├──────────┼──────────────────────────────────────────────────────┤
-│          │  Controller (Thin Orchestrator)                       │
-│          │  ├── Auto-resolved DTO (validation)                  │
-│          │  ├── Auto-resolved QueryBuilder (filtering)          │
-│          │  └── Injected Action (business logic)                │
-├──────────┼──────────────────────────────────────────────────────┤
-│          ▼                                                      │
-│  ┌─────────────┐  ┌──────────────┐  ┌─────────────────────┐   │
-│  │   Action     │  │ QueryBuilder │  │    Service           │   │
-│  │  (Write)     │  │  (Read)      │  │  (Aggregation)      │   │
-│  │             │  │              │  │                     │   │
-│  │ • Create    │  │ • Filter     │  │ • Dashboard stats   │   │
-│  │ • Update    │  │ • Sort       │  │ • Complex queries   │   │
-│  │ • Delete    │  │ • Paginate   │  │ • Memoized results  │   │
-│  └──────┬──────┘  └──────┬───────┘  └──────────┬──────────┘   │
-│         │                │                      │              │
-│         ▼                ▼                      ▼              │
-│  ┌──────────────────────────────────────────────────────────┐  │
-│  │                      Model Layer                         │  │
-│  │  • HasOrganization Trait (Global Scope → data isolation) │  │
-│  │  • Enum Casting (TaskStatus, Priority, RoleAuth)         │  │
-│  │  • Scopes, Accessors, Business Methods                   │  │
-│  │  • UUID Primary Keys                                     │  │
-│  └──────────────────────────────────────────────────────────┘  │
-│                                                                 │
-│  ┌──────────────────────────────────────────────────────────┐  │
-│  │                    Support Layer                          │  │
-│  │  • GetActiveOrganization (session workspace)              │  │
-│  │  • UserRoleContext (org-aware role checks)                │  │
-│  │  • RouteHelper (auto-load route files)                    │  │
-│  └──────────────────────────────────────────────────────────┘  │
-└─────────────────────────────────────────────────────────────────┘
-```
-
-### Request Lifecycle
-
-```
-1. Request masuk
-2. Middleware: Cek workspace selected → Cek role
-3. Controller: DTO auto-validate → Action/QueryBuilder execute
-4. Model: Global Scope filter by organization_id
-5. Response: Inertia render Vue component + shared data
-```
-
----
-
-## 📚 Design Patterns
-
-Setiap pattern didokumentasikan secara detail di `docs/patterns/`. Klik link untuk membaca penjelasan lengkap, code examples, dan best practices.
-
-### Core Patterns
-
-| #  | Pattern | Deskripsi | Dokumentasi |
-|----|---------|-----------|-------------|
-| 01 | **Action Pattern** | Single-responsibility class untuk setiap write operation. Readonly, transactional, DTO-driven. | [📖 Detail](docs/patterns/01-action-pattern.md) |
-| 02 | **Data Transfer Object** | Type-safe validation & transformation menggunakan Spatie Laravel Data. Menggantikan Form Request. | [📖 Detail](docs/patterns/02-data-transfer-object.md) |
-| 03 | **Enum Pattern** | Type-safe constants dengan business logic, UI metadata, dan permission groups. | [📖 Detail](docs/patterns/03-enum-pattern.md) |
-| 04 | **Query Builder Pattern** | Encapsulated filter/sort/pagination logic menggunakan Spatie Query Builder. | [📖 Detail](docs/patterns/04-query-builder-pattern.md) |
-
-### Architecture Patterns
-
-| #  | Pattern | Deskripsi | Dokumentasi |
-|----|---------|-----------|-------------|
-| 05 | **Multi-Tenancy** | Organization-scoped data isolation via Global Scope + Trait. Session-based workspace switching. | [📖 Detail](docs/patterns/05-multi-tenancy.md) |
-| 06 | **Policy Authorization** | Model-based access control dengan dual check (organization + role). | [📖 Detail](docs/patterns/06-policy-authorization.md) |
-| 07 | **Service Pattern** | Complex read-only aggregation dengan memoization (`once()`). | [📖 Detail](docs/patterns/07-service-pattern.md) |
-| 08 | **Support Helper** | Stateless utility classes untuk cross-cutting concerns. | [📖 Detail](docs/patterns/08-support-helper.md) |
-
-### Infrastructure Patterns
-
-| #  | Pattern | Deskripsi | Dokumentasi |
-|----|---------|-----------|-------------|
-| 09 | **Rich Model** | Domain models dengan scopes, accessors, casts, dan business methods. | [📖 Detail](docs/patterns/09-model-pattern.md) |
-| 10 | **Route Organization** | Domain-split routes dengan auto-loading dari directory. | [📖 Detail](docs/patterns/10-route-organization.md) |
-| 11 | **Testing Pattern** | Feature tests dengan workspace context, factory helpers, dan Inertia assertions. | [📖 Detail](docs/patterns/11-testing-pattern.md) |
-| 12 | **Performance Indexing** | Query-driven index design dengan documented access patterns. | [📖 Detail](docs/patterns/12-performance-indexing.md) |
-| 13 | **Thin Controller** | Controller sebagai orchestrator — delegates ke Action, QueryBuilder, dan Service. | [📖 Detail](docs/patterns/13-thin-controller.md) |
-
----
-
-## 📁 Project Structure
+## Struktur Aplikasi
 
 ```
 app/
-├── Actions/           → Single-responsibility write operations
-│   ├── TaskCreateAction.php
-│   ├── TaskUpdateAction.php
-│   └── ...
-├── Data/              → DTOs with validation & transformation
-│   ├── TaskData.php
-│   ├── ProjectData.php
-│   └── ...
-├── Enums/             → Type-safe constants with behavior
-│   ├── TaskStatus.php
-│   ├── Priority.php
-│   └── RoleAuth.php
+├── Actions/           → Write operations (satu class = satu operasi)
+├── Data/              → DTOs (validasi + transformasi)
+├── Enums/             → Constants + business rules + UI metadata
 ├── Http/
-│   ├── Controllers/   → Thin orchestrators
+│   ├── Controllers/   → Thin orchestrators (≤ 10 baris per method)
 │   └── Middleware/     → Multi-tenancy & auth gates
-├── Models/            → Rich domain models
-│   ├── Task.php
-│   ├── Project.php
-│   ├── Organization.php
-│   └── ...
-├── Policies/          → Model-based authorization
-├── Providers/         → Service providers
-├── QueryBuilders/     → Encapsulated query logic
-│   ├── TaskIndexQuery.php
-│   └── TaskKanbanQuery.php
+├── Models/            → Rich domain models (scopes, accessors, business methods)
+├── Policies/          → Per-model authorization
+├── QueryBuilders/     → Per-view query logic (filter, sort, paginate)
 ├── Services/          → Read-only aggregation
-├── Settings/          → Persistent app settings
-├── Supports/          → Utility helpers
-│   ├── GetActiveOrganization.php
-│   ├── RouteHelper.php
-│   └── UserRoleContext.php
-└── Traits/            → Reusable model behaviors
-    └── HasOrganization.php
+├── Supports/          → Stateless utility helpers
+└── Traits/            → Reusable model behaviors (HasOrganization)
 
 routes/
-├── web.php            → Global routes + auto-loader
-└── web/               → Domain-split route files
-    ├── auth.php
-    ├── dashboard.php
-    ├── projects.php
-    ├── tasks.php
-    └── ...
+└── web/               → Domain-split route files (auto-loaded)
 
 tests/
-├── TestCase.php       → Base test with workspace helper
-├── Feature/           → HTTP integration tests
-└── Unit/              → isolated unit tests
+└── Feature/           → HTTP integration tests dengan workspace context
 
 docs/
-└── patterns/          → Pattern documentation (13 articles)
+├── patterns/          → 13 pattern docs (Indonesia + English)
+│   └── en/            → English versions
+└── adr/               → Architecture Decision Records (jika diperlukan)
 ```
 
 ---
 
-## 🚀 Quick Start
-
-### Prerequisites
-
-- PHP >= 8.3
-- Composer
-- Node.js >= 18
-- SQLite / MySQL / PostgreSQL
-
-### Installation
+## Quick Start
 
 ```bash
-# Clone the repo
-git clone <repo-url> laravel-boilerplate
-cd laravel-boilerplate
-
-# Install all dependencies
-composer install
-npm install
-
-# Setup environment
-cp .env.example .env
-php artisan key:generate
-
-# Run migrations + seed
+git clone <repo-url> && cd laravel-boilerplate
+composer install && npm install
+cp .env.example .env && php artisan key:generate
 php artisan migrate --seed
-
-# Start development servers
 composer dev
 ```
 
-> `composer dev` menjalankan **4 proses** secara bersamaan: Laravel server, Queue worker, Log watcher, dan Vite dev server.
+---
 
-### Default Credentials
+## Testing
 
-```
-Email:    admin@example.com
-Password: password
+```bash
+php artisan test                    # Semua test
+php artisan test --filter=Task      # Filter per domain
+php artisan test --compact          # Compact output
 ```
 
 ---
 
-## ⚡ Development Commands
+## License
 
-Project ini menggunakan **justfile** sebagai task runner:
-
-```bash
-just dev             # Start all dev servers
-just test            # Run PHPUnit tests
-just test-coverage   # Run tests with coverage
-just migrate-fresh   # Fresh migration + seed
-just pint            # PHP code style fixer
-just lint            # Run all linters (Pint + ESLint)
-just clear-cache     # Clear all Laravel caches
-just tinker          # Laravel REPL
-```
-
-Atau menggunakan **Composer scripts**:
-
-```bash
-composer dev         # Start all servers (with Pail logs)
-composer test        # Run tests
-composer setup       # Full setup from scratch
-```
-
----
-
-## 🧪 Testing
-
-```bash
-# Run all tests
-php artisan test
-
-# Run specific test
-php artisan test --filter=TaskControllerTest
-
-# Run with coverage
-php artisan test --coverage
-```
-
-### Test Coverage
-
-| Domain     | Tests |
-|------------|-------|
-| Tasks      | CRUD + Kanban + Move + Status + Assign |
-| Projects   | CRUD + Policy |
-| Comments   | Create + Delete |
-| Workspaces | Create + Switch |
-| Team       | Invite + Remove |
-
----
-
-## 📄 License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+MIT
