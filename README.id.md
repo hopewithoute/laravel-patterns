@@ -7,7 +7,7 @@
 </p>
 
 <p align="center">
-  <a href="README.md">🇬🇧 English</a> · <a href="README.id.md">🇮🇩 Bahasa Indonesia</a>
+  <a href="README.md">English</a> · <a href="README.id.md">Bahasa Indonesia</a>
 </p>
 
 ---
@@ -23,8 +23,8 @@ Setiap pattern di sini lahir dari masalah nyata:
 - Logic tersebar di mana-mana → **Enum sebagai Business Logic Container**
 
 Dokumentasi tersedia dalam **dua bahasa**:
-- 🇮🇩 [`docs/patterns/`](docs/patterns/) — Bahasa Indonesia (dengan code examples lengkap)
-- 🇬🇧 [`docs/patterns/en/`](docs/patterns/en/) — Versi Inggris
+- [`docs/patterns/`](docs/patterns/) — Bahasa Indonesia (dengan code examples lengkap)
+- [`docs/patterns/en/`](docs/patterns/en/) — Versi Inggris
 
 ---
 
