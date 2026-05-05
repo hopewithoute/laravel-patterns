@@ -4,6 +4,7 @@ import { useForm, Head, router } from '@inertiajs/vue3'
 import PageHeader from '@/components/layout/PageHeader.vue'
 import PageWidth from '@/components/layout/PageWidth.vue'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from '@/components/ui/dialog'
+import ConfirmDialog from '@/components/ui/ConfirmDialog.vue'
 
 const props = defineProps({
     organization: Object,
@@ -18,6 +19,26 @@ const activeTab = ref('profile')
 
 // Show modal if newToken prop exists
 const showTokenModal = ref(!!props.newToken)
+
+// Revoke confirm dialog
+const showRevokeDialog = ref(false)
+const tokenToRevoke = ref(null)
+
+const confirmRevoke = (id) => {
+    tokenToRevoke.value = id
+    showRevokeDialog.value = true
+}
+
+const revokeToken = () => {
+    if (tokenToRevoke.value) {
+        router.delete(`/settings/tokens/${tokenToRevoke.value}`, {
+            onFinish: () => {
+                showRevokeDialog.value = false
+                tokenToRevoke.value = null
+            },
+        })
+    }
+}
 
 // Token form
 const tokenForm = useForm({
@@ -40,11 +61,7 @@ const closeTokenModal = () => {
     showTokenModal.value = false
 }
 
-const revokeToken = (id) => {
-    if (confirm('Are you sure you want to revoke this token?')) {
-        router.delete(`/settings/tokens/${id}`)
-    }
-}
+const copied = ref(false)
 
 const copyToken = () => {
     if (props.newToken) {
@@ -55,8 +72,6 @@ const copyToken = () => {
         }, 2000)
     }
 }
-
-const copied = ref(false)
 
 // Profile form
 const profileForm = useForm({
@@ -579,7 +594,7 @@ const tabs = [
                             </div>
                         </div>
                         <button
-                            @click="revokeToken(token.id)"
+                            @click="confirmRevoke(token.id)"
                             class="ml-4 inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-rose-400 transition-colors hover:bg-rose-500/10"
                         >
                             <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -602,5 +617,16 @@ const tabs = [
                 </div>
             </div>
         </section>
+
+        <!-- Revoke Confirm Dialog -->
+        <ConfirmDialog
+            v-model:open="showRevokeDialog"
+            title="Revoke Token"
+            description="Are you sure you want to revoke this token? This action cannot be undone."
+            confirm-label="Revoke"
+            cancel-label="Cancel"
+            variant="destructive"
+            @confirm="revokeToken"
+        />
     </PageWidth>
 </template>
