@@ -28,20 +28,13 @@ class CommentController extends Controller
         return CommentResource::collection($comments);
     }
 
-    public function store(Request $request, Task $task, CommentCreateAction $action): JsonResponse
+    public function store(CommentData $data, Task $task, CommentCreateAction $action): JsonResponse
     {
-        $validated = $request->validate([
-            'content' => 'required|string|max:2000',
-        ]);
+        // Set task_id and organization_id from route/header
+        $data->task_id = $task->id;
+        $data->organization_id = request()->header('X-Organization');
 
-        $validated['task_id'] = $task->id;
-        $validated['organization_id'] = $request->header('X-Organization');
-
-        $comment = $action->execute(
-            CommentData::from($validated),
-            $task,
-            $request->user()
-        );
+        $comment = $action->execute($data, $task, request()->user());
 
         return CommentResource::make($comment)
             ->response()
@@ -53,19 +46,13 @@ class CommentController extends Controller
         return CommentResource::make($comment->load('user'));
     }
 
-    public function update(Request $request, Comment $comment, CommentUpdateAction $action): CommentResource
+    public function update(CommentData $data, Comment $comment, CommentUpdateAction $action): CommentResource
     {
-        $validated = $request->validate([
-            'content' => 'required|string|max:2000',
-        ]);
+        // Preserve existing task_id and organization_id
+        $data->task_id = $comment->task_id;
+        $data->organization_id = $comment->organization_id;
 
-        $validated['task_id'] = $comment->task_id;
-        $validated['organization_id'] = $comment->organization_id;
-
-        $comment = $action->execute(
-            CommentData::from($validated),
-            $comment
-        );
+        $comment = $action->execute($data, $comment);
 
         return CommentResource::make($comment->load('user'));
     }

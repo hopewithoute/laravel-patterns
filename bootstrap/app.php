@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\ApiSetOrganization;
 use App\Http\Middleware\ContextualRoleMiddleware;
 use App\Http\Middleware\EnsureWorkspaceSelected;
 use App\Http\Middleware\HandleInertiaRequests;
@@ -19,11 +20,17 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'role' => ContextualRoleMiddleware::class,
             'ensure_workspace_selected' => EnsureWorkspaceSelected::class,
+            'api.organization' => ApiSetOrganization::class,
         ]);
 
         // Append middleware to web group
         $middleware->web(append: [
             HandleInertiaRequests::class,
+        ]);
+
+        // Append middleware to API group
+        $middleware->api(prepend: [
+            ApiSetOrganization::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

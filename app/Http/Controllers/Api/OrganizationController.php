@@ -23,14 +23,9 @@ class OrganizationController extends Controller
         return OrganizationResource::collection($organizations);
     }
 
-    public function store(Request $request): JsonResponse
+    public function store(OrganizationData $data, Request $request): JsonResponse
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string|max:1000',
-        ]);
-
-        $organization = Organization::create($validated);
+        $organization = Organization::create($data->toModelData());
         $organization->addMember($request->user(), 'admin');
 
         return OrganizationResource::make($organization)
@@ -43,20 +38,9 @@ class OrganizationController extends Controller
         return OrganizationResource::make($organization);
     }
 
-    public function update(Request $request, Organization $organization, OrganizationUpdateAction $action): OrganizationResource
+    public function update(OrganizationData $data, Organization $organization, OrganizationUpdateAction $action): OrganizationResource
     {
-        $validated = $request->validate([
-            'name' => 'sometimes|required|string|max:255',
-            'description' => 'nullable|string|max:1000',
-        ]);
-
-        // Merge with existing data for partial updates
-        $data = array_merge($organization->toArray(), $validated);
-
-        $organization = $action->execute(
-            OrganizationData::from($data),
-            $organization
-        );
+        $organization = $action->execute($data, $organization);
 
         return OrganizationResource::make($organization);
     }

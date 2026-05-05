@@ -133,12 +133,12 @@ class CommentControllerTest extends TestCase
             'organization_id' => $otherOrg->id,
         ]);
 
+        // Global scope filters by organization, so task not found
         $response = $this->getJson(
             "/api/tasks/{$otherTask->id}/comments",
             $this->headers()
         );
 
-        $response->assertOk()
-            ->assertJsonCount(0, 'data');
+        $response->assertNotFound();
     }
 }

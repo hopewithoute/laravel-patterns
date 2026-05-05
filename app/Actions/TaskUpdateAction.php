@@ -15,12 +15,15 @@ class TaskUpdateAction
     public function execute(TaskData $data, Task $task): Task
     {
         return DB::transaction(function () use ($data, $task) {
-            $updateData = $data->toModelData();
+            // Get only the fields that are present in the DTO
+            $updateData = array_filter($data->toModelData(), function ($value) {
+                return $value !== null;
+            });
 
             // Handle completed_at based on status
-            if ($data->status === TaskStatus::Done && ! $task->completed_at) {
+            if (isset($updateData['status']) && $updateData['status'] === TaskStatus::Done && ! $task->completed_at) {
                 $updateData['completed_at'] = now();
-            } elseif ($data->status !== TaskStatus::Done) {
+            } elseif (isset($updateData['status']) && $updateData['status'] !== TaskStatus::Done) {
                 $updateData['completed_at'] = null;
             }
 

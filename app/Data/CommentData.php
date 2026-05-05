@@ -13,7 +13,7 @@ class CommentData extends Data
     public function __construct(
         public ?string $id,
         public ?string $organization_id,
-        public string $task_id,
+        public ?string $task_id,
         public string $content,
     ) {}
 
@@ -22,7 +22,7 @@ class CommentData extends Data
         return [
             'id' => ['nullable', 'string', 'uuid', 'exists:comments,id'],
             'organization_id' => ['nullable', 'string', 'uuid', 'exists:organizations,id'],
-            'task_id' => ['required', 'string', 'uuid', 'exists:tasks,id'],
+            'task_id' => ['nullable', 'string', 'uuid', 'exists:tasks,id'],
             'content' => ['required', 'string', 'max:2000'],
         ];
     }

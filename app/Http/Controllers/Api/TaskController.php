@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Actions\TaskCreateAction;
+use App\Actions\TaskDeleteAction;
 use App\Actions\TaskUpdateAction;
 use App\Data\TaskData;
 use App\Http\Controllers\Controller;
@@ -17,29 +18,14 @@ class TaskController extends Controller
 {
     public function index(Request $request, TaskIndexQuery $query): AnonymousResourceCollection
     {
-        $organizationId = $request->header('X-Organization');
-
-        $tasks = $query->where('tasks.organization_id', $organizationId)
-            ->paginate($request->input('per_page', 15));
+        $tasks = $query->paginate($request->input('per_page', 15));
 
         return TaskResource::collection($tasks);
     }
 
-    public function store(Request $request, TaskCreateAction $action): JsonResponse
+    public function store(TaskData $data, TaskCreateAction $action): JsonResponse
     {
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'project_id' => 'required|exists:projects,id',
-            'assigned_to' => 'nullable|exists:users,id',
-            'priority' => 'required|string|in:Low,Medium,High,Urgent',
-            'status' => 'required|string|in:Todo,In Progress,Review,Done',
-            'due_date' => 'nullable|date',
-        ]);
-
-        $validated['organization_id'] = $request->header('X-Organization');
-
-        $task = $action->execute(TaskData::from($validated));
+        $task = $action->execute($data);
 
         return TaskResource::make($task)
             ->response()
@@ -48,33 +34,22 @@ class TaskController extends Controller
 
     public function show(Task $task): TaskResource
     {
-        return TaskResource::make($task);
+        return TaskResource::make($task->load(['project', 'assignee', 'comments.user', 'organization']));
     }
 
-    public function update(Request $request, Task $task, TaskUpdateAction $action): TaskResource
+    public function update(TaskData $data, Task $task, TaskUpdateAction $action): TaskResource
     {
-        $validated = $request->validate([
-            'title' => 'sometimes|required|string|max:255',
-            'description' => 'nullable|string',
-            'project_id' => 'sometimes|required|exists:projects,id',
-            'assigned_to' => 'nullable|exists:users,id',
-            'priority' => 'sometimes|required|string|in:Low,Medium,High,Urgent',
-            'status' => 'sometimes|required|string|in:Todo,In Progress,Review,Done',
-            'due_date' => 'nullable|date',
-        ]);
+        // Set id for partial update detection in DTO
+        $data->id = $task->id;
 
-        // Merge existing task data with validated input
-        $data = array_merge($task->toArray(), $validated);
-        $data['organization_id'] = $task->organization_id;
-
-        $task = $action->execute(TaskData::from($data), $task);
+        $task = $action->execute($data, $task);
 
         return TaskResource::make($task);
     }
 
-    public function destroy(Task $task): JsonResponse
+    public function destroy(Task $task, TaskDeleteAction $action): JsonResponse
     {
-        $task->delete();
+        $action->execute($task);
 
         return response()->json(null, 204);
     }

@@ -17,12 +17,12 @@ class TaskData extends Data
     public function __construct(
         public ?string $id,
         public ?string $organization_id,
-        public string $project_id,
+        public ?string $project_id,
         public ?string $assigned_to,
-        public string $title,
+        public ?string $title,
         public ?string $description,
-        public string $status,
-        public string $priority,
+        public ?string $status,
+        public ?string $priority,
         public ?string $due_date,
         public ?string $completed_at,
     ) {
@@ -34,12 +34,12 @@ class TaskData extends Data
         return [
             'id' => ['nullable', 'string', 'uuid', 'exists:tasks,id'],
             'organization_id' => ['nullable', 'string', 'uuid', 'exists:organizations,id'],
-            'project_id' => ['required', 'string', 'uuid', 'exists:projects,id'],
+            'project_id' => ['sometimes', 'required', 'string', 'uuid', 'exists:projects,id'],
             'assigned_to' => ['nullable', 'string', 'uuid', 'exists:users,id'],
-            'title' => ['required', 'string', 'max:255'],
+            'title' => ['sometimes', 'required', 'string', 'max:255'],
             'description' => ['nullable', 'string', 'max:5000'],
-            'status' => ['required', 'string', 'in:'.implode(',', TaskStatus::getValues())],
-            'priority' => ['required', 'string', 'in:'.implode(',', Priority::getValues())],
+            'status' => ['sometimes', 'required', 'string', 'in:'.implode(',', TaskStatus::getValues())],
+            'priority' => ['sometimes', 'required', 'string', 'in:'.implode(',', Priority::getValues())],
             'due_date' => ['nullable', 'date'],
             'completed_at' => ['nullable', 'date'],
         ];

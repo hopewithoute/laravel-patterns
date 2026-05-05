@@ -25,17 +25,9 @@ class ProjectController extends Controller
         return ProjectResource::collection($projects);
     }
 
-    public function store(Request $request, ProjectCreateAction $action): JsonResponse
+    public function store(ProjectData $data, ProjectCreateAction $action): JsonResponse
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string|max:1000',
-            'color' => 'nullable|string|regex:/^#[0-9A-Fa-f]{6}$/',
-        ]);
-
-        $validated['organization_id'] = $request->header('X-Organization');
-
-        $project = $action->execute(ProjectData::from($validated));
+        $project = $action->execute($data);
 
         return ProjectResource::make($project)
             ->response()
@@ -47,22 +39,9 @@ class ProjectController extends Controller
         return ProjectResource::make($project);
     }
 
-    public function update(Request $request, Project $project, ProjectUpdateAction $action): ProjectResource
+    public function update(ProjectData $data, Project $project, ProjectUpdateAction $action): ProjectResource
     {
-        $validated = $request->validate([
-            'name' => 'sometimes|required|string|max:255',
-            'description' => 'nullable|string|max:1000',
-            'color' => 'nullable|string|regex:/^#[0-9A-Fa-f]{6}$/',
-        ]);
-
-        // Merge with existing data for partial updates
-        $data = array_merge($project->toArray(), $validated);
-        $data['organization_id'] = $project->organization_id;
-
-        $project = $action->execute(
-            ProjectData::from($data),
-            $project
-        );
+        $project = $action->execute($data, $project);
 
         return ProjectResource::make($project);
     }
