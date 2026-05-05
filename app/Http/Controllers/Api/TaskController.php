@@ -11,16 +11,13 @@ use App\Http\Resources\Api\TaskResource;
 use App\Models\Task;
 use App\QueryBuilders\TaskIndexQuery;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class TaskController extends Controller
 {
-    public function index(Request $request, TaskIndexQuery $query): AnonymousResourceCollection
+    public function index(TaskIndexQuery $query): AnonymousResourceCollection
     {
-        $tasks = $query->paginate($request->input('per_page', 15));
-
-        return TaskResource::collection($tasks);
+        return TaskResource::collection($query->jsonPaginate());
     }
 
     public function store(TaskData $data, TaskCreateAction $action): JsonResponse
@@ -39,9 +36,6 @@ class TaskController extends Controller
 
     public function update(TaskData $data, Task $task, TaskUpdateAction $action): TaskResource
     {
-        // Set id for partial update detection in DTO
-        $data->id = $task->id;
-
         $task = $action->execute($data, $task);
 
         return TaskResource::make($task);

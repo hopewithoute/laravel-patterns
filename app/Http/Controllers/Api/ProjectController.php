@@ -8,21 +8,15 @@ use App\Data\ProjectData;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\ProjectResource;
 use App\Models\Project;
+use App\QueryBuilders\ProjectIndexQuery;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class ProjectController extends Controller
 {
-    public function index(Request $request): AnonymousResourceCollection
+    public function index(ProjectIndexQuery $query): AnonymousResourceCollection
     {
-        $organizationId = $request->header('X-Organization');
-
-        $projects = Project::where('organization_id', $organizationId)
-            ->latest()
-            ->paginate($request->input('per_page', 15));
-
-        return ProjectResource::collection($projects);
+        return ProjectResource::collection($query->jsonPaginate());
     }
 
     public function store(ProjectData $data, ProjectCreateAction $action): JsonResponse

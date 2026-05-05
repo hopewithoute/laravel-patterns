@@ -8,19 +8,16 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\OrganizationResource;
 use App\Http\Resources\Api\UserResource;
 use App\Models\Organization;
+use App\QueryBuilders\OrganizationIndexQuery;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class OrganizationController extends Controller
 {
-    public function index(Request $request): AnonymousResourceCollection
+    public function index(OrganizationIndexQuery $query): AnonymousResourceCollection
     {
-        $organizations = $request->user()->organizations()
-            ->latest()
-            ->paginate($request->input('per_page', 15));
-
-        return OrganizationResource::collection($organizations);
+        return OrganizationResource::collection($query->jsonPaginate());
     }
 
     public function store(OrganizationData $data, Request $request): JsonResponse

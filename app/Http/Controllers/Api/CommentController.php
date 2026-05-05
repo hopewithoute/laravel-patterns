@@ -9,23 +9,17 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\CommentResource;
 use App\Models\Comment;
 use App\Models\Task;
+use App\QueryBuilders\CommentIndexQuery;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class CommentController extends Controller
 {
-    public function index(Request $request, Task $task): AnonymousResourceCollection
+    public function index(Task $task, CommentIndexQuery $query): AnonymousResourceCollection
     {
-        $organizationId = $request->header('X-Organization');
+        $query->where('task_id', $task->id);
 
-        $comments = $task->comments()
-            ->where('organization_id', $organizationId)
-            ->with('user')
-            ->latest()
-            ->paginate($request->input('per_page', 15));
-
-        return CommentResource::collection($comments);
+        return CommentResource::collection($query->jsonPaginate());
     }
 
     public function store(CommentData $data, Task $task, CommentCreateAction $action): JsonResponse
