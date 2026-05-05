@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import { useForm, Head, router } from '@inertiajs/vue3'
 import PageHeader from '@/components/layout/PageHeader.vue'
 import PageWidth from '@/components/layout/PageWidth.vue'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from '@/components/ui/dialog'
 
 const props = defineProps({
     organization: Object,
@@ -426,28 +427,45 @@ const tabs = [
                  API TOKENS TAB
                  ═══════════════════════════════════════════════════════════════════ -->
         <section v-show="activeTab === 'tokens'" class="space-y-6">
-            <!-- Newly Created Token Alert -->
-            <div v-if="newToken" class="border-emerald-500/30 bg-emerald-500/10 rounded-2xl border p-6">
-                <div class="mb-3 flex items-center gap-2">
-                    <svg class="h-5 w-5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
-                        <polyline points="22 4 12 14.01 9 11.01"/>
-                    </svg>
-                    <h3 class="text-emerald-300 font-semibold">Token Created Successfully</h3>
-                </div>
-                <p class="text-muted-foreground mb-3 text-sm">
-                    Copy this token now. For security, it will not be shown again.
-                </p>
-                <div class="flex items-center gap-2">
-                    <code class="bg-surface border-border/50 flex-1 rounded-lg border p-3 font-mono text-sm break-all">{{ newToken }}</code>
-                    <button
-                        @click="copyToken"
-                        class="inline-flex items-center gap-2 rounded-xl bg-emerald-500 px-4 py-3 text-sm font-semibold text-black transition-all hover:bg-emerald-400"
-                    >
-                        Copy
-                    </button>
-                </div>
-            </div>
+            <!-- Token Created Modal -->
+            <Dialog :open="!!newToken" @update:open="(val) => { if (!val) newToken = null }">
+                <DialogContent class="sm:max-w-md">
+                    <DialogHeader>
+                        <DialogTitle class="flex items-center gap-2">
+                            <svg class="h-5 w-5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                                <polyline points="22 4 12 14.01 9 11.01"/>
+                            </svg>
+                            Token Created Successfully
+                        </DialogTitle>
+                    </DialogHeader>
+                    <div class="space-y-4">
+                        <p class="text-muted-foreground text-sm">
+                            Copy this token now. For security, it will not be shown again.
+                        </p>
+                        <div class="bg-surface border-border/50 rounded-lg border p-4">
+                            <code class="font-mono text-sm break-all select-all">{{ newToken }}</code>
+                        </div>
+                        <div class="flex gap-2">
+                            <button
+                                @click="copyToken"
+                                class="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-emerald-500 px-4 py-2.5 text-sm font-semibold text-black transition-all hover:bg-emerald-400"
+                            >
+                                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                                </svg>
+                                Copy Token
+                            </button>
+                            <DialogClose as-child>
+                                <button class="inline-flex items-center justify-center rounded-xl border border-border/50 px-4 py-2.5 text-sm font-medium transition-all hover:bg-surface">
+                                    Close
+                                </button>
+                            </DialogClose>
+                        </div>
+                    </div>
+                </DialogContent>
+            </Dialog>
 
             <!-- Create Token Form -->
             <div class="border-border/40 bg-card rounded-2xl border p-6">
