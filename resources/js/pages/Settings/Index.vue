@@ -29,14 +29,18 @@ const confirmRevoke = (id) => {
     showRevokeDialog.value = true
 }
 
+// Revoke form
+const revokeForm = useForm({
+    _method: 'DELETE',
+})
+
 const revokeToken = () => {
     if (tokenToRevoke.value) {
-        router.post(`/settings/tokens/${tokenToRevoke.value}`, {
-            _method: 'DELETE',
-        }, {
+        revokeForm.post(`/settings/tokens/${tokenToRevoke.value}`, {
             onFinish: () => {
                 showRevokeDialog.value = false
                 tokenToRevoke.value = null
+                revokeForm.reset()
             },
         })
     }
