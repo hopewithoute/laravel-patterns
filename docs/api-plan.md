@@ -103,6 +103,9 @@ Web Controller                    API Controller
 | 1 | Create `Token` model extending `PersonalAccessToken` | `app/Models/Token.php` |
 | 2 | Create `TokenData` DTO | `app/Data/TokenData.php` |
 | 3 | Create `TokenController` for API token CRUD | `app/Http/Controllers/Api/TokenController.php` |
+| 4 | Add web `TokenController` for Inertia responses | `app/Http/Controllers/TokenController.php` |
+| 5 | Create Token Management UI | `resources/js/pages/Settings/Tokens.vue` |
+| 6 | Add "API Tokens" tab to Settings | `resources/js/pages/Settings/Index.vue` |
 
 ### Phase 3: API Resources
 
@@ -125,7 +128,115 @@ Web Controller                    API Controller
 | 5 | `WorkspaceController` | List + Set + Create | WorkspaceActions |
 | 6 | `TeamController` | List + Invite + Remove | UserActions |
 
-### Phase 5: Auth Endpoints
+### Phase 5: Token Management UI
+
+Token management integrated into Settings page as a new "API Tokens" tab.
+
+#### Features
+- List all tokens with name, abilities, created date, last used, expiry
+- Create new token with name and optional abilities
+- Copy token to clipboard (shown only once on creation)
+- Revoke/delete token
+- Visual indicator for expired tokens
+
+#### UI Structure (follows existing Settings tabs)
+
+```
+Settings/Index.vue
+├── Profile Tab (existing)
+├── Password Tab (existing)
+├── Workspace Tab (existing)
+└── API Tokens Tab (NEW)
+    ├── Token list with status badges
+    ├── Create token form
+    └── Revoke confirmation
+```
+
+#### Web TokenController (Inertia)
+
+```php
+// app/Http/Controllers/TokenController.php
+class TokenController extends Controller
+{
+    public function index(Request $request): Response
+    {
+        return Inertia::render('Settings/Index', [
+            'tokens' => $request->user()->tokens()->latest()->get(),
+        ]);
+    }
+
+    public function store(TokenData $data, Request $request): RedirectResponse
+    {
+        $token = $request->user()->createToken(
+            $data->name,
+            $data->abilities ?? ['*'],
+            $data->expires_at
+        );
+
+        return back()->with('flash', [
+            'type' => 'success',
+            'text' => 'Token created. Copy it now — it won\'t be shown again.',
+            'token' => $token->plainTextToken, // Only shown once
+        ]);
+    }
+
+    public function destroy(Token $token, Request $request): RedirectResponse
+    {
+        if ($token->tokenable_id !== $request->user()->id) {
+            abort(403);
+        }
+
+        $token->delete();
+
+        return back()->with('flash', [
+            'type' => 'success',
+            'text' => 'Token revoked successfully.',
+        ]);
+    }
+}
+```
+
+#### Tokens.vue Component
+
+```vue
+<script setup>
+// Props: tokens array
+// useForm for create form
+// copyToClipboard utility
+// revoke with confirmation
+</script>
+
+<template>
+    <!-- Token List -->
+    <div v-for="token in tokens">
+        <span>{{ token.name }}</span>
+        <span>{{ token.last_used_at_formatted }}</span>
+        <span>{{ token.expires_at_formatted }}</span>
+        <button @click="revoke(token)">Revoke</button>
+    </div>
+
+    <!-- Create Token Form -->
+    <form @submit.prevent="createToken">
+        <input v-model="form.name" placeholder="Token name" />
+        <select v-model="form.abilities" multiple>
+            <option value="*">Full Access</option>
+            <option value="tasks:read">Read Tasks</option>
+            <option value="tasks:write">Write Tasks</option>
+        </select>
+        <input v-model="form.expires_at" type="date" />
+        <button>Create Token</button>
+    </form>
+
+    <!-- Newly Created Token (shown once) -->
+    <div v-if="newToken">
+        <code>{{ newToken }}</code>
+        <button @click="copy">Copy</button>
+        <p>Save this token — it won't be shown again.</p>
+    </div>
+</template>
+```
+
+### Phase 6: Auth Endpoints
 
 | Endpoint | Method | Description |
 |----------|--------|-------------|
@@ -533,6 +644,10 @@ app/Models/
 app/Data/
 ├── TokenData.php (NEW)
 └── (existing DTOs)
+
+resources/js/pages/Settings/
+├── Index.vue (existing - add Tokens tab)
+└── Tokens.vue (NEW - token management UI)
 
 app/QueryBuilders/
 ├── TaskIndexQuery.php (existing - web)
