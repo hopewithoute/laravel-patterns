@@ -43,7 +43,7 @@ class TaskControllerTest extends TestCase
             'organization_id' => $this->organization->id,
         ]);
 
-        $response = $this->getJson('/api/tasks', $this->headers());
+        $response = $this->getJson('/api/v1/tasks', $this->headers());
 
         $response->assertOk()
             ->assertJsonCount(3, 'data');
@@ -55,7 +55,7 @@ class TaskControllerTest extends TestCase
             'organization_id' => $this->organization->id,
         ]);
 
-        $response = $this->postJson('/api/tasks', [
+        $response = $this->postJson('/api/v1/tasks', [
             'title' => 'New Task',
             'description' => 'Task description',
             'project_id' => $project->id,
@@ -78,7 +78,7 @@ class TaskControllerTest extends TestCase
             'organization_id' => $this->organization->id,
         ]);
 
-        $response = $this->getJson("/api/tasks/{$task->id}", $this->headers());
+        $response = $this->getJson("/api/v1/tasks/{$task->id}", $this->headers());
 
         $response->assertOk()
             ->assertJsonPath('data.id', $task->id);
@@ -90,7 +90,7 @@ class TaskControllerTest extends TestCase
             'organization_id' => $this->organization->id,
         ]);
 
-        $response = $this->putJson("/api/tasks/{$task->id}", [
+        $response = $this->putJson("/api/v1/tasks/{$task->id}", [
             'title' => 'Updated Title',
             'priority' => 'Urgent',
         ], $this->headers());
@@ -111,7 +111,7 @@ class TaskControllerTest extends TestCase
         ]);
 
         $response = $this->deleteJson(
-            "/api/tasks/{$task->id}",
+            "/api/v1/tasks/{$task->id}",
             [],
             $this->headers()
         );
@@ -133,7 +133,7 @@ class TaskControllerTest extends TestCase
             'organization_id' => $otherOrg->id,
         ]);
 
-        $response = $this->getJson('/api/tasks', $this->headers());
+        $response = $this->getJson('/api/v1/tasks', $this->headers());
 
         $response->assertOk()
             ->assertJsonCount(0, 'data');

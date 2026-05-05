@@ -31,7 +31,7 @@ class TokenManagementTest extends TestCase
         $user->createToken('second-token');
         $user->createToken('third-token');
 
-        $response = $this->getJson('/api/auth/tokens', $this->headers($token));
+        $response = $this->getJson('/api/v1/auth/tokens', $this->headers($token));
 
         $response->assertOk()
             ->assertJsonCount(3, 'data');
@@ -41,7 +41,7 @@ class TokenManagementTest extends TestCase
     {
         [$user, $token] = $this->createApiUser();
 
-        $response = $this->postJson('/api/auth/tokens', [
+        $response = $this->postJson('/api/v1/auth/tokens', [
             'name' => 'mobile-app',
         ], $this->headers($token));
 
@@ -51,14 +51,14 @@ class TokenManagementTest extends TestCase
 
         // Token should be usable
         $newToken = $response->json('token');
-        $this->getJson('/api/auth/me', $this->headers($newToken))->assertOk();
+        $this->getJson('/api/v1/auth/me', $this->headers($newToken))->assertOk();
     }
 
     public function test_user_can_create_token_with_abilities(): void
     {
         [$user, $token] = $this->createApiUser();
 
-        $response = $this->postJson('/api/auth/tokens', [
+        $response = $this->postJson('/api/v1/auth/tokens', [
             'name' => 'read-only',
             'abilities' => ['tasks:read', 'projects:read'],
         ], $this->headers($token));
@@ -76,7 +76,7 @@ class TokenManagementTest extends TestCase
 
         $expiresAt = now()->addDays(30)->toIso8601String();
 
-        $response = $this->postJson('/api/auth/tokens', [
+        $response = $this->postJson('/api/v1/auth/tokens', [
             'name' => 'expiring-token',
             'expires_at' => $expiresAt,
         ], $this->headers($token));
@@ -94,7 +94,7 @@ class TokenManagementTest extends TestCase
         $tokenToRevoke = $user->createToken('revoke-me');
 
         $response = $this->deleteJson(
-            "/api/auth/tokens/{$tokenToRevoke->accessToken->id}",
+            "/api/v1/auth/tokens/{$tokenToRevoke->accessToken->id}",
             [],
             $this->headers($token)
         );
@@ -113,7 +113,7 @@ class TokenManagementTest extends TestCase
         $user2Token = $user2->createToken('other-token');
 
         $response = $this->deleteJson(
-            "/api/auth/tokens/{$user2Token->accessToken->id}",
+            "/api/v1/auth/tokens/{$user2Token->accessToken->id}",
             [],
             $this->headers($token1)
         );
@@ -130,7 +130,7 @@ class TokenManagementTest extends TestCase
         $this->assertDatabaseCount('personal_access_tokens', 1);
 
         // Logout using the bearer token
-        $this->postJson('/api/auth/logout', [], $this->headers($token))
+        $this->postJson('/api/v1/auth/logout', [], $this->headers($token))
             ->assertOk();
 
         // Token should be deleted
@@ -139,6 +139,6 @@ class TokenManagementTest extends TestCase
 
     public function test_cannot_access_tokens_without_auth(): void
     {
-        $this->getJson('/api/auth/tokens')->assertUnauthorized();
+        $this->getJson('/api/v1/auth/tokens')->assertUnauthorized();
     }
 }

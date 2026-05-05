@@ -16,7 +16,7 @@ class LoginTest extends TestCase
             'password' => bcrypt('password123'),
         ]);
 
-        $response = $this->postJson('/api/auth/login', [
+        $response = $this->postJson('/api/v1/auth/login', [
             'email' => $user->email,
             'password' => 'password123',
         ]);
@@ -29,7 +29,7 @@ class LoginTest extends TestCase
 
         // Token should be valid
         $token = $response->json('token');
-        $this->getJson('/api/auth/me', [
+        $this->getJson('/api/v1/auth/me', [
             'Authorization' => "Bearer {$token}",
         ])->assertOk();
     }
@@ -38,7 +38,7 @@ class LoginTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $response = $this->postJson('/api/auth/login', [
+        $response = $this->postJson('/api/v1/auth/login', [
             'email' => $user->email,
             'password' => 'wrong-password',
         ]);
@@ -49,7 +49,7 @@ class LoginTest extends TestCase
 
     public function test_login_requires_email_and_password(): void
     {
-        $response = $this->postJson('/api/auth/login', []);
+        $response = $this->postJson('/api/v1/auth/login', []);
 
         $response->assertUnprocessable()
             ->assertJsonValidationErrors(['email', 'password']);

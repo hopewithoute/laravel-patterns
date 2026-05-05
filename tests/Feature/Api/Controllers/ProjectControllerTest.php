@@ -42,7 +42,7 @@ class ProjectControllerTest extends TestCase
             'organization_id' => $this->organization->id,
         ]);
 
-        $response = $this->getJson('/api/projects', $this->headers());
+        $response = $this->getJson('/api/v1/projects', $this->headers());
 
         $response->assertOk()
             ->assertJsonCount(3, 'data');
@@ -50,7 +50,7 @@ class ProjectControllerTest extends TestCase
 
     public function test_can_create_project(): void
     {
-        $response = $this->postJson('/api/projects', [
+        $response = $this->postJson('/api/v1/projects', [
             'name' => 'New Project',
             'description' => 'A new project',
         ], $this->headers());
@@ -70,7 +70,7 @@ class ProjectControllerTest extends TestCase
             'organization_id' => $this->organization->id,
         ]);
 
-        $response = $this->getJson("/api/projects/{$project->id}", $this->headers());
+        $response = $this->getJson("/api/v1/projects/{$project->id}", $this->headers());
 
         $response->assertOk()
             ->assertJsonPath('data.id', $project->id);
@@ -82,7 +82,7 @@ class ProjectControllerTest extends TestCase
             'organization_id' => $this->organization->id,
         ]);
 
-        $response = $this->putJson("/api/projects/{$project->id}", [
+        $response = $this->putJson("/api/v1/projects/{$project->id}", [
             'name' => 'Updated Name',
         ], $this->headers());
 
@@ -102,7 +102,7 @@ class ProjectControllerTest extends TestCase
         ]);
 
         $response = $this->deleteJson(
-            "/api/projects/{$project->id}",
+            "/api/v1/projects/{$project->id}",
             [],
             $this->headers()
         );
@@ -118,7 +118,7 @@ class ProjectControllerTest extends TestCase
             'organization_id' => $otherOrg->id,
         ]);
 
-        $response = $this->getJson('/api/projects', $this->headers());
+        $response = $this->getJson('/api/v1/projects', $this->headers());
 
         $response->assertOk()
             ->assertJsonCount(0, 'data');

@@ -35,7 +35,7 @@ class OrganizationControllerTest extends TestCase
         $org1->addMember($this->user, 'admin');
         $org2->addMember($this->user, 'member');
 
-        $response = $this->getJson('/api/organizations', $this->headers());
+        $response = $this->getJson('/api/v1/organizations', $this->headers());
 
         $response->assertOk()
             ->assertJsonCount(2, 'data');
@@ -47,7 +47,7 @@ class OrganizationControllerTest extends TestCase
         $organization->addMember($this->user, 'admin');
 
         $response = $this->getJson(
-            "/api/organizations/{$organization->slug}",
+            "/api/v1/organizations/{$organization->slug}",
             $this->headers()
         );
 
@@ -57,7 +57,7 @@ class OrganizationControllerTest extends TestCase
 
     public function test_can_create_organization(): void
     {
-        $response = $this->postJson('/api/organizations', [
+        $response = $this->postJson('/api/v1/organizations', [
             'name' => 'New Organization',
             'description' => 'A new organization',
         ], $this->headers());
@@ -75,7 +75,7 @@ class OrganizationControllerTest extends TestCase
         $organization = Organization::factory()->create();
         $organization->addMember($this->user, 'admin');
 
-        $response = $this->putJson("/api/organizations/{$organization->slug}", [
+        $response = $this->putJson("/api/v1/organizations/{$organization->slug}", [
             'name' => 'Updated Name',
         ], $this->headers());
 
@@ -89,7 +89,7 @@ class OrganizationControllerTest extends TestCase
         $organization->addMember($this->user, 'admin');
 
         $response = $this->getJson(
-            "/api/organizations/{$organization->slug}/members",
+            "/api/v1/organizations/{$organization->slug}/members",
             $this->headers()
         );
 

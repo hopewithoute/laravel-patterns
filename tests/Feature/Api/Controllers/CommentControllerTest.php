@@ -50,7 +50,7 @@ class CommentControllerTest extends TestCase
         ]);
 
         $response = $this->getJson(
-            "/api/tasks/{$this->task->id}/comments",
+            "/api/v1/tasks/{$this->task->id}/comments",
             $this->headers()
         );
 
@@ -60,7 +60,7 @@ class CommentControllerTest extends TestCase
 
     public function test_can_create_comment(): void
     {
-        $response = $this->postJson("/api/tasks/{$this->task->id}/comments", [
+        $response = $this->postJson("/api/v1/tasks/{$this->task->id}/comments", [
             'content' => 'This is a test comment',
         ], $this->headers());
 
@@ -82,7 +82,7 @@ class CommentControllerTest extends TestCase
         ]);
 
         $response = $this->getJson(
-            "/api/comments/{$comment->id}",
+            "/api/v1/comments/{$comment->id}",
             $this->headers()
         );
 
@@ -98,7 +98,7 @@ class CommentControllerTest extends TestCase
             'user_id' => $this->user->id,
         ]);
 
-        $response = $this->putJson("/api/comments/{$comment->id}", [
+        $response = $this->putJson("/api/v1/comments/{$comment->id}", [
             'content' => 'Updated comment',
         ], $this->headers());
 
@@ -115,7 +115,7 @@ class CommentControllerTest extends TestCase
         ]);
 
         $response = $this->deleteJson(
-            "/api/comments/{$comment->id}",
+            "/api/v1/comments/{$comment->id}",
             [],
             $this->headers()
         );
@@ -135,7 +135,7 @@ class CommentControllerTest extends TestCase
 
         // Global scope filters by organization, so task not found
         $response = $this->getJson(
-            "/api/tasks/{$otherTask->id}/comments",
+            "/api/v1/tasks/{$otherTask->id}/comments",
             $this->headers()
         );
 

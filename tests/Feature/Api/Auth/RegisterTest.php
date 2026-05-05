@@ -12,7 +12,7 @@ class RegisterTest extends TestCase
 
     public function test_user_can_register(): void
     {
-        $response = $this->postJson('/api/auth/register', [
+        $response = $this->postJson('/api/v1/auth/register', [
             'name' => 'John Doe',
             'email' => 'john@example.com',
             'password' => 'password123',
@@ -33,14 +33,14 @@ class RegisterTest extends TestCase
 
         // Token should be valid
         $token = $response->json('token');
-        $this->getJson('/api/auth/me', [
+        $this->getJson('/api/v1/auth/me', [
             'Authorization' => "Bearer {$token}",
         ])->assertOk();
     }
 
     public function test_register_requires_name(): void
     {
-        $response = $this->postJson('/api/auth/register', [
+        $response = $this->postJson('/api/v1/auth/register', [
             'email' => 'john@example.com',
             'password' => 'password123',
             'password_confirmation' => 'password123',
@@ -52,7 +52,7 @@ class RegisterTest extends TestCase
 
     public function test_register_requires_email(): void
     {
-        $response = $this->postJson('/api/auth/register', [
+        $response = $this->postJson('/api/v1/auth/register', [
             'name' => 'John Doe',
             'password' => 'password123',
             'password_confirmation' => 'password123',
@@ -66,7 +66,7 @@ class RegisterTest extends TestCase
     {
         User::factory()->create(['email' => 'john@example.com']);
 
-        $response = $this->postJson('/api/auth/register', [
+        $response = $this->postJson('/api/v1/auth/register', [
             'name' => 'John Doe',
             'email' => 'john@example.com',
             'password' => 'password123',
@@ -79,7 +79,7 @@ class RegisterTest extends TestCase
 
     public function test_register_requires_password_confirmation(): void
     {
-        $response = $this->postJson('/api/auth/register', [
+        $response = $this->postJson('/api/v1/auth/register', [
             'name' => 'John Doe',
             'email' => 'john@example.com',
             'password' => 'password123',
@@ -91,7 +91,7 @@ class RegisterTest extends TestCase
 
     public function test_register_password_must_match_confirmation(): void
     {
-        $response = $this->postJson('/api/auth/register', [
+        $response = $this->postJson('/api/v1/auth/register', [
             'name' => 'John Doe',
             'email' => 'john@example.com',
             'password' => 'password123',
@@ -104,7 +104,7 @@ class RegisterTest extends TestCase
 
     public function test_register_password_minimum_length(): void
     {
-        $response = $this->postJson('/api/auth/register', [
+        $response = $this->postJson('/api/v1/auth/register', [
             'name' => 'John Doe',
             'email' => 'john@example.com',
             'password' => '12345',
