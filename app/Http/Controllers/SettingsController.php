@@ -20,19 +20,10 @@ class SettingsController extends Controller
      */
     public function index(Request $request): Response
     {
-        $organizationId = GetActiveOrganization::getSelected();
-        $organization = $organizationId ? Organization::find($organizationId) : null;
-
         return Inertia::render('Settings/Index', [
-            'organization' => $organization,
-            'tokens' => $request->user()->tokens()->latest()->get()->map(fn ($token) => [
-                'id' => $token->id,
-                'name' => $token->name,
-                'abilities' => $token->abilities,
-                'last_used_at' => $token->last_used_at?->diffForHumans(),
-                'expires_at' => $token->expires_at?->toDateString(),
-                'created_at' => $token->created_at->diffForHumans(),
-            ]),
+            'organization' => fn () => $this->getOrganization(),
+            'tokens' => fn () => $this->getTokens($request),
+            'newToken' => null,
         ]);
     }
 
@@ -59,7 +50,7 @@ class SettingsController extends Controller
     /**
      * Create a new API token.
      */
-    public function storeToken(Request $request): RedirectResponse
+    public function storeToken(Request $request): Response
     {
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
@@ -74,10 +65,10 @@ class SettingsController extends Controller
             isset($validated['expires_at']) ? now()->parse($validated['expires_at']) : null
         );
 
-        return back()->with('flash', [
-            'type' => 'success',
-            'text' => 'Token created. Copy it now - it will not be shown again.',
-            'token' => $token->plainTextToken,
+        return Inertia::render('Settings/Index', [
+            'organization' => fn () => $this->getOrganization(),
+            'tokens' => fn () => $this->getTokens($request),
+            'newToken' => $token->plainTextToken,
         ]);
     }
 
@@ -90,5 +81,30 @@ class SettingsController extends Controller
         $token->delete();
 
         return back()->with('success', 'Token revoked successfully.');
+    }
+
+    /**
+     * Get current organization.
+     */
+    private function getOrganization(): ?Organization
+    {
+        $organizationId = GetActiveOrganization::getSelected();
+
+        return $organizationId ? Organization::find($organizationId) : null;
+    }
+
+    /**
+     * Get user's tokens formatted for API.
+     */
+    private function getTokens(Request $request): array
+    {
+        return $request->user()->tokens()->latest()->get()->map(fn ($token) => [
+            'id' => $token->id,
+            'name' => $token->name,
+            'abilities' => $token->abilities,
+            'last_used_at' => $token->last_used_at?->diffForHumans(),
+            'expires_at' => $token->expires_at?->toDateString(),
+            'created_at' => $token->created_at->diffForHumans(),
+        ])->toArray();
     }
 }

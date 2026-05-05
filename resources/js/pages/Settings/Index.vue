@@ -8,9 +8,16 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from '@
 const props = defineProps({
     organization: Object,
     tokens: Array,
+    newToken: {
+        type: String,
+        default: null,
+    },
 })
 
 const activeTab = ref('profile')
+
+// Show modal if newToken prop exists
+const showTokenModal = ref(!!props.newToken)
 
 // Token form
 const tokenForm = useForm({
@@ -19,18 +26,18 @@ const tokenForm = useForm({
     expires_at: '',
 })
 
-const newToken = ref(null)
-
 const createToken = () => {
     tokenForm.post('/settings/tokens', {
-        onSuccess: (page) => {
-            const flash = page.props.flash
-            if (flash?.token) {
-                newToken.value = flash.token
-            }
+        preserveState: true,
+        onSuccess: () => {
+            showTokenModal.value = true
             tokenForm.reset()
         },
     })
+}
+
+const closeTokenModal = () => {
+    showTokenModal.value = false
 }
 
 const revokeToken = (id) => {
@@ -40,8 +47,8 @@ const revokeToken = (id) => {
 }
 
 const copyToken = () => {
-    if (newToken.value) {
-        navigator.clipboard.writeText(newToken.value)
+    if (props.newToken) {
+        navigator.clipboard.writeText(props.newToken)
     }
 }
 
@@ -428,7 +435,7 @@ const tabs = [
                  ═══════════════════════════════════════════════════════════════════ -->
         <section v-show="activeTab === 'tokens'" class="space-y-6">
             <!-- Token Created Modal -->
-            <Dialog :open="!!newToken" @update:open="(val) => { if (!val) newToken = null }">
+            <Dialog :open="showTokenModal" @update:open="closeTokenModal">
                 <DialogContent class="sm:max-w-md">
                     <DialogHeader>
                         <DialogTitle class="flex items-center gap-2">
@@ -444,7 +451,7 @@ const tabs = [
                             Copy this token now. For security, it will not be shown again.
                         </p>
                         <div class="bg-surface border-border/50 rounded-lg border p-4">
-                            <code class="font-mono text-sm break-all select-all">{{ newToken }}</code>
+                            <code class="font-mono text-sm break-all select-all">{{ props.newToken }}</code>
                         </div>
                         <div class="flex gap-2">
                             <button
@@ -457,11 +464,12 @@ const tabs = [
                                 </svg>
                                 Copy Token
                             </button>
-                            <DialogClose as-child>
-                                <button class="inline-flex items-center justify-center rounded-xl border border-border/50 px-4 py-2.5 text-sm font-medium transition-all hover:bg-surface">
-                                    Close
-                                </button>
-                            </DialogClose>
+                            <button
+                                @click="closeTokenModal"
+                                class="inline-flex items-center justify-center rounded-xl border border-border/50 px-4 py-2.5 text-sm font-medium transition-all hover:bg-surface"
+                            >
+                                Close
+                            </button>
                         </div>
                     </div>
                 </DialogContent>
