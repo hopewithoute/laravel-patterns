@@ -31,7 +31,9 @@ const confirmRevoke = (id) => {
 
 const revokeToken = () => {
     if (tokenToRevoke.value) {
-        router.delete(`/settings/tokens/${tokenToRevoke.value}`, {
+        router.post(`/settings/tokens/${tokenToRevoke.value}`, {
+            _method: 'DELETE',
+        }, {
             onFinish: () => {
                 showRevokeDialog.value = false
                 tokenToRevoke.value = null
