@@ -3,10 +3,6 @@
 > **Referensi arsitektur production-ready untuk aplikasi Laravel. Multi-tenant, type-safe, testable.**
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="320" alt="Laravel Logo">
-</p>
-
-<p align="center">
   <strong>Laravel 13</strong> · <strong>PHP 8.4</strong> · <strong>Vue 3</strong> · <strong>Inertia.js v3</strong> · <strong>TailwindCSS 4</strong>
 </p>
 
