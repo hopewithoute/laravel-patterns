@@ -49,8 +49,14 @@ const revokeToken = (id) => {
 const copyToken = () => {
     if (props.newToken) {
         navigator.clipboard.writeText(props.newToken)
+        copied.value = true
+        setTimeout(() => {
+            copied.value = false
+        }, 2000)
     }
 }
+
+const copied = ref(false)
 
 // Profile form
 const profileForm = useForm({
@@ -436,7 +442,7 @@ const tabs = [
         <section v-show="activeTab === 'tokens'" class="space-y-6">
             <!-- Token Created Modal -->
             <Dialog :open="showTokenModal" @update:open="closeTokenModal">
-                <DialogContent class="sm:max-w-md">
+                <DialogContent class="sm:max-w-2xl">
                     <DialogHeader>
                         <DialogTitle class="flex items-center gap-2">
                             <svg class="h-5 w-5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -456,13 +462,17 @@ const tabs = [
                         <div class="flex gap-2">
                             <button
                                 @click="copyToken"
-                                class="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-emerald-500 px-4 py-2.5 text-sm font-semibold text-black transition-all hover:bg-emerald-400"
+                                :class="copied ? 'bg-emerald-600' : 'bg-emerald-500 hover:bg-emerald-400'"
+                                class="inline-flex flex-1 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-black transition-all"
                             >
-                                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <svg v-if="!copied" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
                                     <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
                                 </svg>
-                                Copy Token
+                                <svg v-else class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="20 6 9 17 4 12"/>
+                                </svg>
+                                {{ copied ? 'Copied!' : 'Copy Token' }}
                             </button>
                             <button
                                 @click="closeTokenModal"
