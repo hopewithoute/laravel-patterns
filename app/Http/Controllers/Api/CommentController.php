@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Actions\CommentCreateAction;
+use App\Actions\CommentUpdateAction;
 use App\Data\CommentData;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\CommentResource;
@@ -52,15 +53,21 @@ class CommentController extends Controller
         return CommentResource::make($comment->load('user'));
     }
 
-    public function update(Request $request, Comment $comment): CommentResource
+    public function update(Request $request, Comment $comment, CommentUpdateAction $action): CommentResource
     {
         $validated = $request->validate([
             'content' => 'required|string|max:2000',
         ]);
 
-        $comment->update($validated);
+        $validated['task_id'] = $comment->task_id;
+        $validated['organization_id'] = $comment->organization_id;
 
-        return CommentResource::make($comment->fresh()->load('user'));
+        $comment = $action->execute(
+            CommentData::from($validated),
+            $comment
+        );
+
+        return CommentResource::make($comment->load('user'));
     }
 
     public function destroy(Comment $comment): JsonResponse

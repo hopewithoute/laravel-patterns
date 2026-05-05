@@ -55,11 +55,14 @@ class ProjectController extends Controller
             'color' => 'nullable|string|regex:/^#[0-9A-Fa-f]{6}$/',
         ]);
 
-        // Merge existing project data with validated input
+        // Merge with existing data for partial updates
         $data = array_merge($project->toArray(), $validated);
         $data['organization_id'] = $project->organization_id;
 
-        $project = $action->execute(ProjectData::from($data), $project);
+        $project = $action->execute(
+            ProjectData::from($data),
+            $project
+        );
 
         return ProjectResource::make($project);
     }

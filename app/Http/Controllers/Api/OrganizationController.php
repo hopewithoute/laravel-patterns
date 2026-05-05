@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Actions\OrganizationUpdateAction;
+use App\Data\OrganizationData;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\OrganizationResource;
 use App\Http\Resources\Api\UserResource;
@@ -41,16 +43,22 @@ class OrganizationController extends Controller
         return OrganizationResource::make($organization);
     }
 
-    public function update(Request $request, Organization $organization): OrganizationResource
+    public function update(Request $request, Organization $organization, OrganizationUpdateAction $action): OrganizationResource
     {
         $validated = $request->validate([
             'name' => 'sometimes|required|string|max:255',
             'description' => 'nullable|string|max:1000',
         ]);
 
-        $organization->update($validated);
+        // Merge with existing data for partial updates
+        $data = array_merge($organization->toArray(), $validated);
 
-        return OrganizationResource::make($organization->fresh());
+        $organization = $action->execute(
+            OrganizationData::from($data),
+            $organization
+        );
+
+        return OrganizationResource::make($organization);
     }
 
     public function members(Organization $organization): AnonymousResourceCollection
