@@ -110,18 +110,36 @@ POST   /tasks/{task}/comments → Create nested resource
 
 ## API Route Organization
 
-API routes are defined in `routes/api.php`:
+API routes use **versioning** via route prefix:
+
+### Entry Point: `routes/api.php`
 
 ```php
 // routes/api.php
 
-// Public routes (no auth required)
+// Redirect /api to latest version
+Route::redirect('/api', '/api/v1', 302);
+
+// Version-specific routes
+Route::prefix('v1')->group(base_path('routes/api/v1.php'));
+```
+
+### Version Routes: `routes/api/v1.php`
+
+```php
+// routes/api/v1.php
+
+use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\V1\TaskController;
+// ...
+
+// Public routes
 Route::prefix('auth')->group(function () {
     Route::post('register', [AuthController::class, 'register']);
     Route::post('login', [AuthController::class, 'login']);
 });
 
-// Protected routes (auth required)
+// Protected routes
 Route::middleware('auth:sanctum')->group(function () {
     // Auth
     Route::get('auth/me', [AuthController::class, 'me']);
@@ -145,15 +163,39 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 ```
 
-### API Route Naming
+### Controller Namespace
 
 ```
-/api/auth/login          → api.auth.login
-/api/tasks               → api.tasks.index
-/api/tasks/{task}        → api.tasks.show
-/api/projects            → api.projects.index
-/api/tasks/{task}/comments → api.tasks.comments.index
+app/Http/Controllers/Api/
+└── V1/
+    ├── AuthController.php
+    ├── TokenController.php
+    ├── TaskController.php
+    ├── ProjectController.php
+    ├── CommentController.php
+    └── OrganizationController.php
 ```
+
+### API Route URLs
+
+```
+/api/auth/login              → Redirects to /api/v1/auth/login
+/api/v1/auth/login           → Token + user
+/api/v1/tasks                → Task list
+/api/v1/tasks/{task}         → Task detail
+/api/v1/tasks/{task}/comments → Task comments
+/api/v1/organizations        → Organization list
+```
+
+### Adding a New Version
+
+1. Create `routes/api/v2.php`
+2. Create `App\Http\Controllers\Api\V2\` namespace
+3. Add to `routes/api.php`:
+   ```php
+   Route::prefix('v2')->group(base_path('routes/api/v2.php'));
+   ```
+4. Keep v1 running until clients migrate
 
 ---
 
@@ -161,4 +203,5 @@ Route::middleware('auth:sanctum')->group(function () {
 - `routes/web.php`
 - `routes/web/*.php`
 - `routes/api.php`
+- `routes/api/v1.php`
 - `app/Supports/RouteHelper.php`

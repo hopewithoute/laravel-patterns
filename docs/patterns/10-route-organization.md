@@ -110,18 +110,36 @@ POST   /tasks/{task}/comments → Create nested resource
 
 ## Organisasi Route API
 
-Route API didefinisikan di `routes/api.php`:
+Route API menggunakan **versioning** via route prefix:
+
+### Entry Point: `routes/api.php`
 
 ```php
 // routes/api.php
 
-// Public routes (tidak perlu auth)
+// Redirect /api ke versi terbaru
+Route::redirect('/api', '/api/v1', 302);
+
+// Route versi spesifik
+Route::prefix('v1')->group(base_path('routes/api/v1.php'));
+```
+
+### Version Routes: `routes/api/v1.php`
+
+```php
+// routes/api/v1.php
+
+use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\V1\TaskController;
+// ...
+
+// Public routes
 Route::prefix('auth')->group(function () {
     Route::post('register', [AuthController::class, 'register']);
     Route::post('login', [AuthController::class, 'login']);
 });
 
-// Protected routes (perlu auth)
+// Protected routes
 Route::middleware('auth:sanctum')->group(function () {
     // Auth
     Route::get('auth/me', [AuthController::class, 'me']);
@@ -145,15 +163,39 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 ```
 
-### Penamaan Route API
+### Controller Namespace
 
 ```
-/api/auth/login          → api.auth.login
-/api/tasks               → api.tasks.index
-/api/tasks/{task}        → api.tasks.show
-/api/projects            → api.projects.index
-/api/tasks/{task}/comments → api.tasks.comments.index
+app/Http/Controllers/Api/
+└── V1/
+    ├── AuthController.php
+    ├── TokenController.php
+    ├── TaskController.php
+    ├── ProjectController.php
+    ├── CommentController.php
+    └── OrganizationController.php
 ```
+
+### URL Route API
+
+```
+/api/auth/login              → Redirect ke /api/v1/auth/login
+/api/v1/auth/login           → Token + user
+/api/v1/tasks                → Daftar task
+/api/v1/tasks/{task}         → Detail task
+/api/v1/tasks/{task}/comments → Komentar task
+/api/v1/organizations        → Daftar organization
+```
+
+### Menambah Versi Baru
+
+1. Buat `routes/api/v2.php`
+2. Buat namespace `App\Http\Controllers\Api\V2\`
+3. Tambahkan di `routes/api.php`:
+   ```php
+   Route::prefix('v2')->group(base_path('routes/api/v2.php'));
+   ```
+4. Biarkan v1 tetap jalan sampai client migrasi
 
 ---
 
@@ -161,4 +203,5 @@ Route::middleware('auth:sanctum')->group(function () {
 - `routes/web.php`
 - `routes/web/*.php`
 - `routes/api.php`
+- `routes/api/v1.php`
 - `app/Supports/RouteHelper.php`
