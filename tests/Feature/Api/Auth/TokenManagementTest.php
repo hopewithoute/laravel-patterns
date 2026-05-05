@@ -74,7 +74,7 @@ class TokenManagementTest extends TestCase
     {
         [$user, $token] = $this->createApiUser();
 
-        $expiresAt = now()->addDays(30)->toDateString();
+        $expiresAt = now()->addDays(30)->toIso8601String();
 
         $response = $this->postJson('/api/auth/tokens', [
             'name' => 'expiring-token',

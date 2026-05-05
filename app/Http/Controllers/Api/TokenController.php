@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Data\CreateTokenData;
 use App\Http\Controllers\Controller;
-use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -16,28 +16,17 @@ class TokenController extends Controller
         return response()->json(['data' => $tokens]);
     }
 
-    public function store(Request $request): JsonResponse
+    public function store(CreateTokenData $data, Request $request): JsonResponse
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'abilities' => 'nullable|array',
-            'abilities.*' => 'string',
-            'expires_at' => 'nullable|date|after:now',
-        ]);
-
-        $expiresAt = isset($validated['expires_at'])
-            ? Carbon::parse($validated['expires_at'])
-            : null;
-
         $token = $request->user()->createToken(
-            $validated['name'],
-            $validated['abilities'] ?? ['*'],
-            $expiresAt
+            $data->name,
+            $data->abilities ?? ['*'],
+            $data->expires_at
         );
 
         return response()->json([
             'token' => $token->plainTextToken,
-            'name' => $validated['name'],
+            'name' => $data->name,
         ], 201);
     }
 
