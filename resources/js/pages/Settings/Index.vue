@@ -1,14 +1,48 @@
 <script setup>
 import { ref } from 'vue'
-import { useForm, Head } from '@inertiajs/vue3'
+import { useForm, Head, router } from '@inertiajs/vue3'
 import PageHeader from '@/components/layout/PageHeader.vue'
 import PageWidth from '@/components/layout/PageWidth.vue'
 
-defineProps({
+const props = defineProps({
     organization: Object,
+    tokens: Array,
 })
 
 const activeTab = ref('profile')
+
+// Token form
+const tokenForm = useForm({
+    name: '',
+    abilities: ['*'],
+    expires_at: '',
+})
+
+const newToken = ref(null)
+
+const createToken = () => {
+    tokenForm.post('/settings/tokens', {
+        onSuccess: (page) => {
+            const flash = page.props.flash
+            if (flash?.token) {
+                newToken.value = flash.token
+            }
+            tokenForm.reset()
+        },
+    })
+}
+
+const revokeToken = (id) => {
+    if (confirm('Are you sure you want to revoke this token?')) {
+        router.delete(`/settings/tokens/${id}`)
+    }
+}
+
+const copyToken = () => {
+    if (newToken.value) {
+        navigator.clipboard.writeText(newToken.value)
+    }
+}
 
 // Profile form
 const profileForm = useForm({
@@ -54,6 +88,11 @@ const tabs = [
         id: 'workspace',
         label: 'Workspace',
         icon: '<path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/>',
+    },
+    {
+        id: 'tokens',
+        label: 'API Tokens',
+        icon: '<rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>',
     },
 ]
 </script>
@@ -379,6 +418,151 @@ const tabs = [
                         </svg>
                     </div>
                     <p class="text-muted-foreground">No workspace selected</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════════════════════════════
+                 API TOKENS TAB
+                 ═══════════════════════════════════════════════════════════════════ -->
+        <section v-show="activeTab === 'tokens'" class="space-y-6">
+            <!-- Newly Created Token Alert -->
+            <div v-if="newToken" class="border-emerald-500/30 bg-emerald-500/10 rounded-2xl border p-6">
+                <div class="mb-3 flex items-center gap-2">
+                    <svg class="h-5 w-5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                        <polyline points="22 4 12 14.01 9 11.01"/>
+                    </svg>
+                    <h3 class="text-emerald-300 font-semibold">Token Created Successfully</h3>
+                </div>
+                <p class="text-muted-foreground mb-3 text-sm">
+                    Copy this token now. For security, it will not be shown again.
+                </p>
+                <div class="flex items-center gap-2">
+                    <code class="bg-surface border-border/50 flex-1 rounded-lg border p-3 font-mono text-sm break-all">{{ newToken }}</code>
+                    <button
+                        @click="copyToken"
+                        class="inline-flex items-center gap-2 rounded-xl bg-emerald-500 px-4 py-3 text-sm font-semibold text-black transition-all hover:bg-emerald-400"
+                    >
+                        Copy
+                    </button>
+                </div>
+            </div>
+
+            <!-- Create Token Form -->
+            <div class="border-border/40 bg-card rounded-2xl border p-6">
+                <div class="mb-6 flex items-center gap-3">
+                    <div class="flex h-10 w-10 items-center justify-center rounded-xl border border-violet-500/20 bg-violet-500/10">
+                        <svg class="h-5 w-5 text-violet-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
+                            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h2 class="text-foreground font-semibold">Create API Token</h2>
+                        <p class="text-muted-foreground text-sm">
+                            Generate a new token for API access
+                        </p>
+                    </div>
+                </div>
+
+                <form class="space-y-5" @submit.prevent="createToken">
+                    <div class="grid gap-5 sm:grid-cols-2">
+                        <div class="space-y-2">
+                            <label for="token_name" class="text-foreground block text-sm font-medium">Token Name</label>
+                            <input
+                                id="token_name"
+                                v-model="tokenForm.name"
+                                type="text"
+                                placeholder="e.g., My App, CI/CD, Mobile App"
+                                class="border-border/50 focus:ring-primary/20 focus:border-primary/35 bg-surface/60 text-foreground placeholder:text-muted-foreground h-11 w-full rounded-xl border px-4 transition-all duration-200 focus:ring-2 focus:outline-none"
+                            />
+                            <p v-if="tokenForm.errors.name" class="text-xs text-rose-400">{{ tokenForm.errors.name }}</p>
+                        </div>
+                        <div class="space-y-2">
+                            <label for="token_expires" class="text-foreground block text-sm font-medium">Expires At (optional)</label>
+                            <input
+                                id="token_expires"
+                                v-model="tokenForm.expires_at"
+                                type="date"
+                                class="border-border/50 focus:ring-primary/20 focus:border-primary/35 bg-surface/60 text-foreground h-11 w-full rounded-xl border px-4 transition-all duration-200 focus:ring-2 focus:outline-none"
+                            />
+                            <p v-if="tokenForm.errors.expires_at" class="text-xs text-rose-400">{{ tokenForm.errors.expires_at }}</p>
+                        </div>
+                    </div>
+                    <div class="flex justify-end pt-2">
+                        <button
+                            type="submit"
+                            :disabled="tokenForm.processing"
+                            class="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-violet-500 to-purple-500 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-violet-500/15 transition-all duration-300 hover:shadow-violet-500/25 disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                            Create Token
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Token List -->
+            <div class="border-border/40 bg-card rounded-2xl border p-6">
+                <div class="mb-6 flex items-center gap-3">
+                    <div class="flex h-10 w-10 items-center justify-center rounded-xl border border-amber-500/20 bg-amber-500/10">
+                        <svg class="h-5 w-5 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 2a4 4 0 0 0-4 4c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2 4 4 0 0 0-4-4Z"/>
+                            <path d="M12 8v13"/>
+                            <path d="M5 21h14"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h2 class="text-foreground font-semibold">Your Tokens</h2>
+                        <p class="text-muted-foreground text-sm">
+                            Manage your API tokens
+                        </p>
+                    </div>
+                </div>
+
+                <div v-if="tokens && tokens.length > 0" class="space-y-3">
+                    <div
+                        v-for="token in tokens"
+                        :key="token.id"
+                        class="bg-surface/50 border-border/30 flex items-center justify-between rounded-xl border p-4"
+                    >
+                        <div class="min-w-0 flex-1">
+                            <div class="flex items-center gap-2">
+                                <h4 class="text-foreground truncate font-medium">{{ token.name }}</h4>
+                                <span
+                                    v-if="token.expires_at"
+                                    class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium"
+                                    :class="new Date(token.expires_at) < new Date() ? 'bg-rose-500/10 text-rose-400' : 'bg-emerald-500/10 text-emerald-400'"
+                                >
+                                    {{ new Date(token.expires_at) < new Date() ? 'Expired' : 'Expires ' + token.expires_at }}
+                                </span>
+                            </div>
+                            <div class="text-muted-foreground mt-1 flex items-center gap-3 text-xs">
+                                <span>Created {{ token.created_at }}</span>
+                                <span v-if="token.last_used_at">Last used {{ token.last_used_at }}</span>
+                            </div>
+                        </div>
+                        <button
+                            @click="revokeToken(token.id)"
+                            class="ml-4 inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-rose-400 transition-colors hover:bg-rose-500/10"
+                        >
+                            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M3 6h18M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
+                            </svg>
+                            Revoke
+                        </button>
+                    </div>
+                </div>
+
+                <div v-else class="py-12 text-center">
+                    <div class="bg-surface-elevated mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl">
+                        <svg class="text-muted-foreground h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
+                            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+                        </svg>
+                    </div>
+                    <p class="text-muted-foreground">No API tokens yet</p>
+                    <p class="text-muted-foreground mt-1 text-sm">Create one above to get started with the API.</p>
                 </div>
             </div>
         </section>

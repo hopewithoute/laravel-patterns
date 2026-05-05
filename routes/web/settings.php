@@ -21,4 +21,10 @@ Route::middleware([
 
     Route::put('settings/password', [SettingsController::class, 'updatePassword'])
         ->name('settings.password.update');
+
+    Route::post('settings/tokens', [SettingsController::class, 'storeToken'])
+        ->name('settings.tokens.store');
+
+    Route::delete('settings/tokens/{id}', [SettingsController::class, 'destroyToken'])
+        ->name('settings.tokens.destroy');
 });

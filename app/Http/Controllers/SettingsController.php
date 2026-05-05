@@ -25,6 +25,14 @@ class SettingsController extends Controller
 
         return Inertia::render('Settings/Index', [
             'organization' => $organization,
+            'tokens' => $request->user()->tokens()->latest()->get()->map(fn ($token) => [
+                'id' => $token->id,
+                'name' => $token->name,
+                'abilities' => $token->abilities,
+                'last_used_at' => $token->last_used_at?->diffForHumans(),
+                'expires_at' => $token->expires_at?->toDateString(),
+                'created_at' => $token->created_at->diffForHumans(),
+            ]),
         ]);
     }
 
@@ -46,5 +54,41 @@ class SettingsController extends Controller
         $action->execute($data, $request->user());
 
         return back()->with('success', 'Password updated successfully.');
+    }
+
+    /**
+     * Create a new API token.
+     */
+    public function storeToken(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'abilities' => ['nullable', 'array'],
+            'abilities.*' => ['string'],
+            'expires_at' => ['nullable', 'date', 'after:today'],
+        ]);
+
+        $token = $request->user()->createToken(
+            $validated['name'],
+            $validated['abilities'] ?? ['*'],
+            isset($validated['expires_at']) ? now()->parse($validated['expires_at']) : null
+        );
+
+        return back()->with('flash', [
+            'type' => 'success',
+            'text' => 'Token created. Copy it now - it will not be shown again.',
+            'token' => $token->plainTextToken,
+        ]);
+    }
+
+    /**
+     * Revoke an API token.
+     */
+    public function destroyToken(Request $request, int $id): RedirectResponse
+    {
+        $token = $request->user()->tokens()->where('id', $id)->firstOrFail();
+        $token->delete();
+
+        return back()->with('success', 'Token revoked successfully.');
     }
 }
