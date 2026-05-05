@@ -80,7 +80,7 @@ class SettingsController extends Controller
         $token = $request->user()->tokens()->where('id', $id)->firstOrFail();
         $token->delete();
 
-        return back()->with('success', 'Token revoked successfully.');
+        return redirect()->route('settings.index')->with('success', 'Token revoked successfully.');
     }
 
     /**
